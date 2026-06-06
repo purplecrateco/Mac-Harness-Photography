@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import Seo from '$lib/components/Seo.svelte';
 	import NavBar from '$lib/components/NavBar.svelte';
 	import Kicker from '$lib/components/Kicker.svelte';
 	import ProjectsTable from '$lib/components/ProjectsTable.svelte';
@@ -11,9 +12,7 @@
 	onMount(() => initPageMotion(pageEl, { batch: '[data-anim="row"]' }));
 </script>
 
-<svelte:head>
-	<title>Mac Harness — Projects</title>
-</svelte:head>
+<Seo title="Projects" description="Selected bodies of work — portrait, wedding and editorial projects by Mac Harness." />
 
 <div class="page" bind:this={pageEl}>
 	<NavBar />

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import Seo from '$lib/components/Seo.svelte';
 	import NavBar from '$lib/components/NavBar.svelte';
 	import Hero from '$lib/components/Hero.svelte';
 	import Gallery from '$lib/components/Gallery.svelte';
@@ -103,6 +104,8 @@
 		};
 	});
 </script>
+
+<Seo title="Mac Harness" />
 
 <div class="page" bind:this={pageEl}>
 	<NavBar />

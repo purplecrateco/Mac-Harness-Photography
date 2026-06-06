@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import Seo from '$lib/components/Seo.svelte';
 	import NavBar from '$lib/components/NavBar.svelte';
 	import Kicker from '$lib/components/Kicker.svelte';
 	import Footer from '$lib/components/Footer.svelte';
@@ -12,10 +13,12 @@
 	onMount(() => initPageMotion(pageEl));
 </script>
 
-<svelte:head>
-	<title>Mac Harness — {project.title}</title>
-	{#if project.intro}<meta name="description" content={project.intro} />{/if}
-</svelte:head>
+<Seo
+	title={project.title}
+	description={project.intro}
+	image={project.cover ?? '/og.png'}
+	type="article"
+/>
 
 <div class="page" bind:this={pageEl}>
 	<NavBar />

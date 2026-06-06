@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import Seo from '$lib/components/Seo.svelte';
 	import NavBar from '$lib/components/NavBar.svelte';
 	import Kicker from '$lib/components/Kicker.svelte';
 	import MasonryGallery from '$lib/components/MasonryGallery.svelte';
@@ -11,9 +12,7 @@
 	onMount(() => initPageMotion(pageEl, { batch: '.mtile' }));
 </script>
 
-<svelte:head>
-	<title>Mac Harness — Gallery</title>
-</svelte:head>
+<Seo title="Gallery" description="Selected photographic work — portrait, wedding and editorial frames from Mac Harness." />
 
 <div class="page" bind:this={pageEl}>
 	<NavBar />

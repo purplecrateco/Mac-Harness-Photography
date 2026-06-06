@@ -9,6 +9,7 @@
 
 <svelte:head>
 	<title>Mac Harness — {status}</title>
+	<meta name="robots" content="noindex" />
 </svelte:head>
 
 <div class="page flex h-screen flex-col overflow-hidden">
