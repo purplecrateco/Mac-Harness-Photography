@@ -10,10 +10,10 @@
 
 <header
 	id="top"
-	class="relative flex min-h-[100svh] items-center justify-center overflow-hidden pt-24 lg:pt-28"
+	class="relative flex min-h-[100svh] items-center justify-center overflow-hidden pt-24 lg:pt-40"
 	style="background:{warmBg}"
 >
-	<div class="relative mx-auto h-[min(86svh,800px)] w-full max-w-[1320px] px-6 sm:px-10 lg:px-14">
+	<div class="relative mx-auto h-[min(86svh,800px)] w-full max-w-[1320px] px-6 sm:px-10 min-[761px]:max-[1023px]:translate-y-16 lg:translate-y-24 lg:px-14">
 		<h1
 			data-anim="hero-name"
 			class="t-mac pointer-events-none absolute left-6 top-[-2%] z-[1] m-0 select-none font-serif text-[clamp(82px,15.5vw,232px)] leading-[0.78] tracking-[-0.01em] text-accent max-[760px]:top-[7%] sm:left-10 lg:left-14"
@@ -22,7 +22,7 @@
 		</h1>
 		<h1
 			data-anim="hero-name"
-			class="t-harness pointer-events-none absolute right-6 top-[26%] z-[3] m-0 select-none font-serif text-[clamp(66px,12.5vw,188px)] leading-[0.78] tracking-[-0.01em] text-accent max-[760px]:top-[21%] sm:right-10 lg:right-14"
+			class="t-harness pointer-events-none absolute right-6 top-[26%] lg:top-[max(30%,245px)] z-[3] m-0 select-none font-serif text-[clamp(66px,12.5vw,188px)] leading-[0.78] tracking-[-0.01em] text-accent max-[760px]:top-[21%] sm:right-10 lg:right-14"
 		>
 			HARNESS
 		</h1>
@@ -80,7 +80,7 @@
 			left: 4%;
 		}
 		.t-harness {
-			top: 11%;
+			top: 16%;
 			right: 16%;
 		}
 		.t-portrait {
