@@ -1,0 +1,74 @@
+@import 'tailwindcss';
+
+/* ============ Mac Harness — design tokens ============
+   Ported from the Claude Design handoff into Tailwind v4's @theme so the
+   palette and type scale are available as utilities (text-ink, bg-accent,
+   font-serif, …). The design-tool canvas chrome is intentionally omitted. */
+@theme {
+	--font-sans: 'Space Grotesk', sans-serif;
+	--font-display: 'Space Grotesk', sans-serif;
+	--font-mono: 'Space Mono', monospace;
+	--font-serif: 'Libre Caslon Display', serif;
+
+	--color-ink: #f3f1ec;
+	--color-ink-dim: #a7a39b;
+	--color-ink-faint: #6f6c66;
+	--color-accent: #c9aa6e;
+	--color-accent-ink: #16130c;
+	--color-base: #070708;
+	--color-glass-line: rgba(255, 255, 255, 0.14);
+}
+
+@layer base {
+	/* the homepage scrolls */
+	html,
+	body {
+		height: auto;
+		min-height: 100%;
+		overflow-x: hidden;
+		overflow-y: auto;
+	}
+	body {
+		color: var(--color-ink);
+		font-family: var(--font-sans);
+		-webkit-font-smoothing: antialiased;
+		background:
+			radial-gradient(120% 70% at 82% -8%, #15131b 0%, transparent 52%),
+			radial-gradient(90% 60% at -5% 8%, #16120c 0%, transparent 46%),
+			#070708;
+		background-attachment: fixed;
+	}
+}
+
+/* Liquid-glass primitive — reused on the hero polaroid, the about chip and
+   the service chips. Too many coupled properties to inline cleanly. */
+@utility glass {
+	background: rgba(255, 255, 255, 0.055);
+	backdrop-filter: blur(22px) saturate(140%);
+	-webkit-backdrop-filter: blur(22px) saturate(140%);
+	border: 1px solid var(--color-glass-line);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.1),
+		0 24px 60px -28px rgba(0, 0, 0, 0.7);
+}
+
+/* One-time entrance fade. End-state is fully visible — content can never be
+   stranded hidden, and it collapses to nothing under reduced-motion. */
+@utility reveal {
+	animation: revealIn 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+@keyframes revealIn {
+	from {
+		opacity: 0;
+		transform: translateY(22px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.reveal {
+		animation: none;
+	}
+}

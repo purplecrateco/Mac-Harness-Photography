@@ -1,0 +1,274 @@
+<script lang="ts">
+	/* Interactive masonry gallery — ported from gallery.jsx.
+	   A true masonry layout packed explicitly in JS (greedy skyline); one featured
+	   tile expands to ~2 columns and the rest reflow. Each layout change animates as
+	   a single cohesive FLIP transition — done with the native Web Animations API
+	   instead of GSAP, so no animation dependency is pulled in. The viewport eases to
+	   center the opened frame and the stage height grows/shrinks smoothly. */
+
+	type Frame = { id: number; w: number; h: number; tone: string };
+
+	// design defaults from galleryApp.jsx (the Tweaks panel is omitted)
+	const GAP = 12;
+	const TILE = 280;
+	const RADIUS = 14;
+	const MOTION = 0.72; // seconds
+	const EASE = 'cubic-bezier(0.65,0,0.35,1)'; // ≈ power3.inOut
+
+	const FRAMES: Frame[] = [
+		{ id: 1, w: 800, h: 1000, tone: '1a1712' },
+		{ id: 2, w: 1200, h: 800, tone: '12161a' },
+		{ id: 3, w: 1000, h: 1000, tone: '171318' },
+		{ id: 4, w: 760, h: 1140, tone: '16140f' },
+		{ id: 5, w: 1200, h: 760, tone: '131713' },
+		{ id: 6, w: 1000, h: 800, tone: '1b1610' },
+		{ id: 7, w: 900, h: 1200, tone: '12141a' },
+		{ id: 8, w: 1280, h: 720, tone: '181318' },
+		{ id: 9, w: 1000, h: 920, tone: '151310' },
+		{ id: 10, w: 820, h: 1120, tone: '10151a' },
+		{ id: 11, w: 1100, h: 760, tone: '1a1513' },
+		{ id: 12, w: 800, h: 800, tone: '141417' },
+		{ id: 13, w: 1200, h: 800, tone: '171210' },
+		{ id: 14, w: 900, h: 1120, tone: '11161a' },
+		{ id: 15, w: 1280, h: 720, tone: '181612' },
+		{ id: 16, w: 1000, h: 1000, tone: '131217' },
+		{ id: 17, w: 780, h: 1040, tone: '1a1714' },
+		{ id: 18, w: 1120, h: 760, tone: '10161a' }
+	];
+
+	function frameSrc(im: Frame, w: number) {
+		const reqW = Math.max(360, Math.round(w));
+		const reqH = Math.round(reqW * (im.h / im.w));
+		return `https://placehold.co/${reqW}x${reqH}/${im.tone}/3a3a44?text=${im.id}`;
+	}
+
+	type Pos = { x: number; y: number; w: number; h: number };
+
+	/* greedy skyline packing: N equal columns; each frame drops into the shortest
+	   slot. The expanded frame reserves two columns and the rest reflow around it. */
+	function computeLayout(width: number, expandedId: number | null) {
+		const cols = Math.max(2, Math.min(6, Math.round(width / TILE)));
+		const colW = (width - GAP * (cols - 1)) / cols;
+		const colH = new Array(cols).fill(0);
+		const maxH = window.innerHeight * 0.9;
+		const pos: Pos[] = new Array(FRAMES.length);
+
+		FRAMES.forEach((im, idx) => {
+			const aspect = im.w / im.h;
+			const expanded = im.id === expandedId;
+			const span = expanded ? Math.min(2, cols) : 1;
+
+			let start = 0;
+			if (span === 1) {
+				let best = Infinity;
+				for (let c = 0; c < cols; c++) {
+					if (colH[c] < best - 0.5) {
+						best = colH[c];
+						start = c;
+					}
+				}
+			} else {
+				let best = Infinity;
+				for (let c = 0; c <= cols - span; c++) {
+					const top = Math.max(colH[c], colH[c + 1]);
+					if (top < best - 0.5) {
+						best = top;
+						start = c;
+					}
+				}
+			}
+
+			const slotW = colW * span + GAP * (span - 1);
+			let w = slotW;
+			let h = w / aspect;
+			if (expanded && h > maxH) {
+				h = maxH;
+				w = h * aspect;
+			}
+
+			const top = span === 1 ? colH[start] : Math.max(colH[start], colH[start + 1]);
+			const slotX = start * (colW + GAP);
+			const x = slotX + (slotW - w) / 2;
+			pos[idx] = { x, y: top, w, h };
+
+			const bottom = top + h + GAP;
+			for (let c = start; c < start + span; c++) colH[c] = bottom;
+		});
+
+		const totalH = Math.max(...colH) - GAP;
+		return { pos, totalH };
+	}
+
+	let containerEl: HTMLDivElement | null = $state(null);
+	let expandedId = $state<number | null>(null);
+	let width = $state(0);
+	let ready = $state(false);
+
+	let first = true;
+	let lastWidth = 0;
+	let prevExpanded: number | null = null;
+
+	// observe stage width
+	$effect(() => {
+		const el = containerEl;
+		if (!el) return;
+		const ro = new ResizeObserver((entries) => {
+			const w = Math.round(entries[0].contentRect.width);
+			width = w;
+		});
+		ro.observe(el);
+		return () => ro.disconnect();
+	});
+
+	// layout + FLIP — re-runs when expandedId or width change
+	$effect(() => {
+		const w = width;
+		const exp = expandedId;
+		const container = containerEl;
+		if (!container || !w) return;
+
+		const tiles = Array.from(container.querySelectorAll<HTMLElement>('.mtile'));
+		if (!tiles.length) return;
+
+		const layout = computeLayout(w, exp);
+		const widthChanged = w !== lastWidth;
+		const expandChanged = exp !== prevExpanded;
+		const isFirst = first;
+		const animate = !isFirst && !widthChanged && typeof tiles[0].animate === 'function';
+
+		const prevH = container.offsetHeight;
+
+		// FIRST — record current boxes from committed inline geometry
+		const old = animate
+			? tiles.map((t) => ({
+					x: parseFloat(t.style.left) || 0,
+					y: parseFloat(t.style.top) || 0,
+					w: parseFloat(t.style.width) || 1,
+					h: parseFloat(t.style.height) || 1
+				}))
+			: null;
+
+		// LAST — commit new geometry
+		tiles.forEach((t, i) => {
+			const p = layout.pos[i];
+			t.style.left = `${p.x}px`;
+			t.style.top = `${p.y}px`;
+			t.style.width = `${p.w}px`;
+			t.style.height = `${p.h}px`;
+		});
+
+		if (animate && old) {
+			// INVERT + PLAY — translate/scale each tile from its old box to the new one
+			tiles.forEach((t, i) => {
+				const o = old[i];
+				const n = layout.pos[i];
+				const dx = o.x - n.x;
+				const dy = o.y - n.y;
+				const sx = o.w / n.w;
+				const sy = o.h / n.h;
+				if (
+					Math.abs(dx) < 0.5 &&
+					Math.abs(dy) < 0.5 &&
+					Math.abs(sx - 1) < 0.002 &&
+					Math.abs(sy - 1) < 0.002
+				)
+					return;
+				t.animate(
+					[
+						{ transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})` },
+						{ transform: 'none' }
+					],
+					{ duration: MOTION * 1000, easing: EASE }
+				);
+			});
+
+			// height eases independently so the document grows/shrinks without snapping
+			container.animate([{ height: `${prevH}px` }, { height: `${layout.totalH}px` }], {
+				duration: MOTION * 1000,
+				easing: EASE
+			});
+			container.style.height = `${layout.totalH}px`;
+
+			// center the opened frame in the viewport (never on collapse).
+			// The fixed nav overlaps the top, so center within the area *below* it.
+			if (expandChanged && exp != null) {
+				const idx = FRAMES.findIndex((im) => im.id === exp);
+				const p = layout.pos[idx];
+				const nav = document.querySelector('nav')?.getBoundingClientRect().height ?? 70;
+				const contTop = container.getBoundingClientRect().top + window.scrollY;
+				const frameCenter = contTop + p.y + p.h / 2;
+				// center within the window, then drop by the full nav height so it clears the bar
+				const y = Math.max(0, frameCenter - window.innerHeight / 2 - nav);
+				window.scrollTo({ top: y, behavior: 'smooth' });
+			}
+		} else {
+			container.style.height = `${layout.totalH}px`;
+			if (isFirst) requestAnimationFrame(() => (ready = true));
+		}
+
+		first = false;
+		lastWidth = w;
+		prevExpanded = exp;
+	});
+
+	const toggle = (id: number) => (expandedId = expandedId === id ? null : id);
+</script>
+
+<div
+	bind:this={containerEl}
+	class="masonry"
+	class:ready
+	class:has-open={expandedId !== null}
+	style="border-radius:{RADIUS}px"
+>
+	{#each FRAMES as im (im.id)}
+		<button
+			type="button"
+			class="mtile absolute left-0 top-0 block origin-top-left overflow-hidden border-0 bg-[#141318] outline-0 [will-change:transform] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-accent {expandedId ===
+			im.id
+				? 'is-expanded cursor-zoom-out'
+				: 'cursor-pointer'}"
+			style="border-radius:{RADIUS}px"
+			onclick={() => toggle(im.id)}
+			aria-label={expandedId === im.id ? `Collapse frame ${im.id}` : `Expand frame ${im.id}`}
+		>
+			<img src={frameSrc(im, 640)} alt="" draggable="false" />
+		</button>
+	{/each}
+</div>
+
+<style>
+	.masonry {
+		position: relative;
+		width: 100%;
+		margin: 0 auto;
+		opacity: 0;
+		transition: opacity 0.55s ease;
+	}
+	.masonry.ready {
+		opacity: 1;
+	}
+	.mtile :global(img) {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transform: scale(1.001); /* avoids hairline edge on scale-in */
+		transition:
+			transform 0.7s cubic-bezier(0.2, 0.7, 0.3, 1),
+			filter 0.4s ease;
+		filter: saturate(1.02);
+	}
+	@media (hover: hover) {
+		.mtile:hover :global(img) {
+			transform: scale(1.045);
+		}
+		/* gently recede the rest while one frame is open */
+		.masonry.has-open .mtile:not(.is-expanded) :global(img) {
+			filter: saturate(0.78) brightness(0.74);
+		}
+		.masonry.has-open .mtile:not(.is-expanded):hover :global(img) {
+			filter: saturate(0.95) brightness(0.92);
+		}
+	}
+</style>
