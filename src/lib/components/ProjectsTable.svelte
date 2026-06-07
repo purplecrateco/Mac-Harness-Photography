@@ -3,22 +3,22 @@
 	   that follows the cursor with eased lag and crossfades between projects.
 	   Ported from projects.jsx — the cursor follow keeps its rAF loop; the row
 	   hover / dim-others / crossfade states are expressed as Tailwind variants. */
-	type Project = { id: string; name: string; cat: string; year: string };
+	type Project = {
+		slug: string;
+		title: string;
+		cat: string | null;
+		year: string | null;
+		cover: string | null;
+	};
 
-	const PROJECTS: Project[] = [
-		{ id: 'salt-silver', name: 'Salt & Silver', cat: 'Editorial · 35mm', year: '2026' },
-		{ id: 'vows-dusk', name: 'Vows at Dusk', cat: 'Wedding · Tuscany', year: '2025' },
-		{ id: 'long-light', name: 'The Long Light', cat: 'Editorial · Oslo', year: '2025' },
-		{ id: 'northbound', name: 'Northbound', cat: 'Travel · Iceland', year: '2024' },
-		{ id: 'studio-no4', name: 'Studio No. 4', cat: 'Portrait · 35mm', year: '2024' },
-		{ id: 'coastline', name: 'Coastline Series', cat: 'Landscape', year: '2023' },
-		{ id: 'quiet-morning', name: 'Quiet Morning', cat: 'Lifestyle', year: '2023' },
-		{ id: 'backstage', name: 'Backstage', cat: 'Documentary', year: '2022' },
-		{ id: 'first-dance', name: 'First Dance', cat: 'Wedding', year: '2022' }
-	];
+	// Projects come from the markdown files in src/lib/content/projects/, loaded
+	// server-side and passed down from +page.svelte. No hardcoded list.
+	let { projects = [] }: { projects?: Project[] } = $props();
 
-	const previewSrc = (label: string) =>
-		`https://placehold.co/640x640/16161c/4c4c58?text=${encodeURIComponent(label)}`;
+	// Hover preview uses the project's own cover image. Fall back to a neutral
+	// placeholder only when a project has no cover set in its frontmatter.
+	const previewSrc = (p: Project) =>
+		p.cover ?? `https://placehold.co/640x640/16161c/4c4c58?text=${encodeURIComponent(p.title.toUpperCase())}`;
 
 	const lag = 0.12; // eased cursor follow factor (was a design tweak; sensible default)
 
@@ -56,7 +56,7 @@
 			pos.x = e.clientX;
 			pos.y = e.clientY;
 		}
-		const src = previewSrc(p.name.toUpperCase());
+		const src = previewSrc(p);
 		const top = stack[stack.length - 1];
 		hovering = true;
 		if (top && top.src === src) return;
@@ -90,9 +90,9 @@
 				<span class="text-right">Year</span>
 			</div>
 
-			{#each PROJECTS as p, i (p.id)}
+			{#each projects as p, i (p.slug)}
 				<a
-					href="/projects/{p.id}"
+					href="/projects/{p.slug}"
 					data-anim="row"
 					onmouseenter={(e) => enterRow(p, e)}
 					class="group/row relative block cursor-pointer border-b border-white/[0.07] no-underline"
@@ -105,7 +105,7 @@
 							>
 							<span
 								class="flex-none whitespace-nowrap font-serif text-[clamp(28px,3.4vw,46px)] font-normal leading-none tracking-[-0.01em] text-ink transition-[color,transform] duration-[450ms] ease-[cubic-bezier(0.2,0.7,0.3,1)] group-data-[hovering=true]/tbl:text-ink-faint group-hover/row:translate-x-2.5 group-hover/row:!text-ink"
-								>{p.name}</span
+								>{p.title}</span
 							>
 							<span
 								class="h-[22px] w-[22px] flex-none translate-x-[-7px] translate-y-[7px] text-accent opacity-0 transition-[opacity,transform] duration-[280ms] ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover/row:translate-x-0 group-hover/row:translate-y-0 group-hover/row:opacity-100"
