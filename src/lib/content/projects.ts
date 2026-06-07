@@ -18,6 +18,12 @@ export type ProjectMeta = {
 	year?: string;
 	cover?: string;
 	intro?: string;
+	/**
+	 * Gallery pictures featured in this project, referenced by `name` — the
+	 * filename without extension as exposed by pictures.ts (e.g. "IMG_7270").
+	 * Drives the project page's mini-gallery and the gallery's "from project" tag.
+	 */
+	gallery?: string[];
 };
 
 export type Project = ProjectMeta & {
@@ -49,6 +55,7 @@ export function getProject(slug: string): Project | null {
 		year: meta.year,
 		cover: meta.cover,
 		intro: meta.intro,
+		gallery: Array.isArray(meta.gallery) ? meta.gallery : undefined,
 		html
 	};
 }
@@ -74,4 +81,20 @@ export function getAllProjects(): Project[] {
 /** The most recent project, or null when there are none. */
 export function latestProject(): Project | null {
 	return getAllProjects()[0] ?? null;
+}
+
+/**
+ * Reverse index: gallery picture `name` -> the project that features it.
+ * Built from each project's `gallery` frontmatter. If two projects list the
+ * same picture, the most recent one wins (getAllProjects is year-desc), then
+ * the loser overwrites nothing. Used by the gallery to tag an expanded frame.
+ */
+export function pictureProjectMap(): Record<string, { slug: string; title: string }> {
+	const map: Record<string, { slug: string; title: string }> = {};
+	for (const project of getAllProjects()) {
+		for (const name of project.gallery ?? []) {
+			if (!map[name]) map[name] = { slug: project.slug, title: project.title };
+		}
+	}
+	return map;
 }

@@ -4,10 +4,12 @@
 	import NavBar from '$lib/components/NavBar.svelte';
 	import Kicker from '$lib/components/Kicker.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import Pic from '$lib/components/Pic.svelte';
 	import { initPageMotion } from '$lib/motion';
 
 	let { data } = $props();
 	const project = $derived(data.project);
+	const galleryPics = $derived(data.galleryPics);
 
 	let pageEl: HTMLDivElement;
 	onMount(() => initPageMotion(pageEl));
@@ -62,6 +64,39 @@
 			<div data-load class="prose reveal mt-14">
 				{@html project.html}
 			</div>
+
+			<!-- Mini-gallery: the gallery frames tagged to this project (frontmatter `gallery`).
+				 Each tile links into the full gallery. Hidden entirely when none are set. -->
+			{#if galleryPics.length}
+				<section data-load class="reveal mt-16 border-t border-white/10 pt-10">
+					<div class="flex items-end justify-between gap-6">
+						<Kicker>From this set · {galleryPics.length}</Kicker>
+						<a
+							href="/gallery"
+							class="font-mono text-[12px] uppercase tracking-[0.18em] text-ink-dim no-underline transition-colors duration-300 hover:text-accent"
+						>
+							Full gallery →
+						</a>
+					</div>
+					<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+						{#each galleryPics as pic (pic.id)}
+							<a
+								href="/gallery"
+								class="group block overflow-hidden rounded-[10px] border border-glass-line bg-[#141318]"
+								aria-label="View {pic.name} in the gallery"
+							>
+								<div class="aspect-square w-full overflow-hidden">
+									<Pic
+										{pic}
+										sizes="(max-width: 640px) 45vw, 260px"
+										class="transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-[1.05]"
+									/>
+								</div>
+							</a>
+						{/each}
+					</div>
+				</section>
+			{/if}
 
 			<div data-load class="reveal mt-16 border-t border-white/10 pt-8">
 				<a

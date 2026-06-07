@@ -17,6 +17,11 @@
 
 	type Frame = Pick<Picture, 'id' | 'w' | 'h' | 'src' | 'name' | 'sources'>;
 
+	// picture `name` -> project that features it (from project frontmatter, built
+	// server-side). Drives the "from project" tag shown over an expanded frame.
+	let { projectByPicture = {} }: { projectByPicture?: Record<string, { slug: string; title: string }> } =
+		$props();
+
 	// design defaults from galleryApp.jsx (the Tweaks panel is omitted)
 	const GAP = 12;
 	const TILE = 340; // target column width — larger ⇒ fewer columns ⇒ bigger tiles
@@ -239,20 +244,54 @@
 	style="border-radius:{RADIUS}px"
 >
 	{#each frames as im (im.id)}
-		<button
-			type="button"
-			class="mtile absolute left-0 top-0 block origin-top-left overflow-hidden border-0 bg-[#141318] outline-0 [will-change:transform] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-accent {expandedId ===
+		{@const proj = projectByPicture[im.name]}
+		<!-- .mtile carries the packed geometry (set inline by the FLIP effect) and the
+			 is-expanded flag the dim-others CSS keys off of. The button inside handles the
+			 expand/collapse toggle; the project tag is a sibling link so it can navigate
+			 without nesting an <a> in a <button> (invalid HTML). -->
+		<div
+			class="mtile absolute left-0 top-0 origin-top-left overflow-hidden bg-[#141318] [will-change:transform] {expandedId ===
 			im.id
-				? 'is-expanded cursor-zoom-out'
-				: 'cursor-pointer'}"
+				? 'is-expanded'
+				: ''}"
 			style="border-radius:{RADIUS}px"
-			onclick={() => toggle(im.id)}
-			aria-label={expandedId === im.id ? `Collapse ${im.name}` : `Expand ${im.name}`}
 		>
-			<!-- eager-load the whole set: the responsive variants are small (~25–80 KB),
-				 so this guarantees every frame is present by the time you scroll down -->
-			<Pic pic={im} sizes={SIZES} eager />
-		</button>
+			<button
+				type="button"
+				class="absolute inset-0 block h-full w-full border-0 bg-transparent p-0 outline-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-accent {expandedId ===
+				im.id
+					? 'cursor-zoom-out'
+					: 'cursor-pointer'}"
+				onclick={() => toggle(im.id)}
+				aria-label={expandedId === im.id ? `Collapse ${im.name}` : `Expand ${im.name}`}
+			>
+				<!-- eager-load the whole set: the responsive variants are small (~25–80 KB),
+					 so this guarantees every frame is present by the time you scroll down -->
+				<Pic pic={im} sizes={SIZES} eager />
+			</button>
+
+			{#if proj && expandedId === im.id}
+				<a
+					href="/projects/{proj.slug}"
+					class="tag-from group absolute inset-x-0 bottom-0 z-10 flex flex-col items-start gap-1 px-5 pb-5 pt-16 no-underline"
+				>
+					<span class="font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-faint">
+						From the project
+					</span>
+					<span
+						class="flex items-center gap-2 font-serif text-[clamp(17px,1.7vw,24px)] leading-tight text-ink"
+					>
+						{proj.title}
+						<span
+							aria-hidden="true"
+							class="text-accent transition-transform duration-300 group-hover:translate-x-1"
+						>
+							→
+						</span>
+					</span>
+				</a>
+			{/if}
+		</div>
 	{/each}
 </div>
 
@@ -267,6 +306,39 @@
 	.masonry.ready {
 		opacity: 1;
 	}
+	/* "From the project" tag over an expanded frame: a dark bottom gradient with a
+		 subtle backdrop blur, masked so the blur itself fades out toward the top
+		 (otherwise it would blur the whole image, not just the caption band). */
+	.tag-from {
+		background-image: linear-gradient(
+			to top,
+			rgba(8, 8, 11, 0.95),
+			rgba(8, 8, 11, 0.6) 42%,
+			transparent
+		);
+		backdrop-filter: blur(3px);
+		-webkit-backdrop-filter: blur(3px);
+		-webkit-mask-image: linear-gradient(to top, #000 62%, transparent);
+		mask-image: linear-gradient(to top, #000 62%, transparent);
+		animation: tag-rise 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) 0.5s both;
+	}
+	@keyframes tag-rise {
+		from {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+		to {
+			opacity: 1;
+			transform: none;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.tag-from {
+			animation-duration: 0.01ms;
+			animation-delay: 0ms;
+		}
+	}
+
 	.mtile :global(img) {
 		display: block;
 		width: 100%;

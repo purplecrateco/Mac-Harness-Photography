@@ -4,6 +4,17 @@ cat: Motorsport · Endurance
 year: 2025
 cover: /project-media/porsche-pit.jpg
 intro: A placeholder motorsport set from the working side of the wall — pit stops, crew, and one very pink GT car under the lights.
+# Gallery pictures featured in this project — referenced by `name` (filename
+# without extension) from the files in src/lib/content/pictures/.
+gallery:
+  - IMG_7278
+  - IMG_7280
+  - IMG_7277
+  - IMG_7276
+  - IMG_7275
+  - IMG_7279
+  - DSC_0441
+  - DSC_0735
 ---
 
 ## The race nobody films

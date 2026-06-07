@@ -4,6 +4,17 @@ cat: Automotive · Street
 year: 2025
 cover: /project-media/supra-street.jpg
 intro: A placeholder automotive set — slow shutter, low angle, cars caught mid-street rather than parked and posed.
+# Gallery pictures featured in this project — referenced by `name` (filename
+# without extension) from the files in src/lib/content/pictures/.
+gallery:
+  - IMG_7250
+  - IMG_7253
+  - IMG_7258
+  - IMG_7260
+  - IMG_7266
+  - IMG_7268
+  - IMG_7269
+  - D7324228-2C59-47CB-8FAD-0959AB77B8B0
 ---
 
 ## Cars where they actually live

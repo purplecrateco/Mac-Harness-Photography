@@ -4,6 +4,16 @@ cat: Editorial · Coastal
 year: 2026
 cover: /project-media/coast-pier.jpg
 intro: Three evenings on the Florida panhandle, chasing the slow purple-to-amber fade that the Gulf does better than anywhere else.
+# Gallery pictures featured in this project — referenced by `name` (filename
+# without extension) from the files in src/lib/content/pictures/.
+gallery:
+  - _DSC0690
+  - _DSC0712
+  - _DSC0729
+  - _DSC0758
+  - _DSC0767
+  - _DSC0777
+  - _DSC0781
 ---
 
 ## A coast built for the last hour of light

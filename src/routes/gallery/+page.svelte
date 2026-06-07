@@ -8,6 +8,8 @@
 	import { initPageMotion } from '$lib/motion';
 	import { pictures } from '$lib/content/pictures';
 
+	let { data } = $props();
+
 	let pageEl: HTMLDivElement;
 
 	// Falls back to the built-in placeholder set's count when no pictures are added yet.
@@ -47,7 +49,7 @@
 
 	<section class="pb-40">
 		<div class="mx-auto w-[85vw] max-w-[1680px] max-[680px]:w-[90vw]">
-			<MasonryGallery />
+			<MasonryGallery projectByPicture={data.projectByPicture} />
 		</div>
 	</section>
 
