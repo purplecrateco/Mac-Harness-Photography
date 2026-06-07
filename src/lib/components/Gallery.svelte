@@ -2,11 +2,12 @@
 	import Ph from './Ph.svelte';
 	import Kicker from './Kicker.svelte';
 	import Pic from './Pic.svelte';
-	import { pictures } from '$lib/content/pictures';
+	import { pictures, GALLERY_PEEK_COUNT } from '$lib/content/pictures';
 
 	/* `span` carries the asymmetric editorial grid placement (+ mobile collapse).
-	   The peek shows the first 8 pictures from src/lib/content/pictures/, mapped onto
-	   the editorial grid below. If no pictures exist yet, it falls back to placeholders. */
+	   The peek shows the first GALLERY_PEEK_COUNT (8) pictures from
+	   src/lib/content/pictures/, mapped onto the editorial grid below — one span per
+	   tile. If no pictures exist yet, it falls back to placeholders. */
 	const SPANS = [
 		'col-span-2 row-span-3 max-[760px]:col-span-1 max-[760px]:row-span-2',
 		'col-span-2 row-span-2 max-[760px]:col-span-1',
@@ -18,7 +19,7 @@
 		'col-span-3 row-span-2 max-[760px]:col-span-2'
 	];
 
-	const tiles = pictures.slice(0, SPANS.length).map((pic, i) => ({ pic, span: SPANS[i] }));
+	const tiles = pictures.slice(0, GALLERY_PEEK_COUNT).map((pic, i) => ({ pic, span: SPANS[i] }));
 
 	// Placeholder fallback (only when src/lib/content/pictures/ is empty).
 	const PLACEHOLDER = [

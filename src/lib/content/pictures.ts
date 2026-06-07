@@ -48,3 +48,10 @@ export const pictures: Picture[] = Object.entries(files)
 		h: data.img.h,
 		sources: data.sources
 	}));
+
+/**
+ * How many pictures the homepage "Selected Work" peek shows (Gallery.svelte).
+ * Shared so the homepage project collage can skip these and avoid showing the
+ * same frame twice on one page.
+ */
+export const GALLERY_PEEK_COUNT = 8;
