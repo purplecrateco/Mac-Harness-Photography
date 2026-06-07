@@ -57,3 +57,21 @@ export function getProject(slug: string): Project | null {
 export function projectSlugs(): string[] {
 	return [...bySlug.keys()];
 }
+
+/** All projects, most recent first (by year desc, then slug for a stable tie-break). */
+export function getAllProjects(): Project[] {
+	return [...bySlug.keys()]
+		.map((slug) => getProject(slug))
+		.filter((p): p is Project => p !== null)
+		.sort((a, b) => {
+			const ya = Number(a.year) || 0;
+			const yb = Number(b.year) || 0;
+			if (yb !== ya) return yb - ya;
+			return a.slug.localeCompare(b.slug);
+		});
+}
+
+/** The most recent project, or null when there are none. */
+export function latestProject(): Project | null {
+	return getAllProjects()[0] ?? null;
+}

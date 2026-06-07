@@ -8,6 +8,9 @@
 	import About from '$lib/components/About.svelte';
 	import Contact from '$lib/components/Contact.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
 
 	let pageEl: HTMLDivElement;
 
@@ -112,7 +115,7 @@
 	<Hero />
 	<!-- Default section order from homepageApp.jsx: gallery → project → about → contact -->
 	<Gallery />
-	<Project />
+	<Project project={data.latest} />
 	<About />
 	<Contact />
 	<Footer />

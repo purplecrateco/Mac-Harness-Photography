@@ -6,8 +6,12 @@
 	import MasonryGallery from '$lib/components/MasonryGallery.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import { initPageMotion } from '$lib/motion';
+	import { pictures } from '$lib/content/pictures';
 
 	let pageEl: HTMLDivElement;
+
+	// Falls back to the built-in placeholder set's count when no pictures are added yet.
+	const frameCount = pictures.length || 18;
 
 	onMount(() => initPageMotion(pageEl, { batch: '.mtile' }));
 </script>
@@ -34,7 +38,7 @@
 					data-load
 					class="max-w-[280px] font-mono text-[12.5px] leading-[1.9] tracking-[0.04em] text-ink-dim max-[760px]:text-left sm:text-right"
 				>
-					Eighteen frames, loosely sequenced.<br />
+					{frameCount} frames, loosely sequenced.<br />
 					<span class="text-ink-faint">Click any image to enlarge.</span>
 				</div>
 			</div>

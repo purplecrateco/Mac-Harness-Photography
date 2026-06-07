@@ -1,18 +1,38 @@
 <script lang="ts">
 	import Ph from './Ph.svelte';
 	import Kicker from './Kicker.svelte';
+	import Pic from './Pic.svelte';
+	import { pictures } from '$lib/content/pictures';
 
-	/* `span` carries the asymmetric editorial grid placement (+ mobile collapse). */
-	const SHOTS = [
-		{ w: 720, h: 1040, t: 'Vows at Dusk', k: 'Wedding · Tuscany', span: 'col-span-2 row-span-3 max-[760px]:col-span-1 max-[760px]:row-span-2' },
-		{ w: 760, h: 560, t: 'Studio No. 4', k: 'Portrait · 35mm', span: 'col-span-2 row-span-2 max-[760px]:col-span-1' },
-		{ w: 720, h: 1040, t: 'The Long Light', k: 'Editorial · Oslo', span: 'col-span-2 row-span-3 max-[760px]:col-span-1 max-[760px]:row-span-2' },
-		{ w: 760, h: 560, t: 'Quiet Morning', k: 'Lifestyle', span: 'col-span-2 row-span-2 max-[760px]:col-span-1' },
-		{ w: 760, h: 560, t: 'First Dance', k: 'Wedding', span: 'col-span-2 row-span-2 max-[760px]:col-span-1' },
-		{ w: 760, h: 560, t: 'Northbound', k: 'Travel · Iceland', span: 'col-span-2 row-span-2 max-[760px]:col-span-1' },
-		{ w: 1100, h: 640, t: 'Coastline Series', k: 'Landscape · 6 frames', span: 'col-span-3 row-span-2 max-[760px]:col-span-2' },
-		{ w: 1100, h: 640, t: 'Backstage', k: 'Documentary', span: 'col-span-3 row-span-2 max-[760px]:col-span-2' }
+	/* `span` carries the asymmetric editorial grid placement (+ mobile collapse).
+	   The peek shows the first 8 pictures from src/lib/content/pictures/, mapped onto
+	   the editorial grid below. If no pictures exist yet, it falls back to placeholders. */
+	const SPANS = [
+		'col-span-2 row-span-3 max-[760px]:col-span-1 max-[760px]:row-span-2',
+		'col-span-2 row-span-2 max-[760px]:col-span-1',
+		'col-span-2 row-span-3 max-[760px]:col-span-1 max-[760px]:row-span-2',
+		'col-span-2 row-span-2 max-[760px]:col-span-1',
+		'col-span-2 row-span-2 max-[760px]:col-span-1',
+		'col-span-2 row-span-2 max-[760px]:col-span-1',
+		'col-span-3 row-span-2 max-[760px]:col-span-2',
+		'col-span-3 row-span-2 max-[760px]:col-span-2'
 	];
+
+	const tiles = pictures.slice(0, SPANS.length).map((pic, i) => ({ pic, span: SPANS[i] }));
+
+	// Placeholder fallback (only when src/lib/content/pictures/ is empty).
+	const PLACEHOLDER = [
+		{ w: 720, h: 1040, t: 'Plate 01' },
+		{ w: 760, h: 560, t: 'Plate 02' },
+		{ w: 720, h: 1040, t: 'Plate 03' },
+		{ w: 760, h: 560, t: 'Plate 04' },
+		{ w: 760, h: 560, t: 'Plate 05' },
+		{ w: 760, h: 560, t: 'Plate 06' },
+		{ w: 1100, h: 640, t: 'Plate 07' },
+		{ w: 1100, h: 640, t: 'Plate 08' }
+	].map((p, i) => ({ ...p, span: SPANS[i] }));
+
+	const SIZES = '(max-width: 760px) 50vw, 33vw';
 </script>
 
 <section id="gallery" class="t-gallery relative py-20 sm:py-28 lg:py-[140px]">
@@ -38,27 +58,30 @@
 			data-anim="gallery"
 			class="reveal grid grid-cols-6 auto-rows-[128px] gap-[18px] max-[760px]:grid-cols-2 max-[760px]:auto-rows-[120px]"
 		>
-			{#each SHOTS as s (s.t)}
-				<figure
-					class="group relative overflow-hidden rounded-2xl {s.span}
-						after:absolute after:inset-0 after:z-[1] after:rounded-2xl after:opacity-0 after:transition after:duration-300 after:content-['']
-						after:bg-[linear-gradient(to_top,rgba(7,7,8,0.62)_0%,transparent_42%)]
-						hover:after:opacity-100 max-[760px]:after:opacity-100"
-				>
-					<Ph
-						w={s.w}
-						h={s.h}
-						label={s.t.toUpperCase()}
-						radius="16px"
-						class="transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-105"
-					/>
-					<figcaption
-						class="absolute bottom-3.5 left-4 z-[2] translate-y-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-[#f3f1ec] opacity-0 transition duration-300 [text-shadow:0_1px_12px_rgba(0,0,0,0.7)] group-hover:translate-y-0 group-hover:opacity-100 max-[760px]:translate-y-0 max-[760px]:opacity-100"
-					>
-						<b class="block font-bold">{s.t}</b><span class="text-ink-dim">{s.k}</span>
-					</figcaption>
-				</figure>
-			{/each}
+			{#if tiles.length}
+				{#each tiles as { pic, span }, i (pic.id)}
+					<figure class="group relative overflow-hidden rounded-2xl {span}">
+						<Pic
+							{pic}
+							sizes={SIZES}
+							eager={i < 4}
+							class="rounded-2xl transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-105"
+						/>
+					</figure>
+				{/each}
+			{:else}
+				{#each PLACEHOLDER as s (s.t)}
+					<figure class="group relative overflow-hidden rounded-2xl {s.span}">
+						<Ph
+							w={s.w}
+							h={s.h}
+							label={s.t.toUpperCase()}
+							radius="16px"
+							class="transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-105"
+						/>
+					</figure>
+				{/each}
+			{/if}
 		</div>
 	</div>
 </section>

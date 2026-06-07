@@ -4,18 +4,31 @@
 	   tile expands to ~2 columns and the rest reflow. Each layout change animates as
 	   a single cohesive FLIP transition — done with the native Web Animations API
 	   instead of GSAP, so no animation dependency is pulled in. The viewport eases to
-	   center the opened frame and the stage height grows/shrinks smoothly. */
+	   center the opened frame and the stage height grows/shrinks smoothly.
 
-	type Frame = { id: number; w: number; h: number; tone: string };
+	   Images come from src/lib/content/pictures/ via @sveltejs/enhanced-img (see
+	   pictures.ts), so their intrinsic dimensions are known at build time — the layout
+	   is correct on first paint with no reflow, and the browser pulls small responsive
+	   variants instead of the full-size originals. When that folder is empty we fall
+	   back to a built-in placeholder set so the page is never blank. */
+
+	import { pictures, type Picture } from '$lib/content/pictures';
+	import Pic from './Pic.svelte';
+
+	type Frame = Pick<Picture, 'id' | 'w' | 'h' | 'src' | 'name' | 'sources'>;
 
 	// design defaults from galleryApp.jsx (the Tweaks panel is omitted)
 	const GAP = 12;
-	const TILE = 280;
+	const TILE = 340; // target column width — larger ⇒ fewer columns ⇒ bigger tiles
 	const RADIUS = 14;
 	const MOTION = 0.72; // seconds
 	const EASE = 'cubic-bezier(0.65,0,0.35,1)'; // ≈ power3.inOut
 
-	const FRAMES: Frame[] = [
+	// Tiles span ~1/5 of the 85vw stage on desktop, ~1/2 of 90vw on phones.
+	const SIZES = '(max-width: 680px) 45vw, 18vw';
+
+	// Built-in fallback (used only when no pictures have been added yet).
+	const PLACEHOLDER_TONES: { id: number; w: number; h: number; tone: string }[] = [
 		{ id: 1, w: 800, h: 1000, tone: '1a1712' },
 		{ id: 2, w: 1200, h: 800, tone: '12161a' },
 		{ id: 3, w: 1000, h: 1000, tone: '171318' },
@@ -36,24 +49,28 @@
 		{ id: 18, w: 1120, h: 760, tone: '10161a' }
 	];
 
-	function frameSrc(im: Frame, w: number) {
-		const reqW = Math.max(360, Math.round(w));
-		const reqH = Math.round(reqW * (im.h / im.w));
-		return `https://placehold.co/${reqW}x${reqH}/${im.tone}/3a3a44?text=${im.id}`;
-	}
+	const PLACEHOLDER_FRAMES: Frame[] = PLACEHOLDER_TONES.map((f) => ({
+		id: f.id,
+		w: f.w,
+		h: f.h,
+		src: `https://placehold.co/${f.w}x${f.h}/${f.tone}/3a3a44?text=${f.id}`,
+		name: `Frame ${f.id}`
+	}));
+
+	const frames: Frame[] = pictures.length ? pictures : PLACEHOLDER_FRAMES;
 
 	type Pos = { x: number; y: number; w: number; h: number };
 
 	/* greedy skyline packing: N equal columns; each frame drops into the shortest
 	   slot. The expanded frame reserves two columns and the rest reflow around it. */
-	function computeLayout(width: number, expandedId: number | null) {
+	function computeLayout(items: Frame[], width: number, expandedId: number | null) {
 		const cols = Math.max(2, Math.min(6, Math.round(width / TILE)));
 		const colW = (width - GAP * (cols - 1)) / cols;
 		const colH = new Array(cols).fill(0);
 		const maxH = window.innerHeight * 0.9;
-		const pos: Pos[] = new Array(FRAMES.length);
+		const pos: Pos[] = new Array(items.length);
 
-		FRAMES.forEach((im, idx) => {
+		items.forEach((im, idx) => {
 			const aspect = im.w / im.h;
 			const expanded = im.id === expandedId;
 			const span = expanded ? Math.min(2, cols) : 1;
@@ -95,7 +112,7 @@
 			for (let c = start; c < start + span; c++) colH[c] = bottom;
 		});
 
-		const totalH = Math.max(...colH) - GAP;
+		const totalH = Math.max(...colH, 0) - GAP;
 		return { pos, totalH };
 	}
 
@@ -130,7 +147,7 @@
 		const tiles = Array.from(container.querySelectorAll<HTMLElement>('.mtile'));
 		if (!tiles.length) return;
 
-		const layout = computeLayout(w, exp);
+		const layout = computeLayout(frames, w, exp);
 		const widthChanged = w !== lastWidth;
 		const expandChanged = exp !== prevExpanded;
 		const isFirst = first;
@@ -192,7 +209,7 @@
 			// center the opened frame in the viewport (never on collapse).
 			// The fixed nav overlaps the top, so center within the area *below* it.
 			if (expandChanged && exp != null) {
-				const idx = FRAMES.findIndex((im) => im.id === exp);
+				const idx = frames.findIndex((im) => im.id === exp);
 				const p = layout.pos[idx];
 				const nav = document.querySelector('nav')?.getBoundingClientRect().height ?? 70;
 				const contTop = container.getBoundingClientRect().top + window.scrollY;
@@ -221,7 +238,7 @@
 	class:has-open={expandedId !== null}
 	style="border-radius:{RADIUS}px"
 >
-	{#each FRAMES as im (im.id)}
+	{#each frames as im (im.id)}
 		<button
 			type="button"
 			class="mtile absolute left-0 top-0 block origin-top-left overflow-hidden border-0 bg-[#141318] outline-0 [will-change:transform] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-accent {expandedId ===
@@ -230,9 +247,11 @@
 				: 'cursor-pointer'}"
 			style="border-radius:{RADIUS}px"
 			onclick={() => toggle(im.id)}
-			aria-label={expandedId === im.id ? `Collapse frame ${im.id}` : `Expand frame ${im.id}`}
+			aria-label={expandedId === im.id ? `Collapse ${im.name}` : `Expand ${im.name}`}
 		>
-			<img src={frameSrc(im, 640)} alt="" draggable="false" />
+			<!-- eager-load the whole set: the responsive variants are small (~25–80 KB),
+				 so this guarantees every frame is present by the time you scroll down -->
+			<Pic pic={im} sizes={SIZES} eager />
 		</button>
 	{/each}
 </div>
