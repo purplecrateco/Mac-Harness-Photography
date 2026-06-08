@@ -52,7 +52,7 @@
 				<h2
 					class="mb-7 mt-3.5 font-serif text-[clamp(40px,5.4vw,76px)] font-normal leading-[0.96] tracking-[-0.01em] text-ink"
 				>
-					{#if titleHead}{titleHead}&nbsp;{/if}<em class="italic text-accent">{titleTail}</em>
+					{#if titleHead}{titleHead}&nbsp;{/if}<em class="italic text-gold">{titleTail}</em>
 				</h2>
 				{#if project.intro}
 					<p class="mb-5 max-w-[46ch] text-[18px] leading-[1.65] text-ink-dim">

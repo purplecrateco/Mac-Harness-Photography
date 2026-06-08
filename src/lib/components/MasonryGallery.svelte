@@ -258,7 +258,7 @@
 		>
 			<button
 				type="button"
-				class="absolute inset-0 block h-full w-full border-0 bg-transparent p-0 outline-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-accent {expandedId ===
+				class="absolute inset-0 block h-full w-full border-0 bg-transparent p-0 outline-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-gold {expandedId ===
 				im.id
 					? 'cursor-zoom-out'
 					: 'cursor-pointer'}"
@@ -275,16 +275,16 @@
 					href="/projects/{proj.slug}"
 					class="tag-from group absolute inset-x-0 bottom-0 z-10 flex flex-col items-start gap-1 px-5 pb-5 pt-16 no-underline"
 				>
-					<span class="font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-faint">
+					<span class="font-mono text-[10.5px] uppercase tracking-[0.22em] text-white/70">
 						From the project
 					</span>
 					<span
-						class="flex items-center gap-2 font-serif text-[clamp(17px,1.7vw,24px)] leading-tight text-ink"
+						class="flex items-center gap-2 font-serif text-[clamp(17px,1.7vw,24px)] leading-tight text-white"
 					>
 						{proj.title}
 						<span
 							aria-hidden="true"
-							class="text-accent transition-transform duration-300 group-hover:translate-x-1"
+							class="text-gold transition-transform duration-300 group-hover:translate-x-1"
 						>
 							→
 						</span>
@@ -312,14 +312,16 @@
 	.tag-from {
 		background-image: linear-gradient(
 			to top,
-			rgba(8, 8, 11, 0.95),
-			rgba(8, 8, 11, 0.6) 42%,
+			rgba(0, 0, 0, 0.85),
+			rgba(0, 0, 0, 0.55) 50%,
 			transparent
 		);
 		backdrop-filter: blur(3px);
 		-webkit-backdrop-filter: blur(3px);
 		-webkit-mask-image: linear-gradient(to top, #000 62%, transparent);
 		mask-image: linear-gradient(to top, #000 62%, transparent);
+		mix-blend-mode: normal;
+		text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
 		animation: tag-rise 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) 0.5s both;
 	}
 	@keyframes tag-rise {

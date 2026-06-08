@@ -33,7 +33,7 @@
 						data-load
 						class="mt-4 font-serif text-[clamp(48px,7vw,104px)] font-normal leading-[0.94] tracking-[-0.015em] text-ink"
 					>
-						The <em class="italic text-accent">Gallery</em>
+						The <em class="italic text-gold">Gallery</em>
 					</h1>
 				</div>
 				<div

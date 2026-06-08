@@ -44,7 +44,7 @@
 				<h2
 					class="mt-3.5 font-serif text-[clamp(44px,6vw,84px)] font-normal leading-[0.96] tracking-[-0.01em] text-ink"
 				>
-					Frames that <em class="italic text-accent">last</em>.
+					Frames that <em class="italic text-gold">last</em>.
 				</h2>
 			</div>
 			<div

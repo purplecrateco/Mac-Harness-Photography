@@ -38,9 +38,16 @@
 					e.preventDefault();
 					scrollToTop();
 				}}
-				class="cursor-pointer font-mono text-[11px] uppercase tracking-[0.14em] text-ink-dim no-underline transition hover:text-accent"
+				class="cursor-pointer font-mono text-[11px] uppercase tracking-[0.14em] text-ink-dim no-underline transition hover:text-gold"
 				>Back to top ↑</a
 			>
 		{/if}
+		<a
+			href="https://portfolio.josephheinz.com"
+			target="_blank"
+			rel="noopener noreferrer"
+			class="font-mono text-[11px] tracking-[0.08em] text-ink-faint no-underline transition hover:text-ink"
+			>Built by <span class="text-gold">Joseph Heinz</span></a
+		>
 	</div>
 </footer>

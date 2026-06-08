@@ -73,7 +73,7 @@
 						<Kicker>From this set · {galleryPics.length}</Kicker>
 						<a
 							href="/gallery"
-							class="font-mono text-[12px] uppercase tracking-[0.18em] text-ink-dim no-underline transition-colors duration-300 hover:text-accent"
+							class="font-mono text-[12px] uppercase tracking-[0.18em] text-ink-dim no-underline transition-colors duration-300 hover:text-gold"
 						>
 							Full gallery →
 						</a>
@@ -101,7 +101,7 @@
 			<div data-load class="reveal mt-16 border-t border-white/10 pt-8">
 				<a
 					href="/projects"
-					class="inline-flex items-center gap-2 font-mono text-[12.5px] uppercase tracking-[0.18em] text-ink-dim no-underline transition-colors duration-300 hover:text-accent"
+					class="inline-flex items-center gap-2 font-mono text-[12.5px] uppercase tracking-[0.18em] text-ink-dim no-underline transition-colors duration-300 hover:text-gold"
 				>
 					<span aria-hidden="true">←</span> All projects
 				</a>
@@ -140,7 +140,7 @@
 		margin: 1.1em 0;
 	}
 	.prose :global(a) {
-		color: var(--color-accent);
+		color: var(--color-gold);
 		text-underline-offset: 3px;
 	}
 	.prose :global(strong) {
@@ -162,12 +162,12 @@
 		margin: 0.4em 0;
 	}
 	.prose :global(li::marker) {
-		color: var(--color-accent);
+		color: var(--color-gold);
 	}
 	.prose :global(blockquote) {
 		margin: 1.6em 0;
 		padding: 0.2em 0 0.2em 1.2em;
-		border-left: 2px solid var(--color-accent);
+		border-left: 2px solid var(--color-gold);
 		font-family: var(--font-serif);
 		font-style: italic;
 		font-size: clamp(20px, 2.4vw, 26px);

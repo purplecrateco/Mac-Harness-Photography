@@ -100,7 +100,7 @@
 					<div class="{rowGrid} px-1 py-[30px] max-[760px]:py-[22px]">
 						<span class="flex min-w-0 items-center gap-[18px]">
 							<span
-								class="flex-none font-mono text-xs tabular-nums tracking-[0.08em] text-ink-faint transition-colors duration-[350ms] group-hover/row:text-accent"
+								class="flex-none font-mono text-xs tabular-nums tracking-[0.08em] text-ink-faint transition-colors duration-[350ms] group-hover/row:text-gold"
 								>{String(i + 1).padStart(2, '0')}</span
 							>
 							<span
@@ -108,7 +108,7 @@
 								>{p.title}</span
 							>
 							<span
-								class="h-[22px] w-[22px] flex-none translate-x-[-7px] translate-y-[7px] text-accent opacity-0 transition-[opacity,transform] duration-[280ms] ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover/row:translate-x-0 group-hover/row:translate-y-0 group-hover/row:opacity-100"
+								class="h-[22px] w-[22px] flex-none translate-x-[-7px] translate-y-[7px] text-gold opacity-0 transition-[opacity,transform] duration-[280ms] ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover/row:translate-x-0 group-hover/row:translate-y-0 group-hover/row:opacity-100"
 							>
 								<svg
 									viewBox="0 0 24 24"

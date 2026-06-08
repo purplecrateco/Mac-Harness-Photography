@@ -8,7 +8,7 @@
 		<h2
 			class="mx-auto mt-[18px] max-w-[14ch] font-serif text-[clamp(52px,9vw,128px)] font-normal leading-[0.94] tracking-[-0.015em]"
 		>
-			Let&rsquo;s make something <em class="italic text-accent">worth keeping</em>.
+			Let&rsquo;s make something <em class="italic text-gold">worth keeping</em>.
 		</h2>
 		<p class="mx-auto mb-12 mt-7 max-w-[48ch] text-[18px] leading-[1.6] text-ink-dim">
 			Booking portrait sessions, weddings and editorial commissions worldwide. Tell me about your
@@ -16,7 +16,7 @@
 		</p>
 		<a
 			href="mailto:hello@macharness.studio"
-			class="inline-flex max-w-full flex-wrap items-center justify-center gap-3.5 break-all border-b border-glass-line pb-2 font-serif text-[clamp(24px,3.4vw,44px)] text-ink no-underline transition hover:border-accent hover:text-accent"
+			class="inline-flex max-w-full flex-wrap items-center justify-center gap-3.5 break-all border-b border-glass-line pb-2 font-serif text-[clamp(24px,3.4vw,44px)] text-ink no-underline transition hover:border-gold hover:text-gold"
 		>
 			hello@macharness.studio <span class="text-[0.7em] opacity-90">→</span>
 		</a>
@@ -33,12 +33,12 @@
 					Follow
 				</div>
 				<div class="text-[16px] leading-[1.7] text-ink">
-					<a href="https://instagram.com" class="text-ink-dim no-underline transition hover:text-accent"
+					<a href="https://instagram.com" class="text-ink-dim no-underline transition hover:text-gold"
 						>Instagram</a
 					><br /><a
 						href="https://behance.net"
-						class="text-ink-dim no-underline transition hover:text-accent">Behance</a
-					><br /><a href="#top" class="text-ink-dim no-underline transition hover:text-accent"
+						class="text-ink-dim no-underline transition hover:text-gold">Behance</a
+					><br /><a href="#top" class="text-ink-dim no-underline transition hover:text-gold"
 						>Journal</a
 					>
 				</div>
@@ -50,7 +50,7 @@
 				<div class="text-[16px] leading-[1.7] text-ink">
 					<a
 						href="mailto:hello@macharness.studio"
-						class="text-ink-dim no-underline transition hover:text-accent">hello@macharness.studio</a
+						class="text-ink-dim no-underline transition hover:text-gold">hello@macharness.studio</a
 					><br />+351 912 000 000
 				</div>
 			</div>

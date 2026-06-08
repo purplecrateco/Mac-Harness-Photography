@@ -45,7 +45,7 @@
 			<div class="my-[42px] mb-9 grid grid-cols-[repeat(3,auto)] gap-x-6 gap-y-9 sm:gap-x-12">
 				{#each stats as s (s.lbl)}
 					<div>
-						<div class="font-serif text-[48px] leading-none text-accent">{s.num}</div>
+						<div class="font-serif text-[48px] leading-none text-gold">{s.num}</div>
 						<div class="mt-2 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">
 							{s.lbl}
 						</div>

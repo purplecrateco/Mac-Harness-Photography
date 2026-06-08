@@ -1,22 +1,48 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
 
 /* ============ Mac Harness — design tokens ============
-   Ported from the Claude Design handoff into Tailwind v4's @theme so the
-   palette and type scale are available as utilities (text-ink, bg-accent,
-   font-serif, …). The design-tool canvas chrome is intentionally omitted. */
+   Palette and type scale available as Tailwind utilities (text-ink, bg-gold,
+   font-serif, …). Site-specific tokens live alongside the shadcn-svelte
+   semantic token set so both the custom components and shadcn primitives work. */
 @theme {
 	--font-sans: 'Space Grotesk', sans-serif;
 	--font-display: 'Space Grotesk', sans-serif;
 	--font-mono: 'Space Mono', monospace;
 	--font-serif: 'Libre Caslon Display', serif;
 
+	/* Site-specific tokens */
 	--color-ink: #f3f1ec;
 	--color-ink-dim: #a7a39b;
 	--color-ink-faint: #6f6c66;
-	--color-accent: #c9aa6e;
-	--color-accent-ink: #16130c;
+	--color-gold: #c9aa6e;
+	--color-gold-ink: #16130c;
 	--color-base: #070708;
 	--color-glass-line: rgba(255, 255, 255, 0.14);
+
+	/* shadcn-svelte semantic color system — dark photography theme */
+	--color-background: #070708;
+	--color-foreground: #f3f1ec;
+	--color-card: #0d0d10;
+	--color-card-foreground: #f3f1ec;
+	--color-popover: #0d0d10;
+	--color-popover-foreground: #f3f1ec;
+	--color-primary: #c9aa6e;
+	--color-primary-foreground: #16130c;
+	--color-secondary: #1a1a1e;
+	--color-secondary-foreground: #f3f1ec;
+	--color-muted: #1a1a1e;
+	--color-muted-foreground: #a7a39b;
+	--color-accent: #1f1f22;
+	--color-accent-foreground: #f3f1ec;
+	--color-destructive: oklch(0.704 0.191 22.216);
+	--color-destructive-foreground: #f3f1ec;
+	--color-border: rgba(255, 255, 255, 0.1);
+	--color-input: rgba(255, 255, 255, 0.08);
+	--color-ring: #c9aa6e;
+	--radius: 0.5rem;
 }
 
 @layer base {
