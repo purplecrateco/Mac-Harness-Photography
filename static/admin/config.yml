@@ -1,0 +1,122 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
+#
+# Sveltia CMS config. Decap-compatible syntax (`widget:`), not Pages CMS (`type:`).
+#
+# Try it locally with zero auth (Chrome/Edge only — needs the File System Access API):
+#   npm run dev
+#   open http://localhost:5173/admin/index.html
+#   choose "Work with Local Repository" and pick the repo root
+# Edits are written straight to your working tree; commit with git as normal.
+#
+# For remote editing (i.e. handing this to Mac) the `backend` below needs an OAuth
+# relay — deploy sveltia-cms-auth as a Cloudflare Worker and add its `base_url`.
+# Do that under the Purple Crate Co account, not a personal one, and update `repo`
+# after the transfer. See docs/cloudflare-migration-plan.md.
+
+backend:
+  name: github
+  repo: josephheinz/Mac-Harness-Photography
+  branch: master
+
+# Default media root: static/project-media is served at a real, stable URL, which
+# is what project `cover:` images and inline markdown images need.
+# The gallery collection overrides this — see below.
+media_folder: static/project-media
+public_folder: /project-media
+
+collections:
+  - name: pictures
+    label: Gallery
+    label_singular: Picture
+    description: Photos on /gallery. Order controls the sequence, lowest first.
+    folder: src/lib/content/pictures
+    extension: md
+    format: yaml-frontmatter
+    create: true
+    slug: '{{fields.image}}'
+    identifier_field: image
+    summary: '{{order}} · {{image}}{{#if caption}} — {{caption}}{{/if}}'
+    sortable_fields: [order, image, caption]
+    # Empty string = store uploads alongside the entry, i.e. in this same folder.
+    # public_folder is meaningless here: enhanced-img rewrites these to hashed,
+    # per-variant build URLs, so nothing is ever served from this path directly.
+    media_folder: ''
+    public_folder: ''
+    fields:
+      - name: image
+        label: Photo
+        widget: image
+        hint: Use lowercase .jpg/.jpeg/.png/.webp — RAW files are ignored by the build
+
+      - name: caption
+        label: Caption
+        widget: string
+        required: false
+        hint: Used as alt text. Falls back to the filename when empty.
+
+      - name: order
+        label: Order
+        widget: number
+        required: false
+        value_type: int
+        hint: Lowest first. Entries with no order sort last, by filename.
+
+  - name: projects
+    label: Projects
+    label_singular: Project
+    description: Project pages at /projects/<slug>
+    folder: src/lib/content/projects
+    extension: md
+    format: yaml-frontmatter
+    create: true
+    slug: '{{slug}}'
+    identifier_field: title
+    summary: '{{title}} — {{year}}'
+    sortable_fields: [year, title]
+    fields:
+      - name: title
+        label: Title
+        widget: string
+
+      - name: cat
+        label: Category
+        widget: string
+        required: false
+        hint: 'Free text, e.g. "Automotive · Street"'
+
+      - name: year
+        label: Year
+        widget: string
+        required: false
+        hint: Drives ordering — projects sort newest first
+
+      - name: cover
+        label: Cover image
+        widget: image
+        required: false
+        hint: Shown on the projects table and as the page hero
+
+      - name: intro
+        label: Intro
+        widget: text
+        required: false
+
+      # A real picker over the Gallery collection rather than typed filenames.
+      # Stores the uploaded filename (e.g. "IMG_7250.jpg"). The site normalises
+      # picture references by stripping the extension, so this matches the bare
+      # names already in the existing project frontmatter — no content migration
+      # was needed, and both shapes keep working.
+      - name: gallery
+        label: Featured gallery pictures
+        widget: relation
+        required: false
+        collection: pictures
+        value_field: image
+        display_fields: [image, caption]
+        search_fields: [image, caption]
+        multiple: true
+
+      # Decap/Sveltia map the markdown body to the field named `body`.
+      - name: body
+        label: Body
+        widget: markdown

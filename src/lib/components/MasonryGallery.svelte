@@ -9,18 +9,26 @@
 	   Images come from src/lib/content/pictures/ via @sveltejs/enhanced-img (see
 	   pictures.ts), so their intrinsic dimensions are known at build time — the layout
 	   is correct on first paint with no reflow, and the browser pulls small responsive
-	   variants instead of the full-size originals. When that folder is empty we fall
-	   back to a built-in placeholder set so the page is never blank. */
+	   variants instead of the full-size originals. When no pictures are passed in we
+	   fall back to a built-in placeholder set so the page is never blank. */
 
-	import { pictures, type Picture } from '$lib/content/pictures';
+	import type { Picture } from '$lib/content/pictures';
 	import Pic from './Pic.svelte';
 
-	type Frame = Pick<Picture, 'id' | 'w' | 'h' | 'src' | 'name' | 'sources'>;
+	type Frame = Pick<Picture, 'id' | 'w' | 'h' | 'src' | 'name' | 'caption' | 'sources'>;
 
-	// picture `name` -> project that features it (from project frontmatter, built
-	// server-side). Drives the "from project" tag shown over an expanded frame.
-	let { projectByPicture = {} }: { projectByPicture?: Record<string, { slug: string; title: string }> } =
-		$props();
+	/* `pictures` arrives from the route loader already in editorial order with
+	   captions applied (galleryPictures() in gallery.server.ts) — the metadata
+	   parsing behind that needs Node's Buffer, so it can't happen in this component.
+	   `projectByPicture` maps picture `name` -> the project featuring it, driving the
+	   "from project" tag over an expanded frame. */
+	let {
+		pictures = [],
+		projectByPicture = {}
+	}: {
+		pictures?: Frame[];
+		projectByPicture?: Record<string, { slug: string; title: string }>;
+	} = $props();
 
 	// design defaults from galleryApp.jsx (the Tweaks panel is omitted)
 	const GAP = 12;
@@ -62,7 +70,10 @@
 		name: `Frame ${f.id}`
 	}));
 
-	const frames: Frame[] = pictures.length ? pictures : PLACEHOLDER_FRAMES;
+	const frames: Frame[] = $derived(pictures.length ? pictures : PLACEHOLDER_FRAMES);
+
+	/** Human label for a frame — the caption when Mac has written one, else the filename. */
+	const label = (im: Frame) => im.caption?.trim() || im.name;
 
 	type Pos = { x: number; y: number; w: number; h: number };
 
@@ -263,7 +274,7 @@
 					? 'cursor-zoom-out'
 					: 'cursor-pointer'}"
 				onclick={() => toggle(im.id)}
-				aria-label={expandedId === im.id ? `Collapse ${im.name}` : `Expand ${im.name}`}
+				aria-label={expandedId === im.id ? `Collapse ${label(im)}` : `Expand ${label(im)}`}
 			>
 				<!-- eager-load the whole set: the responsive variants are small (~25–80 KB),
 					 so this guarantees every frame is present by the time you scroll down -->

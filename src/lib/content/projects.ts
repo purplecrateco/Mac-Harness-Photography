@@ -1,5 +1,6 @@
 import matter from 'gray-matter';
 import { marked } from 'marked';
+import { normalizePictureRef } from './pictures';
 
 /**
  * Project markdown content lives in ./projects/*.md and is bundled at build time
@@ -92,7 +93,10 @@ export function latestProject(): Project | null {
 export function pictureProjectMap(): Record<string, { slug: string; title: string }> {
 	const map: Record<string, { slug: string; title: string }> = {};
 	for (const project of getAllProjects()) {
-		for (const name of project.gallery ?? []) {
+		for (const ref of project.gallery ?? []) {
+			// Keyed by the normalised `name` so it matches Picture.name regardless of
+			// whether the frontmatter reference carries a file extension.
+			const name = normalizePictureRef(ref);
 			if (!map[name]) map[name] = { slug: project.slug, title: project.title };
 		}
 	}

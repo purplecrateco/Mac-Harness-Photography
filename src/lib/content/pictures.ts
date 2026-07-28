@@ -24,8 +24,18 @@ const files = import.meta.glob('./pictures/*.{jpg,jpeg,png,webp}', {
 
 export type Picture = {
 	id: number;
-	/** filename without extension — used as alt text */
+	/**
+	 * Filename without extension. This is the picture's stable *identity*, not its
+	 * label: project frontmatter `gallery:` entries reference it, and the gallery's
+	 * "from project" tag is looked up by it. Do not repurpose it for display text —
+	 * use `caption` for that.
+	 */
 	name: string;
+	/**
+	 * Editorial caption from the picture's metadata file, used as alt text when
+	 * present. Populated server-side by gallery.server.ts; undefined here.
+	 */
+	caption?: string;
 	/** fallback src (original-format, full-size) */
 	src: string;
 	w: number;
@@ -34,7 +44,17 @@ export type Picture = {
 	sources?: Record<string, string>;
 };
 
-/** All gallery pictures, ordered by filename (natural/numeric sort). */
+/**
+ * Every gallery image found on disk, ordered by filename (natural/numeric sort).
+ *
+ * This is the raw set. Editorial ordering and captions live in the sibling
+ * metadata collection (`pictures/*.md`) and are applied by `galleryPictures()`
+ * in gallery.server.ts — that parsing needs gray-matter, which depends on Node's
+ * Buffer and can't run in the browser, so it stays server-side.
+ *
+ * Consumers that just need "which images exist" (or a fallback when no metadata
+ * has been written yet) can use this directly; it is client-safe.
+ */
 export const pictures: Picture[] = Object.entries(files)
 	.sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
 	// Defensive: enhanced-img leaves unprocessable files as a plain URL string
@@ -48,6 +68,18 @@ export const pictures: Picture[] = Object.entries(files)
 		h: data.img.h,
 		sources: data.sources
 	}));
+
+/**
+ * Normalise a picture reference to a `name`.
+ *
+ * References reach us in two shapes: bare (`IMG_7250`) from hand-written project
+ * frontmatter, and with an extension (`IMG_7250.jpg`) from the CMS, which stores
+ * the uploaded filename. Strip a trailing image extension so both resolve to the
+ * same picture — otherwise a photo added through the CMS would silently fail to
+ * link to its project.
+ */
+export const normalizePictureRef = (ref: string) =>
+	ref.replace(/\.(jpe?g|png|webp|avif|gif)$/i, '');
 
 /**
  * How many pictures the homepage "Selected Work" peek shows (Gallery.svelte).

@@ -11,11 +11,18 @@
 		sizes,
 		eager = false
 	}: {
-		pic: Pick<Picture, 'src' | 'w' | 'h' | 'name'> & { sources?: Record<string, string> };
+		pic: Pick<Picture, 'src' | 'w' | 'h' | 'name'> & {
+			caption?: string;
+			sources?: Record<string, string>;
+		};
 		class?: string;
 		sizes?: string;
 		eager?: boolean;
 	} = $props();
+
+	// Prefer the editorial caption for alt text; fall back to the filename, which is
+	// all there is until Mac fills captions in via the CMS.
+	const alt = $derived(pic.caption?.trim() || pic.name || '');
 </script>
 
 <picture class="block h-full w-full">
@@ -29,7 +36,7 @@
 		width={pic.w}
 		height={pic.h}
 		{sizes}
-		alt={pic.name ?? ''}
+		{alt}
 		loading={eager ? 'eager' : 'lazy'}
 		decoding="async"
 		draggable="false"

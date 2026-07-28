@@ -114,7 +114,7 @@
 	<NavBar />
 	<Hero />
 	<!-- Default section order from homepageApp.jsx: gallery → project → about → contact -->
-	<Gallery />
+	<Gallery pictures={data.peekPics} />
 	<Project project={data.latest} />
 	<About />
 	<Contact />
