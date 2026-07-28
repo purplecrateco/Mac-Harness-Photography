@@ -40,6 +40,10 @@
 	// Tiles span ~1/5 of the 85vw stage on desktop, ~1/2 of 90vw on phones.
 	const SIZES = '(max-width: 680px) 45vw, 18vw';
 
+	// How many leading frames load eagerly. Roughly two rows at the widest layout,
+	// which covers the first screen; everything after this loads lazily on scroll.
+	const EAGER_COUNT = 12;
+
 	// Built-in fallback (used only when no pictures have been added yet).
 	const PLACEHOLDER_TONES: { id: number; w: number; h: number; tone: string }[] = [
 		{ id: 1, w: 800, h: 1000, tone: '1a1712' },
@@ -254,14 +258,18 @@
 	class:has-open={expandedId !== null}
 	style="border-radius:{RADIUS}px"
 >
-	{#each frames as im (im.id)}
+	{#each frames as im, i (im.id)}
 		{@const proj = projectByPicture[im.name]}
 		<!-- .mtile carries the packed geometry (set inline by the FLIP effect) and the
 			 is-expanded flag the dim-others CSS keys off of. The button inside handles the
 			 expand/collapse toggle; the project tag is a sibling link so it can navigate
 			 without nesting an <a> in a <button> (invalid HTML). -->
+		<!-- No blanket will-change here: with 60+ frames it asks the compositor for a
+			 layer per tile, each holding a large decoded image, which costs far more
+			 than it saves. The FLIP below uses the Web Animations API, so the browser
+			 promotes the tiles it is actually animating on its own. -->
 		<div
-			class="mtile absolute left-0 top-0 origin-top-left overflow-hidden bg-[#141318] [will-change:transform] {expandedId ===
+			class="mtile absolute left-0 top-0 origin-top-left overflow-hidden bg-[#141318] {expandedId ===
 			im.id
 				? 'is-expanded'
 				: ''}"
@@ -276,9 +284,10 @@
 				onclick={() => toggle(im.id)}
 				aria-label={expandedId === im.id ? `Collapse ${label(im)}` : `Expand ${label(im)}`}
 			>
-				<!-- eager-load the whole set: the responsive variants are small (~25–80 KB),
-					 so this guarantees every frame is present by the time you scroll down -->
-				<Pic pic={im} sizes={SIZES} eager />
+				<!-- Eager only for the frames that can plausibly be on screen at load.
+					 Eager-loading all 61 put that many simultaneous decodes in front of the
+					 first paint and the entrance animation; the rest stream in on scroll. -->
+				<Pic pic={im} sizes={SIZES} eager={i < EAGER_COUNT} />
 			</button>
 
 			{#if proj && expandedId === im.id}
@@ -352,6 +361,11 @@
 		}
 	}
 
+	/* Dimming uses opacity rather than a filter. `filter` forces a repaint of every
+		 affected image, and with one frame open that meant animating a filter across
+		 sixty large images at once, which is a visible stall (Firefox especially).
+		 Opacity is composited, so the same recede costs almost nothing. The tiles sit
+		 on a near-black stage, so fading toward it reads much like the old darkening. */
 	.mtile :global(img) {
 		display: block;
 		width: 100%;
@@ -360,8 +374,7 @@
 		transform: scale(1.001); /* avoids hairline edge on scale-in */
 		transition:
 			transform 0.7s cubic-bezier(0.2, 0.7, 0.3, 1),
-			filter 0.4s ease;
-		filter: saturate(1.02);
+			opacity 0.4s ease;
 	}
 	@media (hover: hover) {
 		.mtile:hover :global(img) {
@@ -369,10 +382,10 @@
 		}
 		/* gently recede the rest while one frame is open */
 		.masonry.has-open .mtile:not(.is-expanded) :global(img) {
-			filter: saturate(0.78) brightness(0.74);
+			opacity: 0.5;
 		}
 		.masonry.has-open .mtile:not(.is-expanded):hover :global(img) {
-			filter: saturate(0.95) brightness(0.92);
+			opacity: 0.82;
 		}
 	}
 </style>
