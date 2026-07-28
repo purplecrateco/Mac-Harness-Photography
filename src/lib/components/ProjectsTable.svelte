@@ -30,6 +30,40 @@
 	const target = { x: -9999, y: -9999 };
 	const pos = { x: -9999, y: -9999 };
 
+	/* Warm the hover previews.
+
+	   These covers appear nowhere else on this page, so without this the first hover
+	   over each row waits on a network fetch and then a decode, which is exactly when
+	   the delay is most obvious. Fetching and decoding them up front makes that first
+	   hover as instant as every later one.
+
+	   Deferred to idle so it never competes with the page's own render, and limited to
+	   projects that actually have a cover: the fallback is an external placeholder URL,
+	   not worth reaching out to a third party for on page load. */
+	$effect(() => {
+		const urls = [...new Set(projects.map((p) => p.cover).filter((c): c is string => !!c))];
+		if (!urls.length) return;
+
+		const warm = () => {
+			for (const src of urls) {
+				const img = new Image();
+				img.decoding = 'async';
+				img.src = src;
+				// Decode now too, so the first hover pays neither fetch nor decode.
+				img.decode?.().catch(() => {
+					/* decode is best-effort; the fetch above is what matters */
+				});
+			}
+		};
+
+		if (typeof window.requestIdleCallback === 'function') {
+			const id = window.requestIdleCallback(warm, { timeout: 2000 });
+			return () => window.cancelIdleCallback?.(id);
+		}
+		const id = window.setTimeout(warm, 400);
+		return () => window.clearTimeout(id);
+	});
+
 	// eased cursor follow — preview centered on the cursor (client-only via $effect)
 	$effect(() => {
 		const ease = Math.min(0.35, Math.max(0.04, lag));
