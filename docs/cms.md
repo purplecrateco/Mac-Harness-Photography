@@ -21,7 +21,7 @@ it needs the File System Access API, which Firefox and Safari don't support.
 npm run dev
 ```
 
-Then open <http://localhost:5173/admin/index.html>, choose **Work with Local
+Then open <http://localhost:5173/admin>, choose **Work with Local
 Repository**, and pick this repo's root directory when prompted.
 
 Edits land in your working tree as ordinary file changes. Sveltia performs no git

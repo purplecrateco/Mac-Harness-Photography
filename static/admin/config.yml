@@ -4,7 +4,7 @@
 #
 # Try it locally with zero auth (Chrome/Edge only — needs the File System Access API):
 #   npm run dev
-#   open http://localhost:5173/admin/index.html
+#   open http://localhost:5173/admin
 #   choose "Work with Local Repository" and pick the repo root
 # Edits are written straight to your working tree; commit with git as normal.
 #
