@@ -10,5 +10,8 @@
 		<!-- Sveltia CMS. Do not add a stylesheet link or type="module" here —
 		     the docs call out both as causes of breakage. -->
 		<script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+		<!-- Custom preview pane for Site settings → Homepage. Loads after the CMS so the
+		     global `CMS` object exists; it no-ops if the preview API ever changes. -->
+		<script src="/admin/preview.js"></script>
 	</body>
 </html>

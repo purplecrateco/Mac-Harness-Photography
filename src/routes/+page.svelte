@@ -130,7 +130,7 @@
 	<Hero />
 	<!-- Default section order from homepageApp.jsx: gallery → project → about → contact -->
 	<Gallery pictures={data.peekPics} />
-	<Project project={data.latest} />
+	<Project project={data.featured} />
 	<About />
 	<Contact />
 	<Footer />

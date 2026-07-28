@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import Mark from './Mark.svelte';
 	import { scrollToTop } from '$lib/scroll';
+	import { copy } from '$lib/content/copy';
 
 	// Show "Back to top" on the homepage, or anywhere the top of the document has
 	// scrolled out of view (i.e. there's actually somewhere to scroll back to).
@@ -29,7 +30,7 @@
 			<Mark size={18} /> MAC HARNESS
 		</a>
 		<span class="font-mono text-[11px] tracking-[0.08em] text-ink-faint">
-			© 2026 Mac Harness · Photographer since 2014
+			{copy.footer_note}
 		</span>
 		{#if showBackToTop}
 			<a

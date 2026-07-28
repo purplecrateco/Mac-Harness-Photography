@@ -4,39 +4,43 @@
 	import Kicker from './Kicker.svelte';
 	import Button from './Button.svelte';
 	import type { Picture } from '$lib/content/pictures';
+	import { copy } from '$lib/content/copy';
 
-	// The most recent project (by year) is resolved server-side in +page.server.ts
-	// and passed in here, so the homepage feature always reflects the newest project
-	// with no edits to this component when one is added.
-	type LatestProject = {
+	// The featured project is resolved server-side in +page.server.ts — chosen in the
+	// CMS, falling back to the most recent one — and passed in here, so this component
+	// needs no edits when the feature changes.
+	type FeaturedProject = {
 		slug: string;
 		title: string;
 		cat: string | null;
 		year: string | null;
 		cover: string | null;
 		intro: string | null;
-		// A few of the project's gallery pictures ("meta" images) for the collage.
+		// The leading gallery pictures the project selected, for the collage.
 		metaPics: Picture[];
 	};
 
-	let { project }: { project: LatestProject | null } = $props();
+	let { project }: { project: FeaturedProject | null } = $props();
 
 	// Accent the final word of the title in italic (e.g. "Salt & Silver" → Silver).
 	const words = $derived((project?.title ?? '').trim().split(/\s+/));
 	const titleHead = $derived(words.slice(0, -1).join(' '));
 	const titleTail = $derived(words.at(-1) ?? '');
 
-	// Right-hand collage: lead with the cover, then the project's meta images. The
-	// collage targets 3 plates below the cover; when the project has fewer meta
-	// images the remaining slots fall back to placeholders so it still reads full.
+	// Right-hand collage: the project's own selected pictures, up to 4 plates. The cover
+	// only leads when none were selected, so a project with pictures shows those rather
+	// than repeating its hero. Any slot still empty after that falls back to a
+	// placeholder so the collage reads full.
 	const SLOTS = [
+		{ w: 480, h: 600, label: 'PLATE 01' },
 		{ w: 480, h: 360, label: 'PLATE 02' },
 		{ w: 480, h: 360, label: 'PLATE 03' },
 		{ w: 480, h: 600, label: 'PLATE 04' }
 	];
 	const metaPics = $derived(project?.metaPics ?? []);
-	// Placeholder slots only for positions not covered by a real meta image.
-	const fillerSlots = $derived(SLOTS.slice(metaPics.length));
+	const showCover = $derived(!!project?.cover && metaPics.length === 0);
+	// Placeholder slots only for positions not covered by a real image.
+	const fillerSlots = $derived(SLOTS.slice(metaPics.length + (showCover ? 1 : 0)));
 </script>
 
 {#if project}
@@ -48,7 +52,7 @@
 			class="mx-auto grid w-full max-w-[1320px] grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] items-center gap-[72px] px-6 sm:px-10 lg:px-14 max-[900px]:grid-cols-1 max-[900px]:gap-12"
 		>
 			<div class="reveal">
-				<Kicker>Latest Project</Kicker>
+				<Kicker>{copy.project.kicker}</Kicker>
 				<h2
 					class="mb-7 mt-3.5 font-serif text-[clamp(40px,5.4vw,76px)] font-normal leading-[0.96] tracking-[-0.01em] text-ink"
 				>
@@ -75,7 +79,7 @@
 			</div>
 
 			<div class="reveal columns-2 gap-x-4">
-				{#if project.cover}
+				{#if showCover && project.cover}
 					<div class="group mb-4 break-inside-avoid overflow-hidden rounded-xl">
 						<img
 							src={project.cover}

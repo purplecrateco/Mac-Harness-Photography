@@ -59,6 +59,51 @@ Until then, local mode is fully functional for your own editing.
 
 ## Content model
 
+### Site settings → Homepage
+
+One form, editing `src/lib/content/settings/homepage.json`. It holds two things.
+
+**Which project the homepage features.** *Featured project* is a picker over the
+Projects collection storing that project's slug. The section then pulls the project's
+title, intro, category, year and the **first four of its featured gallery pictures**
+automatically — none of that is retyped here. Leave the field empty and the homepage
+falls back to the newest project by year, which is what it did before the field
+existed. A slug pointing at a deleted or renamed project falls back the same way, so
+the section can't go blank.
+
+Pictures already shown in the homepage's *Selected Work* peek are skipped, so the
+same frame never appears twice on the page. A project whose first four pictures are
+all in that peek will show fewer — pick pictures further down the gallery, or reorder
+the gallery, if that happens.
+
+**All homepage copy**, grouped by the section it appears in: Hero, Selected Work,
+Featured project (the kicker only), About, Contact, plus the footer line. Two
+conventions worth knowing:
+
+- **Heading + accent.** Headings that end in italic gold words are split in two —
+  *Heading* (`Frames that`) and *Heading — accent* (`last`). The full stop is added by
+  the site, so don't type one.
+- **Multi-line fields.** *Note*, *Studio lines* and similar render one line per line
+  break. Blank lines are dropped.
+
+The copy is read by [src/lib/content/copy.ts](../src/lib/content/copy.ts), which is
+the place to look when adding a field: add it to the JSON, the type there, the config,
+and the component. The *Footer line* renders on every page, not just the homepage.
+
+Nav links and the nav's own button label are not CMS-editable — they're site
+navigation rather than copy, and live in `NavBar.svelte`.
+
+#### Preview pane
+
+This file has a custom preview
+([static/admin/preview.js](../static/admin/preview.js)) that lays the copy out section
+by section in the site's fonts and updates as you type. Sveltia's default preview
+lists fields one by one, which is no use for judging a headline that splits across two
+fields.
+
+It's a copy proof, not a staging site: no photos, no hero layout, no animation. To see
+the real thing, save and look at the site.
+
 ### Gallery
 
 One entry per photo, editing the paired files in `src/lib/content/pictures/`

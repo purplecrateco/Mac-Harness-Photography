@@ -3,6 +3,10 @@
 	import Kicker from './Kicker.svelte';
 	import Pic from './Pic.svelte';
 	import type { Picture } from '$lib/content/pictures';
+	import { copy, lines } from '$lib/content/copy';
+
+	const t = copy.gallery;
+	const noteLines = lines(t.note);
 
 	/* The peek tiles arrive from the route loader (`peekPics` — the leading
 	   GALLERY_PEEK_COUNT of the ordered gallery set, captions included), because the
@@ -46,18 +50,18 @@
 	<div class="mx-auto w-full max-w-[1320px] px-6 sm:px-10 lg:px-14">
 		<div class="reveal mb-[60px] flex flex-wrap items-end justify-between gap-10">
 			<div>
-				<Kicker>Selected Work</Kicker>
+				<Kicker>{t.kicker}</Kicker>
 				<h2
 					class="mt-3.5 font-serif text-[clamp(44px,6vw,84px)] font-normal leading-[0.96] tracking-[-0.01em] text-ink"
 				>
-					Frames that <em class="italic text-gold">last</em>.
+					{t.heading} <em class="italic text-gold">{t.heading_accent}</em>.
 				</h2>
 			</div>
 			<div
 				class="max-w-[280px] font-mono text-[12.5px] leading-[1.9] tracking-[0.04em] text-ink-dim max-[760px]:text-left sm:text-right"
 			>
-				A rotating edit of portrait,<br />wedding &amp; editorial work.<br />
-				<span class="text-ink-faint">2018 → 2026</span>
+				{#each noteLines as line (line)}{line}<br />{/each}
+				<span class="text-ink-faint">{t.note_years}</span>
 			</div>
 		</div>
 

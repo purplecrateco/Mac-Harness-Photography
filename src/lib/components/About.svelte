@@ -1,13 +1,11 @@
 <script lang="ts">
 	import Ph from './Ph.svelte';
 	import Kicker from './Kicker.svelte';
+	import { copy } from '$lib/content/copy';
 
-	const services = ['Portraits', 'Weddings', 'Editorial', 'Lifestyle', 'Travel', '35mm Film'];
-	const stats = [
-		{ num: '12', lbl: 'Years shooting' },
-		{ num: '240+', lbl: 'Stories told' },
-		{ num: '9', lbl: 'Countries' }
-	];
+	const t = copy.about;
+	const services = t.services ?? [];
+	const stats = t.stats ?? [];
 </script>
 
 <section id="about" class="relative border-t border-white/[0.055] py-20 sm:py-28 lg:py-[140px]">
@@ -21,28 +19,25 @@
 		</div>
 
 		<div class="reveal">
-			<Kicker>About Me</Kicker>
+			<Kicker>{t.kicker}</Kicker>
 			<h2
 				class="mb-8 mt-3.5 font-serif text-[clamp(40px,5vw,68px)] font-normal leading-[0.98] tracking-[-0.01em] text-ink"
 			>
-				Hi, I&rsquo;m Mac.
+				{t.heading}
 			</h2>
 			<p class="mb-[22px] max-w-[54ch] text-[24px] leading-[1.5] text-ink">
-				<span class="text-ink">I&rsquo;ve been shooting for over a decade</span>, in quiet studios and
-				on windswept coastlines, mostly working with whatever light the day gives me. What I want is
-				a photograph that feels like a memory rather than a pose.
+				{t.lead}
 			</p>
 			<p class="mb-[22px] max-w-[54ch] text-[19px] leading-[1.65] text-ink-dim">
-				I work slowly, and on film when it counts. Usually that means we talk for a while, walk
-				around, and wait until something happens that&rsquo;s worth keeping.
+				{t.body}
 			</p>
 
 			<div class="my-[42px] mb-9 grid grid-cols-[repeat(3,auto)] gap-x-6 gap-y-9 sm:gap-x-12">
-				{#each stats as s (s.lbl)}
+				{#each stats as s (s.label)}
 					<div>
 						<div class="font-serif text-[48px] leading-none text-gold">{s.num}</div>
 						<div class="mt-2 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">
-							{s.lbl}
+							{s.label}
 						</div>
 					</div>
 				{/each}
@@ -57,7 +52,7 @@
 				{/each}
 			</div>
 
-			<div class="font-serif text-[34px] italic text-ink">Mac Harness</div>
+			<div class="font-serif text-[34px] italic text-ink">{t.signature}</div>
 		</div>
 	</div>
 </section>

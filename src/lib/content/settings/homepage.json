@@ -1,0 +1,76 @@
+{
+  "featured_project": "",
+  "hero": {
+    "name_top": "MAC",
+    "name_bottom": "HARNESS",
+    "blurb": "Portrait & wedding photographer. I shoot the story of the day, not a set of poses.",
+    "cta": "Book a session",
+    "scroll_hint": "Scroll"
+  },
+  "gallery": {
+    "kicker": "Selected Work",
+    "heading": "Frames that",
+    "heading_accent": "last",
+    "note": "A rotating edit of portrait,\nwedding & editorial work.",
+    "note_years": "2018 → 2026"
+  },
+  "project": {
+    "kicker": "Latest Project"
+  },
+  "about": {
+    "kicker": "About Me",
+    "heading": "Hi, I’m Mac.",
+    "lead": "I’ve been shooting for over a decade, in quiet studios and on windswept coastlines, mostly working with whatever light the day gives me. What I want is a photograph that feels like a memory rather than a pose.",
+    "body": "I work slowly, and on film when it counts. Usually that means we talk for a while, walk around, and wait until something happens that’s worth keeping.",
+    "stats": [
+      {
+        "num": "12",
+        "label": "Years shooting"
+      },
+      {
+        "num": "240+",
+        "label": "Stories told"
+      },
+      {
+        "num": "9",
+        "label": "Countries"
+      }
+    ],
+    "services": [
+      "Portraits",
+      "Weddings",
+      "Editorial",
+      "Lifestyle",
+      "Travel",
+      "35mm Film"
+    ],
+    "signature": "Mac Harness"
+  },
+  "contact": {
+    "kicker": "Get in Touch",
+    "heading": "Let’s make something",
+    "heading_accent": "worth keeping",
+    "blurb": "I take portrait sessions, weddings and editorial commissions, and I’ll travel for them. Tell me what you have in mind.",
+    "email": "hello@macharness.studio",
+    "studio_title": "Studio",
+    "studio_lines": "Lisbon, Portugal\nBy appointment",
+    "follow_title": "Follow",
+    "follow_links": [
+      {
+        "label": "Instagram",
+        "url": "https://instagram.com"
+      },
+      {
+        "label": "Behance",
+        "url": "https://behance.net"
+      },
+      {
+        "label": "Journal",
+        "url": "#top"
+      }
+    ],
+    "enquiries_title": "Enquiries",
+    "phone": "+351 912 000 000"
+  },
+  "footer_note": "© 2026 Mac Harness · Photographer since 2014"
+}

@@ -2,6 +2,9 @@
 	import Ph from './Ph.svelte';
 	import Button from './Button.svelte';
 	import { scrollToId } from '$lib/scroll';
+	import { copy } from '$lib/content/copy';
+
+	const t = copy.hero;
 
 	/* warm radial wash — kept inline; the arbitrary-value form would be unreadable */
 	const warmBg =
@@ -20,13 +23,13 @@
 			data-anim="hero-name"
 			class="t-mac pointer-events-none absolute left-6 top-[-2%] z-[1] m-0 select-none font-serif text-[clamp(82px,15.5vw,232px)] leading-[0.78] tracking-[-0.01em] text-gold max-[760px]:top-[7%] sm:left-10 lg:left-14"
 		>
-			MAC
+			{t.name_top}
 		</h1>
 		<h1
 			data-anim="hero-name"
 			class="t-harness pointer-events-none absolute right-6 top-[26%] lg:top-[max(30%,245px)] z-[3] m-0 select-none font-serif text-[clamp(66px,12.5vw,188px)] leading-[0.78] tracking-[-0.01em] text-gold max-[760px]:top-[21%] sm:right-10 lg:right-14"
 		>
-			HARNESS
+			{t.name_bottom}
 		</h1>
 
 		<div
@@ -47,7 +50,7 @@
 			data-anim="hero-blurb"
 			class="t-blurb absolute left-6 top-[46%] z-[4] w-[clamp(210px,22vw,290px)] font-mono text-[13px] uppercase leading-[1.75] tracking-[0.04em] text-ink-dim sm:left-10 lg:left-14 max-[760px]:hidden"
 		>
-			Portrait &amp; wedding photographer. I shoot the story of the day, not a set of poses.
+			{t.blurb}
 		</p>
 
 
@@ -56,7 +59,7 @@
 			class="t-cta absolute right-[7%] top-[62%] z-[5] max-[760px]:bottom-[15%] max-[760px]:right-1/2 max-[760px]:top-auto max-[760px]:translate-x-1/2"
 		>
 			<Button onclick={() => scrollToId('contact')}>
-				Book a session <span class="text-sm opacity-90">→</span>
+				{t.cta} <span class="text-sm opacity-90">→</span>
 			</Button>
 		</div>
 	</div>
@@ -65,7 +68,7 @@
 		data-anim="hero-fade"
 		class="t-scroll absolute bottom-6 left-1/2 z-[6] flex -translate-x-1/2 flex-col items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.26em] text-ink-faint"
 	>
-		<span>Scroll</span>
+		<span>{t.scroll_hint}</span>
 		<i class="h-[34px] w-px bg-gradient-to-b from-ink-faint to-transparent"></i>
 	</div>
 </header>
