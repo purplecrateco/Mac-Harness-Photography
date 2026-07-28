@@ -13,6 +13,10 @@ node_modules
 # and reinstallable with `npx impeccable install`.
 .claude/
 
+# Impeccable run artifacts (critique snapshots, ignore lists, config).
+# Tool state, not project content.
+.impeccable/
+
 # OS
 .DS_Store
 Thumbs.db
