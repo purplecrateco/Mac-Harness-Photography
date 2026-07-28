@@ -14,18 +14,28 @@
 
 	let pageEl: HTMLDivElement;
 
+	// Elements are hidden before first paint by the inline script in app.html (see the
+	// .motion-armed rules in app.css). Release them once GSAP owns their start states,
+	// so there's no window where they sit visible at their final position.
+	const disarm = () => document.documentElement.classList.remove('motion-armed');
+
 	onMount(() => {
 		// Respect reduced-motion: leave the CSS .reveal fades in place and skip GSAP.
+		// Nothing to disarm here, since the inline script skips arming in that case.
 		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
 		let ctx: { revert: () => void } | undefined;
 		let cancelled = false;
 
 		(async () => {
-			const [{ gsap }, { ScrollTrigger }] = await Promise.all([
-				import('gsap'),
-				import('gsap/ScrollTrigger')
-			]);
+			let mods;
+			try {
+				mods = await Promise.all([import('gsap'), import('gsap/ScrollTrigger')]);
+			} catch {
+				disarm(); // never strand the hero hidden if GSAP fails to load
+				return;
+			}
+			const [{ gsap }, { ScrollTrigger }] = mods;
 			if (cancelled) return;
 			gsap.registerPlugin(ScrollTrigger);
 
@@ -52,6 +62,10 @@
 						{ autoAlpha: 0, duration: 0.8, stagger: 0.12 },
 						'-=0.6'
 					);
+
+				// `from` tweens render their start state on creation, so by this point the
+				// hero is held at opacity 0 by GSAP rather than by the arming class.
+				disarm();
 
 				// ---------- SCROLL: section reveals ----------
 				gsap.utils.toArray<HTMLElement>('.reveal:not([data-anim])').forEach((el) => {
@@ -104,6 +118,7 @@
 		return () => {
 			cancelled = true;
 			ctx?.revert();
+			disarm();
 		};
 	});
 </script>

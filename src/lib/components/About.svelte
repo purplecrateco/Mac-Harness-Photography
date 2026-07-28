@@ -14,14 +14,9 @@
 	<div
 		class="mx-auto grid w-full max-w-[1320px] grid-cols-[minmax(0,440px)_1fr] items-center gap-[72px] px-6 sm:px-10 lg:px-14 max-[900px]:grid-cols-1 max-[900px]:gap-16"
 	>
-		<div class="reveal relative">
+		<div class="reveal">
 			<div class="aspect-[44/56] w-full">
 				<Ph w={880} h={1120} label="MAC · PORTRAIT" src="/portrait.jpeg" radius="20px" />
-			</div>
-			<div
-				class="glass absolute bottom-[-34px] right-[-34px] w-[150px] rotate-[-6deg] rounded-xl p-[9px] max-[900px]:right-[18px]"
-			>
-				<Ph w={300} h={300} label="ON SET" radius="6px" />
 			</div>
 		</div>
 

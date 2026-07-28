@@ -10,6 +10,34 @@
 			rel="stylesheet"
 		/>
 		%sveltekit.head%
+		<!--
+			Arm the entrance animations before the first paint.
+
+			The hero and page intros are animated in by GSAP, which is imported
+			dynamically and therefore lands well after the prerendered HTML has already
+			painted. Without this, elements show at their final position, get snapped to
+			their start state when the timeline is built, and then glide in. Adding the
+			class here, blocking and ahead of the body, means they are hidden from the
+			very first frame instead. See the .motion-armed rules in app.css.
+
+			The timeout is a failsafe: if the bundle never arrives or throws, content
+			must not stay invisible. Motion code removes the class as soon as it owns
+			the elements, and skips arming entirely under reduced-motion.
+		-->
+		<script>
+			(function () {
+				try {
+					if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+					var root = document.documentElement;
+					root.classList.add('motion-armed');
+					setTimeout(function () {
+						root.classList.remove('motion-armed');
+					}, 4000);
+				} catch (e) {
+					/* no arming: content simply renders without an entrance */
+				}
+			})();
+		</script>
 	</head>
 	<body data-sveltekit-preload-data="hover">
 		<div style="display: contents; height:100%;">%sveltekit.body%</div>

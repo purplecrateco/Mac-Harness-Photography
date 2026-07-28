@@ -3,10 +3,11 @@
    - SCROLL: content reveals (table rows / masonry tiles) batch in as they enter view.
    GSAP + ScrollTrigger are dynamically imported (code-split, client-only).
 
-   Safety: respects prefers-reduced-motion, and "arms" animatable elements (hides them
-   via a class) synchronously before paint so there's no reveal flash — with a failsafe
-   timeout + try/catch that un-hides everything if GSAP never loads, so content is never
-   stranded with JS off or on error. Returns a cleanup for onMount. */
+   Safety: respects prefers-reduced-motion. Animatable elements are hidden before the
+   first paint by the inline script in app.html, which adds .motion-armed to <html> (see
+   the rules in app.css); this releases that class once GSAP owns the start states. A
+   failsafe timeout here and in that script un-hides everything if GSAP never loads, so
+   content is never stranded with JS off or on error. Returns a cleanup for onMount. */
 
 type MotionOptions = {
 	/** selector (scoped to root) for elements that batch-reveal on scroll */
@@ -17,12 +18,12 @@ export function initPageMotion(root: HTMLElement, opts: MotionOptions = {}): () 
 	if (typeof window === 'undefined') return () => {};
 	if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return () => {};
 
-	// hide animatable elements before first paint (see route <style> for the rules)
-	root.classList.add('motion-armed');
+	// Already armed before first paint by app.html; this only ever releases it.
+	const disarm = () => document.documentElement.classList.remove('motion-armed');
 
 	let ctx: { revert: () => void } | undefined;
 	let cancelled = false;
-	const failsafe = window.setTimeout(() => root.classList.remove('motion-armed'), 4000);
+	const failsafe = window.setTimeout(disarm, 4000);
 
 	(async () => {
 		try {
@@ -47,6 +48,10 @@ export function initPageMotion(root: HTMLElement, opts: MotionOptions = {}): () 
 						stagger: 0.12
 					});
 				}
+
+				// `from` tweens apply their start state on creation, so the intro is now held
+				// hidden by GSAP and the arming class can go.
+				disarm();
 
 				// ---------- SCROLL: generic reveals (parity with the homepage) ----------
 				gsap.utils.toArray<HTMLElement>('.reveal:not([data-anim])', root).forEach((el) => {
@@ -84,7 +89,7 @@ export function initPageMotion(root: HTMLElement, opts: MotionOptions = {}): () 
 				window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
 			}, root);
 		} catch {
-			root.classList.remove('motion-armed'); // never strand content
+			disarm(); // never strand content
 		}
 	})();
 
@@ -92,6 +97,6 @@ export function initPageMotion(root: HTMLElement, opts: MotionOptions = {}): () 
 		cancelled = true;
 		window.clearTimeout(failsafe);
 		ctx?.revert();
-		root.classList.remove('motion-armed');
+		disarm();
 	};
 }

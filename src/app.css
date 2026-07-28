@@ -64,6 +64,27 @@
 			#070708;
 		background-attachment: fixed;
 	}
+
+	/* Thematic gold-on-dark scrollbar */
+	html {
+		scrollbar-width: thin;
+		scrollbar-color: var(--color-gold) var(--color-base);
+	}
+	::-webkit-scrollbar {
+		width: 11px;
+		height: 11px;
+	}
+	::-webkit-scrollbar-track {
+		background: var(--color-base);
+	}
+	::-webkit-scrollbar-thumb {
+		background: linear-gradient(var(--color-gold), #9c8047);
+		border: 2px solid var(--color-base);
+		border-radius: 999px;
+	}
+	::-webkit-scrollbar-thumb:hover {
+		background: var(--color-gold);
+	}
 }
 
 /* Liquid-glass primitive — reused on the hero polaroid, the about chip and
@@ -97,4 +118,20 @@
 	.reveal {
 		animation: none;
 	}
+}
+
+/* Entrance arming. The inline script in app.html adds .motion-armed to <html>
+   before the first paint, so anything GSAP animates in starts hidden instead of
+   flashing at its final position while the dynamic import resolves. Motion code
+   removes the class once it has applied its own start states, and the script's
+   timeout removes it if the bundle never arrives.
+
+   [data-load] covers the secondary page intros; the hero-* hooks are the
+   homepage timeline. Keep this list in sync with the load animations. */
+.motion-armed [data-load],
+.motion-armed [data-anim='hero-name'],
+.motion-armed [data-anim='hero-portrait'] img,
+.motion-armed [data-anim='hero-blurb'],
+.motion-armed [data-anim='hero-fade'] {
+	visibility: hidden;
 }
