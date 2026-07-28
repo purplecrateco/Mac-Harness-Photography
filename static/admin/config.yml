@@ -11,7 +11,7 @@
 # For remote editing (i.e. handing this to Mac) the `backend` below needs an OAuth
 # relay — deploy sveltia-cms-auth as a Cloudflare Worker and add its `base_url`.
 # Do that under the Purple Crate Co account, not a personal one, and update `repo`
-# after the transfer. See docs/cloudflare-migration-plan.md.
+# after the transfer. See docs/cms.md and docs/cloudflare-migration-plan.md.
 
 backend:
   name: github
@@ -33,9 +33,15 @@ collections:
     extension: md
     format: yaml-frontmatter
     create: true
-    slug: '{{fields.image}}'
+    # No explicit `slug`: there is no filter to strip a file extension, so any
+    # template based on `image` would yield e.g. "img_7250-jpg". Letting it default
+    # from identifier_field has the same cosmetic quirk for CMS-created entries, but
+    # it's harmless — the site pairs metadata to images via the `image` field, not
+    # the filename. (The 61 pre-existing files are named after their image.)
     identifier_field: image
-    summary: '{{order}} · {{image}}{{#if caption}} — {{caption}}{{/if}}'
+    # `{{filename}}` is the basename without extension, i.e. the picture's `name`.
+    # Conditionals like {{#if}} are NOT supported — use the `default` filter.
+    summary: "{{order}} · {{filename}} — {{caption | default('(no caption)')}}"
     sortable_fields: [order, image, caption]
     # Empty string = store uploads alongside the entry, i.e. in this same folder.
     # public_folder is meaningless here: enhanced-img rewrites these to hashed,
