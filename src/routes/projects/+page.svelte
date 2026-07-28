@@ -13,7 +13,8 @@
 	// Derive the index range + count straight from the loaded projects so the
 	// header copy never drifts from what's actually in the projects directory.
 	const years = $derived(projects.map((p) => Number(p.year)).filter((y) => !Number.isNaN(y)));
-	const range = $derived(years.length ? `${Math.min(...years)} → ${Math.max(...years)}` : '—');
+	// Empty when no project has a year, so the kicker reads just "Index".
+	const range = $derived(years.length ? ` · ${Math.min(...years)} → ${Math.max(...years)}` : '');
 	const count = $derived(projects.length);
 
 	let pageEl: HTMLDivElement;
@@ -21,7 +22,7 @@
 	onMount(() => initPageMotion(pageEl, { batch: '[data-anim="row"]' }));
 </script>
 
-<Seo title="Projects" description="Selected bodies of work — portrait, wedding and editorial projects by Mac Harness." />
+<Seo title="Projects" description="Portrait, wedding and editorial projects by Mac Harness." />
 
 <div class="page" bind:this={pageEl}>
 	<NavBar />
@@ -30,7 +31,7 @@
 		<div class="mx-auto w-full max-w-[1320px]">
 			<div data-anim="intro" class="reveal flex flex-wrap items-end justify-between gap-10">
 				<div>
-					<div data-load><Kicker>Index · {range}</Kicker></div>
+					<div data-load><Kicker>Index{range}</Kicker></div>
 					<h1
 						data-load
 						class="mt-4 font-serif text-[clamp(48px,7vw,104px)] font-normal leading-[0.94] tracking-[-0.015em] text-ink"
@@ -42,7 +43,7 @@
 					data-load
 					class="max-w-[280px] font-mono text-[12.5px] leading-[1.9] tracking-[0.04em] text-ink-dim max-[760px]:text-left sm:text-right"
 				>
-					{count} {count === 1 ? 'body' : 'bodies'} of work —<br />portrait, wedding &amp; editorial.<br />
+					{count} {count === 1 ? 'body' : 'bodies'} of work.<br />Portrait, wedding &amp; editorial.<br />
 					<span class="text-ink-faint">Hover a row to preview.</span>
 				</div>
 			</div>

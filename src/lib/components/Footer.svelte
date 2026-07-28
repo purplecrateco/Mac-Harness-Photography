@@ -29,7 +29,7 @@
 			<Mark size={18} /> MAC HARNESS
 		</a>
 		<span class="font-mono text-[11px] tracking-[0.08em] text-ink-faint">
-			© 2026 Mac Harness · Visual storyteller since 2014
+			© 2026 Mac Harness · Photographer since 2014
 		</span>
 		{#if showBackToTop}
 			<a

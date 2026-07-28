@@ -8,7 +8,7 @@
 </script>
 
 <svelte:head>
-	<title>Mac Harness — {status}</title>
+	<title>Mac Harness · {status}</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

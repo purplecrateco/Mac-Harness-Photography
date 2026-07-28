@@ -11,8 +11,8 @@
 			Let&rsquo;s make something <em class="italic text-gold">worth keeping</em>.
 		</h2>
 		<p class="mx-auto mb-12 mt-7 max-w-[48ch] text-[18px] leading-[1.6] text-ink-dim">
-			Booking portrait sessions, weddings and editorial commissions worldwide. Tell me about your
-			story and let&rsquo;s find the light.
+			I take portrait sessions, weddings and editorial commissions, and I&rsquo;ll travel for them.
+			Tell me what you have in mind.
 		</p>
 		<a
 			href="mailto:hello@macharness.studio"

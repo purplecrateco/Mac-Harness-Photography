@@ -57,7 +57,7 @@
 				class="max-w-[280px] font-mono text-[12.5px] leading-[1.9] tracking-[0.04em] text-ink-dim max-[760px]:text-left sm:text-right"
 			>
 				A rotating edit of portrait,<br />wedding &amp; editorial work.<br />
-				<span class="text-ink-faint">— 2018 → 2026</span>
+				<span class="text-ink-faint">2018 → 2026</span>
 			</div>
 		</div>
 

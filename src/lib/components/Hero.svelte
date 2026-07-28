@@ -5,7 +5,9 @@
 
 	/* warm radial wash — kept inline; the arbitrary-value form would be unreadable */
 	const warmBg =
-		'radial-gradient(130% 110% at 22% -10%, #1d1812 0%, #100d09 50%, #08070a 100%)';
+		// bottom linear fades the warm wash into the page base (#070708) so there's no seam to the next section
+		'linear-gradient(to bottom, transparent 55%, #070708 100%),' +
+		'radial-gradient(130% 110% at 22% -10%, #34291c 0%, #1d180f 50%, #131218 100%)';
 </script>
 
 <header
@@ -29,29 +31,29 @@
 
 		<div
 			data-anim="hero-portrait"
-			class="t-portrait absolute bottom-[10px] left-1/2 z-[2] aspect-[46/68] w-[clamp(280px,32vw,440px)] -translate-x-1/2 [mask-image:linear-gradient(to_bottom,#000_68%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_68%,transparent_100%)] max-[760px]:bottom-[130px] max-[760px]:w-[clamp(340px,82vw,420px)]"
+			class="t-portrait absolute bottom-[260px] left-1/2 z-[2] aspect-[46/68] w-[clamp(280px,32vw,440px)] -translate-x-1/2 max-[760px]:bottom-[380px] max-[760px]:w-[clamp(340px,82vw,420px)]"
 		>
-			<Ph w={920} h={1360} label="HERO PORTRAIT" radius="20px 20px 0 0" />
+			<Ph
+				w={920}
+				h={1360}
+				label="HERO PORTRAIT"
+				src="/hero.png"
+				radius="20px 20px 0 0"
+				class="!border-0 !bg-transparent !shadow-none"
+			/>
 		</div>
 
 		<p
 			data-anim="hero-blurb"
 			class="t-blurb absolute left-6 top-[46%] z-[4] w-[clamp(210px,22vw,290px)] font-mono text-[13px] uppercase leading-[1.75] tracking-[0.04em] text-ink-dim sm:left-10 lg:left-14 max-[760px]:hidden"
 		>
-			Professional photographer specialising in portraits, weddings &amp; cinematic storytelling
-			through timeless imagery.
+			Portrait &amp; wedding photographer. I shoot the story of the day, not a set of poses.
 		</p>
 
-		<div
-			data-anim="hero-fade"
-			class="t-film glass absolute right-[9%] top-[14%] z-[4] w-[clamp(110px,12vw,152px)] rotate-[7deg] rounded-[9px] p-[9px] max-[760px]:hidden"
-		>
-			<Ph w={300} h={330} label="35MM" radius="3px" />
-		</div>
 
 		<div
 			data-anim="hero-fade"
-			class="t-cta absolute right-[7%] top-[50%] z-[5] max-[760px]:bottom-[15%] max-[760px]:right-1/2 max-[760px]:top-auto max-[760px]:translate-x-1/2"
+			class="t-cta absolute right-[7%] top-[62%] z-[5] max-[760px]:bottom-[15%] max-[760px]:right-1/2 max-[760px]:top-auto max-[760px]:translate-x-1/2"
 		>
 			<Button onclick={() => scrollToId('contact')}>
 				Book a session <span class="text-sm opacity-90">→</span>

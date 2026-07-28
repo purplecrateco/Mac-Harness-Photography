@@ -16,7 +16,7 @@
 	>
 		<div class="reveal relative">
 			<div class="aspect-[44/56] w-full">
-				<Ph w={880} h={1120} label="MAC · PORTRAIT" radius="20px" />
+				<Ph w={880} h={1120} label="MAC · PORTRAIT" src="/portrait.jpeg" radius="20px" />
 			</div>
 			<div
 				class="glass absolute bottom-[-34px] right-[-34px] w-[150px] rotate-[-6deg] rounded-xl p-[9px] max-[900px]:right-[18px]"
@@ -33,13 +33,13 @@
 				Hi, I&rsquo;m Mac.
 			</h2>
 			<p class="mb-[22px] max-w-[54ch] text-[24px] leading-[1.5] text-ink">
-				<span class="text-ink">For over a decade I&rsquo;ve been chasing natural light</span> — from
-				quiet studios to windswept coastlines — making photographs that feel less like poses and more
-				like memories.
+				<span class="text-ink">I&rsquo;ve been shooting for over a decade</span>, in quiet studios and
+				on windswept coastlines, mostly working with whatever light the day gives me. What I want is
+				a photograph that feels like a memory rather than a pose.
 			</p>
 			<p class="mb-[22px] max-w-[54ch] text-[19px] leading-[1.65] text-ink-dim">
-				I work slowly and on film when it counts. My approach is unhurried and collaborative: we
-				talk, we walk, we wait for the moment that&rsquo;s actually worth keeping.
+				I work slowly, and on film when it counts. Usually that means we talk for a while, walk
+				around, and wait until something happens that&rsquo;s worth keeping.
 			</p>
 
 			<div class="my-[42px] mb-9 grid grid-cols-[repeat(3,auto)] gap-x-6 gap-y-9 sm:gap-x-12">
