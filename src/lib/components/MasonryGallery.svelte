@@ -66,18 +66,43 @@
 		{ id: 18, w: 1120, h: 760, tone: '10161a' }
 	];
 
+	/* Stand-in tile art, drawn locally as an inline SVG data URI rather than fetched
+	   from placehold.co. Everything else here is prerendered and self-hosted, so that
+	   was the site's only third-party runtime request — and it sat on the one path that
+	   renders when there is nothing to show, i.e. exactly when an outage or a blocked
+	   request would be least recoverable. Same w×h and tone as before, and the id stays
+	   drawn on the tile so the frames remain tellable apart while packing is eyeballed. */
+	const placeholderSrc = (w: number, h: number, tone: string, id: number) => {
+		const svg =
+			`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">` +
+			`<rect width="${w}" height="${h}" fill="#${tone}"/>` +
+			`<text x="50%" y="50%" fill="#3a3a44" font-family="system-ui,sans-serif"` +
+			` font-size="${Math.round(Math.min(w, h) / 4)}" text-anchor="middle"` +
+			` dominant-baseline="central">${id}</text></svg>`;
+		return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+	};
+
 	const PLACEHOLDER_FRAMES: Frame[] = PLACEHOLDER_TONES.map((f) => ({
 		id: f.id,
 		w: f.w,
 		h: f.h,
-		src: `https://placehold.co/${f.w}x${f.h}/${f.tone}/3a3a44?text=${f.id}`,
+		src: placeholderSrc(f.w, f.h, f.tone, f.id),
 		name: `Frame ${f.id}`
 	}));
 
 	const frames: Frame[] = $derived(pictures.length ? pictures : PLACEHOLDER_FRAMES);
 
 	/** Human label for a frame — the caption when Mac has written one, else the filename. */
-	const label = (im: Frame) => im.caption?.trim() || im.name;
+	/* Camera filenames (_DSC0373) are worse than a generic name for a screen
+	   reader, so an empty caption falls back to a positional label instead. */
+	const label = (im: Frame) => im.caption?.trim() || `photograph ${frames.indexOf(im) + 1} of ${frames.length}`;
+
+	/* Queried at the moment of animating rather than cached in state, matching how the
+	   rest of the site asks (app.html, motion.ts, the homepage) — no listener to keep in
+	   sync, and an OS-level change mid-session is picked up on the next layout pass. */
+	const prefersReducedMotion = () =>
+		typeof window !== 'undefined' &&
+		window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 	type Pos = { x: number; y: number; w: number; h: number };
 
@@ -171,7 +196,13 @@
 		const widthChanged = w !== lastWidth;
 		const expandChanged = exp !== prevExpanded;
 		const isFirst = first;
-		const animate = !isFirst && !widthChanged && typeof tiles[0].animate === 'function';
+		// The first paint and resizes must land instantly; only a user-driven expand or
+		// collapse is worth easing (or scrolling to).
+		const settled = !isFirst && !widthChanged;
+		// Reduced motion keeps the new packing — it just arrives without the FLIP, so tiles
+		// jump straight to their slots and the stage height snaps instead of easing.
+		const reduced = prefersReducedMotion();
+		const animate = settled && !reduced && typeof tiles[0].animate === 'function';
 
 		const prevH = container.offsetHeight;
 
@@ -225,22 +256,25 @@
 				easing: EASE
 			});
 			container.style.height = `${layout.totalH}px`;
-
-			// center the opened frame in the viewport (never on collapse).
-			// The fixed nav overlaps the top, so center within the area *below* it.
-			if (expandChanged && exp != null) {
-				const idx = frames.findIndex((im) => im.id === exp);
-				const p = layout.pos[idx];
-				const nav = document.querySelector('nav')?.getBoundingClientRect().height ?? 70;
-				const contTop = container.getBoundingClientRect().top + window.scrollY;
-				const frameCenter = contTop + p.y + p.h / 2;
-				// center within the window, then drop by the full nav height so it clears the bar
-				const y = Math.max(0, frameCenter - window.innerHeight / 2 - nav);
-				window.scrollTo({ top: y, behavior: 'smooth' });
-			}
 		} else {
 			container.style.height = `${layout.totalH}px`;
 			if (isFirst) requestAnimationFrame(() => (ready = true));
+		}
+
+		// center the opened frame in the viewport (never on collapse).
+		// The fixed nav overlaps the top, so center within the area *below* it.
+		// Hoisted out of the FLIP branch: reduced motion still needs the frame brought on
+		// screen — dropping the scroll would leave it opened somewhere off-viewport — so the
+		// scroll stays and only its easing is given up.
+		if (settled && expandChanged && exp != null) {
+			const idx = frames.findIndex((im) => im.id === exp);
+			const p = layout.pos[idx];
+			const nav = document.querySelector('nav')?.getBoundingClientRect().height ?? 70;
+			const contTop = container.getBoundingClientRect().top + window.scrollY;
+			const frameCenter = contTop + p.y + p.h / 2;
+			// center within the window, then drop by the full nav height so it clears the bar
+			const y = Math.max(0, frameCenter - window.innerHeight / 2 - nav);
+			window.scrollTo({ top: y, behavior: reduced ? 'auto' : 'smooth' });
 		}
 
 		first = false;
@@ -249,6 +283,30 @@
 	});
 
 	const toggle = (id: number) => (expandedId = expandedId === id ? null : id);
+
+	/* Collapse the open frame and put the keyboard back on the tile it came from. Focus
+	   is grabbed *before* the state change: the "from the project" link only exists while
+	   a frame is open, so collapsing with focus parked there would drop it to <body> and
+	   lose the reader's place in a 60-tile grid. Focusing the button is a no-op when it
+	   already holds focus (the usual case, since a click opened the frame). */
+	function collapse() {
+		const btn = containerEl?.querySelector<HTMLButtonElement>('.mtile.is-expanded button');
+		expandedId = null;
+		btn?.focus();
+	}
+
+	/* Escape closes an open frame. Bound only while one is open rather than for the life
+	   of the component: with nothing expanded the handler has no work to do, and leaving a
+	   window-level key listener attached on the gallery route would quietly compete with
+	   any future overlay for the same key. */
+	$effect(() => {
+		if (expandedId === null) return;
+		const onKeydown = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') collapse();
+		};
+		window.addEventListener('keydown', onKeydown);
+		return () => window.removeEventListener('keydown', onKeydown);
+	});
 </script>
 
 <div
@@ -282,6 +340,7 @@
 					? 'cursor-zoom-out'
 					: 'cursor-pointer'}"
 				onclick={() => toggle(im.id)}
+				aria-expanded={expandedId === im.id}
 				aria-label={expandedId === im.id ? `Collapse ${label(im)}` : `Expand ${label(im)}`}
 			>
 				<!-- Eager only for the frames that can plausibly be on screen at load.
