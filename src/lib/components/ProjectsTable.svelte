@@ -15,11 +15,6 @@
 	// server-side and passed down from +page.svelte. No hardcoded list.
 	let { projects = [] }: { projects?: Project[] } = $props();
 
-	// Hover preview uses the project's own cover image. Fall back to a neutral
-	// placeholder only when a project has no cover set in its frontmatter.
-	const previewSrc = (p: Project) =>
-		p.cover ?? `https://placehold.co/640x640/16161c/4c4c58?text=${encodeURIComponent(p.title.toUpperCase())}`;
-
 	const lag = 0.12; // eased cursor follow factor (was a design tweak; sensible default)
 
 	let hovering = $state(false);
@@ -38,8 +33,8 @@
 	   hover as instant as every later one.
 
 	   Deferred to idle so it never competes with the page's own render, and limited to
-	   projects that actually have a cover: the fallback is an external placeholder URL,
-	   not worth reaching out to a third party for on page load. */
+	   projects that actually have a cover — a project without one shows no preview at
+	   all, so there is nothing to warm. */
 	$effect(() => {
 		const urls = [...new Set(projects.map((p) => p.cover).filter((c): c is string => !!c))];
 		if (!urls.length) return;
@@ -85,12 +80,19 @@
 	}
 
 	function enterRow(p: Project, e: MouseEvent) {
+		// No cover in frontmatter means no preview: hide the panel rather than reach out
+		// to a third-party placeholder service for a decorative image.
+		const src = p.cover;
+		if (!src) {
+			hovering = false;
+			return;
+		}
+
 		// seed position on first contact so the preview doesn't fly in from the corner
 		if (pos.x < -9000) {
 			pos.x = e.clientX;
 			pos.y = e.clientY;
 		}
-		const src = previewSrc(p);
 		const top = stack[stack.length - 1];
 		hovering = true;
 		if (top && top.src === src) return;
