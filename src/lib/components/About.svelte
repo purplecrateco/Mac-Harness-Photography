@@ -14,7 +14,7 @@
 	>
 		<div class="reveal">
 			<div class="aspect-[44/56] w-full">
-				<Ph w={880} h={1120} label="MAC · PORTRAIT" src="/portrait.jpeg" radius="20px" />
+				<Ph w={880} h={1120} label="MAC · PORTRAIT" src="/portrait.jpeg" alt="Mac Harness" radius="20px" />
 			</div>
 		</div>
 
