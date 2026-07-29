@@ -137,7 +137,13 @@ makes the existing hand-written frontmatter and CMS-written values interchangeab
 Two roots, deliberately:
 
 - **`static/project-media/`** (default) — project cover images and images embedded in
-  project bodies. Served at a real URL (`/project-media/...`), which those need.
+  project bodies. Served at a real URL (`/project-media/...`), which those need: a
+  `cover:` doubles as the page's `og:image` (scrapers want a plain JPEG at a stable
+  URL, not an `avif`/`webp` srcset), and body images are rendered from markdown by
+  `marked`, which emits raw `<img src>` with no chance to swap in a processed asset.
+  Nothing here gets responsive variants, so **keep uploads at or under 2000px on the
+  long edge** — the browser downloads whatever is in this folder at full size. The
+  committed files were re-encoded once to that budget (progressive JPEG, quality 76).
 - **`src/lib/content/pictures/`** (Gallery collection override) — gallery photos.
   Processed at build time by `@sveltejs/enhanced-img` into hashed responsive variants,
   so they're never served from that path directly and its `public_folder` is

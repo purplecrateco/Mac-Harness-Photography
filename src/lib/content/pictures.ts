@@ -16,9 +16,33 @@ type EnhancedPicture = {
 	sources?: Record<string, string>;
 };
 
+/**
+ * The responsive width ladder every gallery picture is rendered at.
+ *
+ * enhanced-img has no plugin-level option for this (`enhancedImages()` takes no
+ * arguments), so the ladder is passed per-import as imagetools' `w` directive,
+ * which overrides the defaults enhanced-img computes. Its default for an import
+ * without a literal `sizes` attribute is just `[width / 2, width]` — two rungs.
+ * For a 6000px original that means a 3000w floor against a ~230-460 CSS px
+ * gallery tile, i.e. an order of magnitude more pixels than any slot can use.
+ *
+ * The rungs below bracket the sizes actually requested on this site:
+ *   480  — a gallery tile at 1x (~230-330 CSS px) and the mobile 45vw column
+ *   800  — a gallery tile at 2x, the homepage peek tiles, project mini-gallery
+ *   1280 — a gallery tile expanded to two columns, mobile at 3x
+ *   2000 — headroom for the expanded frame on a large hi-dpi display
+ * Nothing on the site renders wider than ~1400 device px, so the ladder stops at
+ * 2000 rather than shipping the multi-MB original as a candidate at all.
+ *
+ * imagetools clamps each rung to the intrinsic width and de-duplicates, so a
+ * 1560px original yields 480/800/1280/1560 and no upscaling ever happens.
+ *
+ * The ladder has to be written inline below: Vite parses `import.meta.glob`
+ * options statically, so a `const` reference here would silently not apply.
+ */
 const files = import.meta.glob('./pictures/*.{jpg,jpeg,png,webp}', {
 	eager: true,
-	query: { enhanced: true },
+	query: { enhanced: true, w: '480;800;1280;2000' },
 	import: 'default'
 }) as Record<string, EnhancedPicture | string>;
 
