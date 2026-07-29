@@ -18,19 +18,27 @@
 	class="relative flex min-h-[100svh] items-center justify-center overflow-hidden pt-24 lg:pt-40"
 	style="background:{warmBg}"
 >
+	<!-- The wordmark below is one logical title split across two absolutely-positioned
+		 pieces, so it can't be the h1 without shipping two of them. The real h1 is here,
+		 visually hidden, and the two pieces are decorative to assistive tech. Nothing about
+		 their geometry changed — same classes, same data-anim hooks, div instead of h1. -->
+	<h1 class="sr-only">{t.name_top} {t.name_bottom} — photographer</h1>
+
 	<div class="relative mx-auto h-[min(86svh,800px)] w-full max-w-[1320px] px-6 sm:px-10 min-[761px]:max-[1023px]:translate-y-16 lg:translate-y-24 lg:px-14">
-		<h1
+		<div
+			aria-hidden="true"
 			data-anim="hero-name"
-			class="t-mac pointer-events-none absolute left-6 top-[-2%] z-[1] m-0 select-none font-serif text-[clamp(82px,15.5vw,232px)] leading-[0.78] tracking-[-0.01em] text-gold max-[760px]:top-[7%] sm:left-10 lg:left-14"
+			class="t-mac pointer-events-none absolute left-6 top-[-2%] z-[1] m-0 select-none font-serif-display text-[clamp(82px,15.5vw,232px)] leading-[0.78] tracking-[-0.01em] text-gold max-[760px]:top-[7%] sm:left-10 lg:left-14"
 		>
 			{t.name_top}
-		</h1>
-		<h1
+		</div>
+		<div
+			aria-hidden="true"
 			data-anim="hero-name"
-			class="t-harness pointer-events-none absolute right-6 top-[26%] lg:top-[max(30%,245px)] z-[3] m-0 select-none font-serif text-[clamp(66px,12.5vw,188px)] leading-[0.78] tracking-[-0.01em] text-gold max-[760px]:top-[21%] sm:right-10 lg:right-14"
+			class="t-harness pointer-events-none absolute right-6 top-[26%] lg:top-[max(30%,245px)] z-[3] m-0 select-none font-serif-display text-[clamp(66px,12.5vw,188px)] leading-[0.78] tracking-[-0.01em] text-gold max-[760px]:top-[21%] sm:right-10 lg:right-14"
 		>
 			{t.name_bottom}
-		</h1>
+		</div>
 
 		<div
 			data-anim="hero-portrait"
@@ -41,6 +49,7 @@
 				h={1360}
 				label="HERO PORTRAIT"
 				src="/hero.png"
+				alt="Portrait of Mac Harness"
 				radius="20px 20px 0 0"
 				class="!border-0 !bg-transparent !shadow-none"
 			/>
@@ -76,8 +85,8 @@
 <!-- Tablet / medium screens (bigger than phones, smaller than the lg desktop layout).
 	 Recompose the hero so the words overlap the portrait the way they do on desktop:
 	 MAC drops down-and-right, HARNESS lifts up-and-left, the portrait grows up-and-left
-	 to overlap both, the 35mm sits behind HARNESS, and the blurb moves to the right above
-	 the CTA. Portrait is positioned via left/bottom/width only — GSAP owns its transform. -->
+	 to overlap both, and the blurb moves to the right above the CTA. Portrait is
+	 positioned via left/bottom/width only — GSAP owns its transform. -->
 <style>
 	@media (min-width: 761px) and (max-width: 1023px) {
 		.t-mac {
@@ -92,11 +101,6 @@
 			left: 40%;
 			bottom: 90px;
 			width: min(58vw, 470px);
-		}
-		.t-film {
-			top: 20%;
-			right: 16%;
-			z-index: 2; /* behind HARNESS (z-3) */
 		}
 		.t-blurb {
 			left: auto;

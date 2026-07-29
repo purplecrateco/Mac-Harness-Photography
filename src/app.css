@@ -11,7 +11,12 @@
 	--font-sans: 'Space Grotesk', sans-serif;
 	--font-display: 'Space Grotesk', sans-serif;
 	--font-mono: 'Space Mono', monospace;
-	--font-serif: 'Libre Caslon Display', serif;
+	--font-serif: 'Libre Caslon Text', serif;
+	/* Display-only serif for the hero wordmark. Libre Caslon Display ships no
+	   italic face at all, so italics elsewhere use --font-serif (Caslon Text,
+	   which does). This token is roman-only and scoped to the wordmark —
+	   Button.svelte's font-display is unrelated (Space Grotesk, keep as-is). */
+	--font-serif-display: 'Libre Caslon Display', serif;
 
 	/* Site-specific tokens */
 	--color-ink: #f3f1ec;
