@@ -7,7 +7,16 @@
    first paint by the inline script in app.html, which adds .motion-armed to <html> (see
    the rules in app.css); this releases that class once GSAP owns the start states. A
    failsafe timeout here and in that script un-hides everything if GSAP never loads, so
-   content is never stranded with JS off or on error. Returns a cleanup for onMount. */
+   content is never stranded with JS off or on error. Returns a cleanup for onMount.
+
+   Everything below fades `opacity` and never GSAP's `autoAlpha` shorthand. autoAlpha
+   also writes `visibility: hidden`, which drops the element out of the accessibility
+   tree and makes its descendants unfocusable — and since a scroll reveal holds its
+   start state until the trigger fires, that hid most of the page indefinitely. On the
+   gallery it meant 4 of 61 frames were reachable by keyboard and one Tab jumped from
+   the fourth frame to the footer. opacity alone leaves the elements focusable and
+   exposed to a screen reader; the :focus-within rules in app.css then snap a reveal to
+   its end state if the keyboard reaches it before the scroll trigger does. */
 
 type MotionOptions = {
 	/** selector (scoped to root) for elements that batch-reveal on scroll */
@@ -42,7 +51,7 @@ export function initPageMotion(root: HTMLElement, opts: MotionOptions = {}): () 
 				if (loadEls.length) {
 					gsap.from(loadEls, {
 						y: 26,
-						autoAlpha: 0,
+						opacity: 0,
 						duration: 0.9,
 						ease: 'power3.out',
 						stagger: 0.12
@@ -56,7 +65,7 @@ export function initPageMotion(root: HTMLElement, opts: MotionOptions = {}): () 
 				// ---------- SCROLL: generic reveals (parity with the homepage) ----------
 				gsap.utils.toArray<HTMLElement>('.reveal:not([data-anim])', root).forEach((el) => {
 					gsap.from(el, {
-						autoAlpha: 0,
+						opacity: 0,
 						y: 40,
 						duration: 0.9,
 						ease: 'power3.out',
@@ -68,12 +77,12 @@ export function initPageMotion(root: HTMLElement, opts: MotionOptions = {}): () 
 				if (opts.batch) {
 					const items = gsap.utils.toArray<HTMLElement>(opts.batch, root);
 					if (items.length) {
-						gsap.set(items, { autoAlpha: 0, y: 40 });
+						gsap.set(items, { opacity: 0, y: 40 });
 						ScrollTrigger.batch(items, {
 							start: 'top 88%',
 							onEnter: (b) =>
 								gsap.to(b, {
-									autoAlpha: 1,
+									opacity: 1,
 									y: 0,
 									duration: 0.7,
 									ease: 'power3.out',

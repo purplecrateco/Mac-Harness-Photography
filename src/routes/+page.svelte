@@ -47,30 +47,24 @@
 				const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 				tl.from('[data-anim="hero-name"]', {
 					yPercent: 24,
-					autoAlpha: 0,
+					opacity: 0,
 					duration: 1.1,
 					stagger: 0.15
 				})
-					.from(
-						'[data-anim="hero-portrait"] img',
-						{ y: 70, autoAlpha: 0, duration: 1.1 },
-						'-=0.8'
-					)
-					.from('[data-anim="hero-blurb"]', { y: 18, autoAlpha: 0, duration: 0.8 }, '-=0.7')
-					.from(
-						'[data-anim="hero-fade"]',
-						{ autoAlpha: 0, duration: 0.8, stagger: 0.12 },
-						'-=0.6'
-					);
+					.from('[data-anim="hero-portrait"] img', { y: 70, opacity: 0, duration: 1.1 }, '-=0.8')
+					.from('[data-anim="hero-blurb"]', { y: 18, opacity: 0, duration: 0.8 }, '-=0.7')
+					.from('[data-anim="hero-fade"]', { opacity: 0, duration: 0.8, stagger: 0.12 }, '-=0.6');
 
 				// `from` tweens render their start state on creation, so by this point the
-				// hero is held at opacity 0 by GSAP rather than by the arming class.
+				// hero is held at opacity 0 by GSAP rather than by the arming class. These
+				// fade `opacity`, never `autoAlpha` — see the note in motion.ts for why
+				// visibility:hidden is off limits on anything a reveal holds back.
 				disarm();
 
 				// ---------- SCROLL: section reveals ----------
 				gsap.utils.toArray<HTMLElement>('.reveal:not([data-anim])').forEach((el) => {
 					gsap.from(el, {
-						autoAlpha: 0,
+						opacity: 0,
 						y: 40,
 						duration: 0.9,
 						ease: 'power3.out',
@@ -82,7 +76,7 @@
 				const grid = pageEl.querySelector<HTMLElement>('[data-anim="gallery"]');
 				if (grid) {
 					gsap.from(Array.from(grid.children), {
-						autoAlpha: 0,
+						opacity: 0,
 						y: 50,
 						duration: 0.7,
 						ease: 'power3.out',

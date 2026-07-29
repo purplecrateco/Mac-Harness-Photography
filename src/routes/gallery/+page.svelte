@@ -67,6 +67,7 @@
 	}
 	:global(.motion-armed [data-load]),
 	:global(.motion-armed .mtile) {
-		visibility: hidden;
+		opacity: 0;
+		animation: none;
 	}
 </style>

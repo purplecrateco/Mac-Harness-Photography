@@ -63,6 +63,7 @@
 	}
 	:global(.motion-armed [data-load]),
 	:global(.motion-armed [data-anim='row']) {
-		visibility: hidden;
+		opacity: 0;
+		animation: none;
 	}
 </style>

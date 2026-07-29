@@ -209,6 +209,7 @@
 		animation: none;
 	}
 	:global(.motion-armed [data-load]) {
-		visibility: hidden;
+		opacity: 0;
+		animation: none;
 	}
 </style>

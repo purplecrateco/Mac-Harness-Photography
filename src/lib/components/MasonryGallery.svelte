@@ -447,4 +447,11 @@
 			opacity: 0.82;
 		}
 	}
+
+	/* Keyboard parity with the hover rule above, and deliberately outside the
+		 (hover: hover) query — a tile the keyboard has reached must not stay receded,
+		 on any input device. */
+	.masonry.has-open .mtile:not(.is-expanded):focus-within :global(img) {
+		opacity: 0.82;
+	}
 </style>

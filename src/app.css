@@ -143,6 +143,14 @@
    removes the class once it has applied its own start states, and the script's
    timeout removes it if the bundle never arrives.
 
+   Hides with opacity rather than visibility. visibility:hidden takes the element
+   out of the accessibility tree and makes its descendants unfocusable, which is the
+   wrong trade even for the sub-second arming window — a screen reader landing
+   mid-arm would read a page with its intro missing. `animation: none` is what makes
+   the opacity stick: several armed elements also carry .reveal, and a running CSS
+   animation outranks a normal declaration, so revealIn would otherwise animate
+   straight over this. GSAP's inline opacity still wins once it owns the element.
+
    [data-load] covers the secondary page intros; the hero-* hooks are the
    homepage timeline. Keep this list in sync with the load animations. */
 .motion-armed [data-load],
@@ -150,5 +158,36 @@
 .motion-armed [data-anim='hero-portrait'] img,
 .motion-armed [data-anim='hero-blurb'],
 .motion-armed [data-anim='hero-fade'] {
-	visibility: hidden;
+	opacity: 0;
+	animation: none;
+}
+
+/* Keyboard escape hatch for scroll reveals.
+
+   A reveal holds its start state until its ScrollTrigger fires, and Tab is how a
+   keyboard user scrolls — so focus has to be able to land inside something not yet
+   revealed and bring it into view. Now that reveals only fade opacity the element
+   stays focusable, but it would still be focused while invisible; this snaps whatever
+   the keyboard reaches to its end state. !important is load-bearing: GSAP writes its
+   start state as an inline style, and a stylesheet rule only outranks that when it is
+   important. Sibling tiles are left alone, so the reveal still reads as a reveal for
+   everyone else. The visibility reset is a guard: nothing sets visibility:hidden any
+   more, and this keeps a stray autoAlpha from silently costing keyboard access again. */
+.reveal:focus-within,
+[data-load]:focus-within,
+[data-anim='row']:focus-within,
+.mtile:focus-within {
+	opacity: 1 !important;
+	visibility: visible !important;
+}
+
+/* The reveal offset (y: 40) is a transform, so it needs clearing too — but not on the
+   masonry tiles, whose FLIP transition is itself transform-driven and would snap
+   instead of easing for whoever holds focus. A focused tile can sit 40px low for the
+   moment before its scroll trigger fires, which is a far cheaper cost than breaking the
+   animation for keyboard users only. */
+.reveal:focus-within,
+[data-load]:focus-within,
+[data-anim='row']:focus-within {
+	transform: none !important;
 }
