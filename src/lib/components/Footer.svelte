@@ -43,12 +43,34 @@
 				>Back to top ↑</a
 			>
 		{/if}
+		<!-- The Purple Crate mark is tucked behind the wordmark (lower z-index, shifted
+			 left, invisible). On hover it slides left→right out from behind the text and
+			 fades in, while the gold "Purple Crate Digital" turns the brand purple.
+			 prefers-reduced-motion drops the slide and just resolves the final state. -->
 		<a
-			href="https://portfolio.josephheinz.com"
+			href="https://purplecrate.co"
 			target="_blank"
 			rel="noopener noreferrer"
-			class="rounded-sm font-mono text-[11px] tracking-[0.08em] text-ink-faint no-underline transition hover:text-ink focus-visible:focus-ring"
-			>Built by <span class="text-gold">Joseph Heinz</span></a
+			class="group relative inline-flex items-center rounded-sm pr-6 font-mono text-[11px] tracking-[0.08em] text-ink-faint no-underline transition hover:text-ink focus-visible:focus-ring"
 		>
+			<span class="relative z-10"
+				>Made by <span
+					class="text-gold transition-colors duration-300 group-hover:text-[#8b5cf6]"
+					>Purple Crate Digital</span
+				></span
+			>
+			<span
+				aria-hidden="true"
+				class="pointer-events-none absolute right-0 top-1/2 z-0 flex -translate-y-1/2 -translate-x-8 -rotate-90 items-center text-[#8b5cf6] opacity-0 transition-all duration-300 ease-out group-hover:translate-x-0 group-hover:rotate-0 group-hover:opacity-100 motion-reduce:transition-none"
+			>
+				<svg viewBox="0 0 100 100" class="h-[14px] w-[14px]" fill="currentColor" aria-hidden="true">
+					<rect x="0" y="0" width="100" height="16" />
+					<rect x="0" y="84" width="100" height="16" />
+					<rect x="0" y="0" width="16" height="100" />
+					<rect x="84" y="0" width="16" height="100" />
+					<polygon points="22,64 22,78 36,78 78,36 78,22 64,22" />
+				</svg>
+			</span>
+		</a>
 	</div>
 </footer>
