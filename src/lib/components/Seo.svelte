@@ -6,7 +6,7 @@
 	   the OG image resolves correctly when scraped. */
 	let {
 		title,
-		description = 'Portrait, automotive and editorial photography by Mac Harness. Shooting since 2014.',
+		description = 'Portrait and automotive photography by Mac Harness. Shooting since 2024.',
 		image = '/og.png',
 		type = 'website'
 	}: {

@@ -17,7 +17,7 @@
 	onMount(() => initPageMotion(pageEl, { batch: '.mtile' }));
 </script>
 
-<Seo title="Gallery" description="Portrait, automotive and editorial frames from Mac Harness." />
+<Seo title="Gallery" description="Portrait and automotive frames from Mac Harness." />
 
 <div class="page" bind:this={pageEl}>
 	<NavBar />
@@ -27,7 +27,7 @@
 		<div class="mx-auto w-[85vw] max-w-[1680px] max-[680px]:w-[90vw]">
 			<div data-anim="intro" class="reveal flex flex-wrap items-end justify-between gap-10">
 				<div>
-					<div data-load><Kicker>Gallery · 2022 → 2026</Kicker></div>
+					<div data-load><Kicker>Gallery · 2024 → 2026</Kicker></div>
 					<h1
 						data-load
 						class="mt-4 font-serif text-[clamp(48px,7vw,104px)] font-normal leading-[0.94] tracking-[-0.015em] text-ink"

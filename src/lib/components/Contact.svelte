@@ -1,9 +1,8 @@
 <script lang="ts">
 	import Kicker from './Kicker.svelte';
-	import { copy, lines } from '$lib/content/copy';
+	import { copy } from '$lib/content/copy';
 
 	const t = copy.contact;
-	const studioLines = lines(t.studio_lines);
 	const followLinks = t.follow_links ?? [];
 </script>
 
@@ -25,16 +24,8 @@
 			{t.email} <span class="text-[0.7em] opacity-90">→</span>
 		</a>
 
-		<div class="mt-16 flex flex-wrap justify-center gap-x-10 gap-y-10 sm:gap-[60px]">
-			<div class="text-left">
-				<div class="mb-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">
-					{t.studio_title}
-				</div>
-				<div class="text-[16px] leading-[1.7] text-ink">
-					{#each studioLines as line, i (line)}{#if i}<br />{/if}{line}{/each}
-				</div>
-			</div>
-			{#if followLinks.length}
+		{#if followLinks.length}
+			<div class="mt-16 flex flex-wrap justify-center gap-x-10 gap-y-10 sm:gap-[60px]">
 				<div class="text-left">
 					<div class="mb-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">
 						{t.follow_title}
@@ -47,19 +38,7 @@
 							>{/each}
 					</div>
 				</div>
-			{/if}
-			<div class="text-left">
-				<div class="mb-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">
-					{t.enquiries_title}
-				</div>
-				<div class="text-[16px] leading-[1.7] text-ink">
-					<a
-						href="mailto:{t.email}"
-						class="rounded-sm text-ink-dim no-underline transition hover:text-gold focus-visible:focus-ring"
-						>{t.email}</a
-					>{#if t.phone}<br />{t.phone}{/if}
-				</div>
 			</div>
-		</div>
+		{/if}
 	</div>
 </section>

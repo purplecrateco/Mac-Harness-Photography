@@ -22,7 +22,7 @@
 	onMount(() => initPageMotion(pageEl, { batch: '[data-anim="row"]' }));
 </script>
 
-<Seo title="Projects" description="Portrait, wedding and editorial projects by Mac Harness." />
+<Seo title="Projects" description="Portrait and automotive projects by Mac Harness." />
 
 <div class="page" bind:this={pageEl}>
 	<NavBar />
@@ -43,7 +43,7 @@
 					data-load
 					class="max-w-[280px] font-mono text-[12.5px] leading-[1.9] tracking-[0.04em] text-ink-dim max-[760px]:text-left sm:text-right"
 				>
-					{count} {count === 1 ? 'body' : 'bodies'} of work.<br />Portrait, wedding &amp; editorial.<br />
+					{count} {count === 1 ? 'body' : 'bodies'} of work.<br />Portrait &amp; automotive.<br />
 					<span class="text-ink-faint">Hover a row to preview.</span>
 				</div>
 			</div>

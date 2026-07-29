@@ -11,8 +11,8 @@
     "kicker": "Selected Work",
     "heading": "Frames that",
     "heading_accent": "last",
-    "note": "A rotating edit of portrait,\nautomotive & editorial work.",
-    "note_years": "2022 → 2026"
+    "note": "A rotating edit of portrait\n& automotive work.",
+    "note_years": "2024 → 2026"
   },
   "project": {
     "kicker": "Latest Project"
@@ -20,29 +20,12 @@
   "about": {
     "kicker": "About Me",
     "heading": "Hi, I’m Mac.",
-    "lead": "I’ve been shooting for over a decade, in quiet studios and on windswept coastlines, mostly working with whatever light the day gives me. What I want is a photograph that feels like a memory rather than a pose.",
-    "body": "I work slowly, and on film when it counts. Usually that means we talk for a while, walk around, and wait until something happens that’s worth keeping.",
-    "stats": [
-      {
-        "num": "12",
-        "label": "Years shooting"
-      },
-      {
-        "num": "240+",
-        "label": "Stories told"
-      },
-      {
-        "num": "9",
-        "label": "Countries"
-      }
-    ],
+    "lead": "I’ve been shooting for a couple of years now, mostly cars and portraits, working with whatever light the day gives me. What I want is a photograph that feels like a memory rather than a pose.",
+    "body": "I work slowly. Usually that means we talk for a while, walk around, and wait until something happens that’s worth keeping.",
+    "stats": [],
     "services": [
       "Portraits",
-      "Automotive",
-      "Editorial",
-      "Lifestyle",
-      "Travel",
-      "35mm Film"
+      "Automotive"
     ],
     "signature": "Mac Harness"
   },
@@ -50,7 +33,7 @@
     "kicker": "Get in Touch",
     "heading": "Let’s make something",
     "heading_accent": "worth keeping",
-    "blurb": "I take portrait sessions, automotive commissions and editorial work, and I’ll travel for them. Tell me what you have in mind.",
+    "blurb": "I take portrait sessions and automotive commissions. Tell me what you have in mind.",
     "email": "hello@macharness.studio",
     "studio_title": "Studio",
     "studio_lines": "Available for commissions\nWorldwide",
@@ -59,5 +42,5 @@
     "enquiries_title": "Enquiries",
     "phone": ""
   },
-  "footer_note": "© 2026 Mac Harness · Photographer since 2014"
+  "footer_note": "© 2026 Mac Harness · Photographer since 2024"
 }

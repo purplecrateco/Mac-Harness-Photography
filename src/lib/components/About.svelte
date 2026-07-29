@@ -32,18 +32,20 @@
 				{t.body}
 			</p>
 
-			<div class="my-[42px] mb-9 grid grid-cols-[repeat(3,auto)] gap-x-6 gap-y-9 sm:gap-x-12">
-				{#each stats as s (s.label)}
-					<div>
-						<div class="font-serif text-[48px] leading-none text-gold">{s.num}</div>
-						<div class="mt-2 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">
-							{s.label}
+			{#if stats.length}
+				<div class="my-[42px] mb-9 grid grid-cols-[repeat(3,auto)] gap-x-6 gap-y-9 sm:gap-x-12">
+					{#each stats as s (s.label)}
+						<div>
+							<div class="font-serif text-[48px] leading-none text-gold">{s.num}</div>
+							<div class="mt-2 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">
+								{s.label}
+							</div>
 						</div>
-					</div>
-				{/each}
-			</div>
+					{/each}
+				</div>
+			{/if}
 
-			<div class="mb-9 flex flex-wrap gap-2.5">
+			<div class="mb-9 mt-[42px] flex flex-wrap gap-2.5">
 				{#each services as s (s)}
 					<span
 						class="rounded-full border border-glass-line bg-white/[0.055] px-4 py-[9px] font-mono text-[11.5px] uppercase tracking-[0.1em] text-ink-dim"
