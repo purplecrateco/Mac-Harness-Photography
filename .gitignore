@@ -30,3 +30,7 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# raw camera files never ship to the browser; keep locally, do not track
+*.NEF
+*.nef
