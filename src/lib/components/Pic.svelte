@@ -20,9 +20,10 @@
 		eager?: boolean;
 	} = $props();
 
-	// Prefer the editorial caption for alt text; fall back to the filename, which is
-	// all there is until Mac fills captions in via the CMS.
-	const alt = $derived(pic.caption?.trim() || pic.name || '');
+	// Prefer the editorial caption for alt text; an unlabelled image is better for a
+	// screen reader than a camera filename, so fall back to empty until Mac fills
+	// captions in via the CMS.
+	const alt = $derived(pic.caption?.trim() || '');
 </script>
 
 <picture class="block h-full w-full">

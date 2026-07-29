@@ -109,6 +109,7 @@
 							w={s.w}
 							h={s.h}
 							label={s.label}
+							alt=""
 							radius="12px"
 							class="!h-auto transition-transform duration-[600ms] ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-[1.04]"
 						/>
