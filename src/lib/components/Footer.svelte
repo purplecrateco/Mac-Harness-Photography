@@ -25,7 +25,7 @@
 	>
 		<a
 			href="/"
-			class="flex items-center gap-[11px] font-mono text-xs font-bold uppercase tracking-[0.16em] text-ink no-underline"
+			class="flex items-center gap-[11px] rounded-sm font-mono text-xs font-bold uppercase tracking-[0.16em] text-ink no-underline focus-visible:focus-ring"
 		>
 			<Mark size={18} /> MAC HARNESS
 		</a>
@@ -39,7 +39,7 @@
 					e.preventDefault();
 					scrollToTop();
 				}}
-				class="cursor-pointer font-mono text-[11px] uppercase tracking-[0.14em] text-ink-dim no-underline transition hover:text-gold"
+				class="cursor-pointer rounded-sm font-mono text-[11px] uppercase tracking-[0.14em] text-ink-dim no-underline transition hover:text-gold focus-visible:focus-ring"
 				>Back to top ↑</a
 			>
 		{/if}
@@ -47,7 +47,7 @@
 			href="https://portfolio.josephheinz.com"
 			target="_blank"
 			rel="noopener noreferrer"
-			class="font-mono text-[11px] tracking-[0.08em] text-ink-faint no-underline transition hover:text-ink"
+			class="rounded-sm font-mono text-[11px] tracking-[0.08em] text-ink-faint no-underline transition hover:text-ink focus-visible:focus-ring"
 			>Built by <span class="text-gold">Joseph Heinz</span></a
 		>
 	</div>

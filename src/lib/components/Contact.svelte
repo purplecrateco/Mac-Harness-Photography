@@ -20,7 +20,7 @@
 		</p>
 		<a
 			href="mailto:{t.email}"
-			class="inline-flex max-w-full flex-wrap items-center justify-center gap-3.5 break-all border-b border-glass-line pb-2 font-serif text-[clamp(24px,3.4vw,44px)] text-ink no-underline transition hover:border-gold hover:text-gold"
+			class="inline-flex max-w-full flex-wrap items-center justify-center gap-3.5 break-all rounded-sm border-b border-glass-line pb-2 font-serif text-[clamp(24px,3.4vw,44px)] text-ink no-underline transition hover:border-gold hover:text-gold focus-visible:focus-ring"
 		>
 			{t.email} <span class="text-[0.7em] opacity-90">→</span>
 		</a>
@@ -34,25 +34,30 @@
 					{#each studioLines as line, i (line)}{#if i}<br />{/if}{line}{/each}
 				</div>
 			</div>
-			<div class="text-left">
-				<div class="mb-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">
-					{t.follow_title}
+			{#if followLinks.length}
+				<div class="text-left">
+					<div class="mb-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">
+						{t.follow_title}
+					</div>
+					<div class="text-[16px] leading-[1.7] text-ink">
+						{#each followLinks as l, i (l.label)}{#if i}<br />{/if}<a
+								href={l.url}
+								class="rounded-sm text-ink-dim no-underline transition hover:text-gold focus-visible:focus-ring"
+								>{l.label}</a
+							>{/each}
+					</div>
 				</div>
-				<div class="text-[16px] leading-[1.7] text-ink">
-					{#each followLinks as l, i (l.label)}{#if i}<br />{/if}<a
-							href={l.url}
-							class="text-ink-dim no-underline transition hover:text-gold">{l.label}</a
-						>{/each}
-				</div>
-			</div>
+			{/if}
 			<div class="text-left">
 				<div class="mb-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">
 					{t.enquiries_title}
 				</div>
 				<div class="text-[16px] leading-[1.7] text-ink">
-					<a href="mailto:{t.email}" class="text-ink-dim no-underline transition hover:text-gold"
+					<a
+						href="mailto:{t.email}"
+						class="rounded-sm text-ink-dim no-underline transition hover:text-gold focus-visible:focus-ring"
 						>{t.email}</a
-					><br />{t.phone}
+					>{#if t.phone}<br />{t.phone}{/if}
 				</div>
 			</div>
 		</div>

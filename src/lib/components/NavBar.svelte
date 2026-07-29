@@ -19,7 +19,7 @@
 
 	type Link = { label: string; href: string; section?: string; path?: string };
 	const links: Link[] = [
-		{ label: 'Work', href: '/gallery', path: '/gallery' },
+		{ label: 'Gallery', href: '/gallery', path: '/gallery' },
 		{ label: 'Projects', href: '/projects', path: '/projects' },
 		{ label: 'About', href: '/#about', section: 'about' },
 		{ label: 'Contact', href: '/#contact', section: 'contact' }
@@ -44,19 +44,27 @@
 			? 'border-white/[0.07] bg-[rgba(8,8,11,0.62)] py-[14px]'
 			: 'border-transparent bg-[rgba(8,8,11,0.3)] py-5'}"
 	>
-		<a href="/" class="flex items-center gap-3 no-underline">
+		<!-- min-h-11 gives the 44px hit area; the symmetric negative margin keeps the
+			 bar exactly as tall as it was (the row is still sized by the CTA button). -->
+		<a
+			href="/"
+			class="-my-2.5 flex min-h-11 items-center gap-3 rounded-sm no-underline focus-visible:focus-ring"
+		>
 			<Mark size={22} />
 			<span class="font-mono text-xs font-bold uppercase tracking-[0.16em] text-ink">MAC HARNESS</span>
 		</a>
 
-		<!-- desktop links -->
+		<!-- desktop links. The label itself is only 16px tall, so each link gets a 44px
+			 hit area (min-h-11 + px-2) and an equal negative margin back, which leaves the
+			 outer box — and therefore the bar height, the 34px gaps and every glyph
+			 position — exactly where it was. Grow the target, not the type. -->
 		<div class="hidden items-center gap-[34px] min-[881px]:flex">
 			{#each links as l (l.label)}
 				<a
 					href={l.href}
 					onclick={onLink(l)}
 					aria-current={isCurrent(l) ? 'page' : undefined}
-					class="cursor-pointer font-mono text-xs uppercase tracking-[0.16em] transition-colors hover:text-ink {isCurrent(
+					class="-mx-2 -my-3.5 inline-flex min-h-11 cursor-pointer items-center rounded-sm px-2 font-mono text-xs uppercase tracking-[0.16em] transition-colors hover:text-ink focus-visible:focus-ring {isCurrent(
 						l
 					)
 						? 'text-ink'
@@ -74,8 +82,10 @@
 
 		<!-- mobile nav via Sheet -->
 		<Sheet.Root bind:open>
+			<!-- 44×44 hit area; -m-0.5 pulls the outer box back to the 40px it was, so the
+				 bars stay put on both axes. -->
 			<Sheet.Trigger
-				class="flex h-10 w-10 flex-col items-center justify-center gap-[5px] min-[881px]:hidden bg-transparent border-0 p-0 cursor-pointer"
+				class="-m-0.5 flex h-11 w-11 flex-col items-center justify-center gap-[5px] min-[881px]:hidden bg-transparent border-0 p-0 cursor-pointer rounded-sm focus-visible:focus-ring"
 				aria-label="Toggle menu"
 			>
 				<span
@@ -104,7 +114,7 @@
 						href={l.href}
 						onclick={onLink(l)}
 						aria-current={isCurrent(l) ? 'page' : undefined}
-						class="cursor-pointer border-b border-white/[0.06] py-3 font-mono text-sm uppercase tracking-[0.16em] no-underline transition-colors hover:text-ink {isCurrent(
+						class="cursor-pointer border-b border-white/[0.06] py-3 font-mono text-sm uppercase tracking-[0.16em] no-underline transition-colors hover:text-ink focus-visible:focus-ring {isCurrent(
 							l
 						)
 							? 'text-ink'

@@ -62,6 +62,13 @@
 			>
 				{#each noteLines as line (line)}{line}<br />{/each}
 				<span class="text-ink-faint">{t.note_years}</span>
+				<br />
+				<a
+					href="/gallery"
+					class="mt-1 inline-block rounded-sm text-ink-dim underline decoration-ink-faint/50 underline-offset-4 transition-colors hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-1"
+				>
+					View all frames →
+				</a>
 			</div>
 		</div>
 
@@ -71,26 +78,38 @@
 		>
 			{#if tiles.length}
 				{#each tiles as { pic, span }, i (pic.id)}
-					<figure class="group relative overflow-hidden rounded-2xl {span}">
-						<Pic
-							{pic}
-							sizes={SIZES}
-							eager={i < 4}
-							class="rounded-2xl transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-105"
-						/>
-					</figure>
+					<a
+						href="/gallery"
+						aria-label="View the full gallery"
+						class="group block {span} rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-1"
+					>
+						<figure class="relative h-full w-full overflow-hidden rounded-2xl">
+							<Pic
+								{pic}
+								sizes={SIZES}
+								eager={i < 4}
+								class="rounded-2xl transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-105"
+							/>
+						</figure>
+					</a>
 				{/each}
 			{:else}
 				{#each PLACEHOLDER as s (s.t)}
-					<figure class="group relative overflow-hidden rounded-2xl {s.span}">
-						<Ph
-							w={s.w}
-							h={s.h}
-							label={s.t.toUpperCase()}
-							radius="16px"
-							class="transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-105"
-						/>
-					</figure>
+					<a
+						href="/gallery"
+						aria-label="View the full gallery"
+						class="group block {s.span} rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-1"
+					>
+						<figure class="relative h-full w-full overflow-hidden rounded-2xl">
+							<Ph
+								w={s.w}
+								h={s.h}
+								label={s.t.toUpperCase()}
+								radius="16px"
+								class="transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-105"
+							/>
+						</figure>
+					</a>
 				{/each}
 			{/if}
 		</div>

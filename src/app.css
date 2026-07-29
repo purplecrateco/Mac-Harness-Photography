@@ -21,7 +21,11 @@
 	/* Site-specific tokens */
 	--color-ink: #f3f1ec;
 	--color-ink-dim: #a7a39b;
-	--color-ink-faint: #6f6c66;
+	/* 5.55:1 on --color-base (#070708). Only ever used at 10.5–13px, so the WCAG
+	   large-text allowance never applies and it has to clear 4.5:1 on its own — the
+	   old #6f6c66 was 3.85:1. Same warm-grey line as --color-ink-dim (CIELAB hue 90°,
+	   chroma 4.8) and still clearly quieter than it: L* 56 vs 67, 5.6:1 vs 8.0:1. */
+	--color-ink-faint: #8a867e;
 	--color-gold: #c9aa6e;
 	--color-gold-ink: #16130c;
 	--color-base: #070708;
@@ -102,6 +106,14 @@
 	box-shadow:
 		inset 0 1px 0 rgba(255, 255, 255, 0.1),
 		0 24px 60px -28px rgba(0, 0, 0, 0.7);
+}
+
+/* Keyboard focus ring. One authored style so every interactive element rings the
+   same way; mirrors the ring Button.svelte and Gallery.svelte spell out inline.
+   Apply it through the variant at the call site, together with a radius:
+   `rounded-sm focus-visible:focus-ring`. */
+@utility focus-ring {
+	@apply outline-none ring-2 ring-ring/50 ring-offset-1;
 }
 
 /* One-time entrance fade. End-state is fully visible — content can never be
