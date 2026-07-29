@@ -3,7 +3,7 @@
   "hero": {
     "name_top": "MAC",
     "name_bottom": "HARNESS",
-    "blurb": "Portrait & wedding photographer. I shoot the story of the day, not a set of poses.",
+    "blurb": "Portrait & automotive photographer. I shoot the story of the day, not a set of poses.",
     "cta": "Book a session",
     "scroll_hint": "Scroll"
   },
@@ -11,8 +11,8 @@
     "kicker": "Selected Work",
     "heading": "Frames that",
     "heading_accent": "last",
-    "note": "A rotating edit of portrait,\nwedding & editorial work.",
-    "note_years": "2018 → 2026"
+    "note": "A rotating edit of portrait,\nautomotive & editorial work.",
+    "note_years": "2022 → 2026"
   },
   "project": {
     "kicker": "Latest Project"
@@ -38,7 +38,7 @@
     ],
     "services": [
       "Portraits",
-      "Weddings",
+      "Automotive",
       "Editorial",
       "Lifestyle",
       "Travel",
@@ -50,27 +50,14 @@
     "kicker": "Get in Touch",
     "heading": "Let’s make something",
     "heading_accent": "worth keeping",
-    "blurb": "I take portrait sessions, weddings and editorial commissions, and I’ll travel for them. Tell me what you have in mind.",
+    "blurb": "I take portrait sessions, automotive commissions and editorial work, and I’ll travel for them. Tell me what you have in mind.",
     "email": "hello@macharness.studio",
     "studio_title": "Studio",
-    "studio_lines": "Lisbon, Portugal\nBy appointment",
+    "studio_lines": "Available for commissions\nWorldwide",
     "follow_title": "Follow",
-    "follow_links": [
-      {
-        "label": "Instagram",
-        "url": "https://instagram.com"
-      },
-      {
-        "label": "Behance",
-        "url": "https://behance.net"
-      },
-      {
-        "label": "Journal",
-        "url": "#top"
-      }
-    ],
+    "follow_links": [],
     "enquiries_title": "Enquiries",
-    "phone": "+351 912 000 000"
+    "phone": ""
   },
   "footer_note": "© 2026 Mac Harness · Photographer since 2014"
 }

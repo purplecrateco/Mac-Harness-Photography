@@ -17,7 +17,7 @@
 	onMount(() => initPageMotion(pageEl, { batch: '.mtile' }));
 </script>
 
-<Seo title="Gallery" description="Portrait, wedding and editorial frames from Mac Harness." />
+<Seo title="Gallery" description="Portrait, automotive and editorial frames from Mac Harness." />
 
 <div class="page" bind:this={pageEl}>
 	<NavBar />
