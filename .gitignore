@@ -8,6 +8,15 @@ node_modules
 /.svelte-kit
 /build
 
+# Local agent tooling (impeccable skill/agents/hooks, dev-server launch config).
+# Deliberately untracked: it's per-machine developer tooling, not part of the site,
+# and reinstallable with `npx impeccable install`.
+.claude/
+
+# Impeccable run artifacts (critique snapshots, ignore lists, config).
+# Tool state, not project content.
+.impeccable/
+
 # OS
 .DS_Store
 Thumbs.db
@@ -21,3 +30,7 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# raw camera files never ship to the browser; keep locally, do not track
+*.NEF
+*.nef

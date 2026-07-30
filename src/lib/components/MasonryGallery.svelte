@@ -9,18 +9,26 @@
 	   Images come from src/lib/content/pictures/ via @sveltejs/enhanced-img (see
 	   pictures.ts), so their intrinsic dimensions are known at build time — the layout
 	   is correct on first paint with no reflow, and the browser pulls small responsive
-	   variants instead of the full-size originals. When that folder is empty we fall
-	   back to a built-in placeholder set so the page is never blank. */
+	   variants instead of the full-size originals. When no pictures are passed in we
+	   fall back to a built-in placeholder set so the page is never blank. */
 
-	import { pictures, type Picture } from '$lib/content/pictures';
+	import type { Picture } from '$lib/content/pictures';
 	import Pic from './Pic.svelte';
 
-	type Frame = Pick<Picture, 'id' | 'w' | 'h' | 'src' | 'name' | 'sources'>;
+	type Frame = Pick<Picture, 'id' | 'w' | 'h' | 'src' | 'name' | 'caption' | 'sources'>;
 
-	// picture `name` -> project that features it (from project frontmatter, built
-	// server-side). Drives the "from project" tag shown over an expanded frame.
-	let { projectByPicture = {} }: { projectByPicture?: Record<string, { slug: string; title: string }> } =
-		$props();
+	/* `pictures` arrives from the route loader already in editorial order with
+	   captions applied (galleryPictures() in gallery.server.ts) — the metadata
+	   parsing behind that needs Node's Buffer, so it can't happen in this component.
+	   `projectByPicture` maps picture `name` -> the project featuring it, driving the
+	   "from project" tag over an expanded frame. */
+	let {
+		pictures = [],
+		projectByPicture = {}
+	}: {
+		pictures?: Frame[];
+		projectByPicture?: Record<string, { slug: string; title: string }>;
+	} = $props();
 
 	// design defaults from galleryApp.jsx (the Tweaks panel is omitted)
 	const GAP = 12;
@@ -31,6 +39,10 @@
 
 	// Tiles span ~1/5 of the 85vw stage on desktop, ~1/2 of 90vw on phones.
 	const SIZES = '(max-width: 680px) 45vw, 18vw';
+
+	// How many leading frames load eagerly. Roughly two rows at the widest layout,
+	// which covers the first screen; everything after this loads lazily on scroll.
+	const EAGER_COUNT = 12;
 
 	// Built-in fallback (used only when no pictures have been added yet).
 	const PLACEHOLDER_TONES: { id: number; w: number; h: number; tone: string }[] = [
@@ -54,15 +66,43 @@
 		{ id: 18, w: 1120, h: 760, tone: '10161a' }
 	];
 
+	/* Stand-in tile art, drawn locally as an inline SVG data URI rather than fetched
+	   from placehold.co. Everything else here is prerendered and self-hosted, so that
+	   was the site's only third-party runtime request — and it sat on the one path that
+	   renders when there is nothing to show, i.e. exactly when an outage or a blocked
+	   request would be least recoverable. Same w×h and tone as before, and the id stays
+	   drawn on the tile so the frames remain tellable apart while packing is eyeballed. */
+	const placeholderSrc = (w: number, h: number, tone: string, id: number) => {
+		const svg =
+			`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">` +
+			`<rect width="${w}" height="${h}" fill="#${tone}"/>` +
+			`<text x="50%" y="50%" fill="#3a3a44" font-family="system-ui,sans-serif"` +
+			` font-size="${Math.round(Math.min(w, h) / 4)}" text-anchor="middle"` +
+			` dominant-baseline="central">${id}</text></svg>`;
+		return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+	};
+
 	const PLACEHOLDER_FRAMES: Frame[] = PLACEHOLDER_TONES.map((f) => ({
 		id: f.id,
 		w: f.w,
 		h: f.h,
-		src: `https://placehold.co/${f.w}x${f.h}/${f.tone}/3a3a44?text=${f.id}`,
+		src: placeholderSrc(f.w, f.h, f.tone, f.id),
 		name: `Frame ${f.id}`
 	}));
 
-	const frames: Frame[] = pictures.length ? pictures : PLACEHOLDER_FRAMES;
+	const frames: Frame[] = $derived(pictures.length ? pictures : PLACEHOLDER_FRAMES);
+
+	/** Human label for a frame — the caption when Mac has written one, else the filename. */
+	/* Camera filenames (_DSC0373) are worse than a generic name for a screen
+	   reader, so an empty caption falls back to a positional label instead. */
+	const label = (im: Frame) => im.caption?.trim() || `photograph ${frames.indexOf(im) + 1} of ${frames.length}`;
+
+	/* Queried at the moment of animating rather than cached in state, matching how the
+	   rest of the site asks (app.html, motion.ts, the homepage) — no listener to keep in
+	   sync, and an OS-level change mid-session is picked up on the next layout pass. */
+	const prefersReducedMotion = () =>
+		typeof window !== 'undefined' &&
+		window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 	type Pos = { x: number; y: number; w: number; h: number };
 
@@ -156,7 +196,13 @@
 		const widthChanged = w !== lastWidth;
 		const expandChanged = exp !== prevExpanded;
 		const isFirst = first;
-		const animate = !isFirst && !widthChanged && typeof tiles[0].animate === 'function';
+		// The first paint and resizes must land instantly; only a user-driven expand or
+		// collapse is worth easing (or scrolling to).
+		const settled = !isFirst && !widthChanged;
+		// Reduced motion keeps the new packing — it just arrives without the FLIP, so tiles
+		// jump straight to their slots and the stage height snaps instead of easing.
+		const reduced = prefersReducedMotion();
+		const animate = settled && !reduced && typeof tiles[0].animate === 'function';
 
 		const prevH = container.offsetHeight;
 
@@ -210,22 +256,25 @@
 				easing: EASE
 			});
 			container.style.height = `${layout.totalH}px`;
-
-			// center the opened frame in the viewport (never on collapse).
-			// The fixed nav overlaps the top, so center within the area *below* it.
-			if (expandChanged && exp != null) {
-				const idx = frames.findIndex((im) => im.id === exp);
-				const p = layout.pos[idx];
-				const nav = document.querySelector('nav')?.getBoundingClientRect().height ?? 70;
-				const contTop = container.getBoundingClientRect().top + window.scrollY;
-				const frameCenter = contTop + p.y + p.h / 2;
-				// center within the window, then drop by the full nav height so it clears the bar
-				const y = Math.max(0, frameCenter - window.innerHeight / 2 - nav);
-				window.scrollTo({ top: y, behavior: 'smooth' });
-			}
 		} else {
 			container.style.height = `${layout.totalH}px`;
 			if (isFirst) requestAnimationFrame(() => (ready = true));
+		}
+
+		// center the opened frame in the viewport (never on collapse).
+		// The fixed nav overlaps the top, so center within the area *below* it.
+		// Hoisted out of the FLIP branch: reduced motion still needs the frame brought on
+		// screen — dropping the scroll would leave it opened somewhere off-viewport — so the
+		// scroll stays and only its easing is given up.
+		if (settled && expandChanged && exp != null) {
+			const idx = frames.findIndex((im) => im.id === exp);
+			const p = layout.pos[idx];
+			const nav = document.querySelector('nav')?.getBoundingClientRect().height ?? 70;
+			const contTop = container.getBoundingClientRect().top + window.scrollY;
+			const frameCenter = contTop + p.y + p.h / 2;
+			// center within the window, then drop by the full nav height so it clears the bar
+			const y = Math.max(0, frameCenter - window.innerHeight / 2 - nav);
+			window.scrollTo({ top: y, behavior: reduced ? 'auto' : 'smooth' });
 		}
 
 		first = false;
@@ -234,6 +283,30 @@
 	});
 
 	const toggle = (id: number) => (expandedId = expandedId === id ? null : id);
+
+	/* Collapse the open frame and put the keyboard back on the tile it came from. Focus
+	   is grabbed *before* the state change: the "from the project" link only exists while
+	   a frame is open, so collapsing with focus parked there would drop it to <body> and
+	   lose the reader's place in a 60-tile grid. Focusing the button is a no-op when it
+	   already holds focus (the usual case, since a click opened the frame). */
+	function collapse() {
+		const btn = containerEl?.querySelector<HTMLButtonElement>('.mtile.is-expanded button');
+		expandedId = null;
+		btn?.focus();
+	}
+
+	/* Escape closes an open frame. Bound only while one is open rather than for the life
+	   of the component: with nothing expanded the handler has no work to do, and leaving a
+	   window-level key listener attached on the gallery route would quietly compete with
+	   any future overlay for the same key. */
+	$effect(() => {
+		if (expandedId === null) return;
+		const onKeydown = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') collapse();
+		};
+		window.addEventListener('keydown', onKeydown);
+		return () => window.removeEventListener('keydown', onKeydown);
+	});
 </script>
 
 <div
@@ -243,14 +316,18 @@
 	class:has-open={expandedId !== null}
 	style="border-radius:{RADIUS}px"
 >
-	{#each frames as im (im.id)}
+	{#each frames as im, i (im.id)}
 		{@const proj = projectByPicture[im.name]}
 		<!-- .mtile carries the packed geometry (set inline by the FLIP effect) and the
 			 is-expanded flag the dim-others CSS keys off of. The button inside handles the
 			 expand/collapse toggle; the project tag is a sibling link so it can navigate
 			 without nesting an <a> in a <button> (invalid HTML). -->
+		<!-- No blanket will-change here: with 60+ frames it asks the compositor for a
+			 layer per tile, each holding a large decoded image, which costs far more
+			 than it saves. The FLIP below uses the Web Animations API, so the browser
+			 promotes the tiles it is actually animating on its own. -->
 		<div
-			class="mtile absolute left-0 top-0 origin-top-left overflow-hidden bg-[#141318] [will-change:transform] {expandedId ===
+			class="mtile absolute left-0 top-0 origin-top-left overflow-hidden bg-[#141318] {expandedId ===
 			im.id
 				? 'is-expanded'
 				: ''}"
@@ -263,11 +340,13 @@
 					? 'cursor-zoom-out'
 					: 'cursor-pointer'}"
 				onclick={() => toggle(im.id)}
-				aria-label={expandedId === im.id ? `Collapse ${im.name}` : `Expand ${im.name}`}
+				aria-expanded={expandedId === im.id}
+				aria-label={expandedId === im.id ? `Collapse ${label(im)}` : `Expand ${label(im)}`}
 			>
-				<!-- eager-load the whole set: the responsive variants are small (~25–80 KB),
-					 so this guarantees every frame is present by the time you scroll down -->
-				<Pic pic={im} sizes={SIZES} eager />
+				<!-- Eager only for the frames that can plausibly be on screen at load.
+					 Eager-loading all 61 put that many simultaneous decodes in front of the
+					 first paint and the entrance animation; the rest stream in on scroll. -->
+				<Pic pic={im} sizes={SIZES} eager={i < EAGER_COUNT} />
 			</button>
 
 			{#if proj && expandedId === im.id}
@@ -341,6 +420,11 @@
 		}
 	}
 
+	/* Dimming uses opacity rather than a filter. `filter` forces a repaint of every
+		 affected image, and with one frame open that meant animating a filter across
+		 sixty large images at once, which is a visible stall (Firefox especially).
+		 Opacity is composited, so the same recede costs almost nothing. The tiles sit
+		 on a near-black stage, so fading toward it reads much like the old darkening. */
 	.mtile :global(img) {
 		display: block;
 		width: 100%;
@@ -349,8 +433,7 @@
 		transform: scale(1.001); /* avoids hairline edge on scale-in */
 		transition:
 			transform 0.7s cubic-bezier(0.2, 0.7, 0.3, 1),
-			filter 0.4s ease;
-		filter: saturate(1.02);
+			opacity 0.4s ease;
 	}
 	@media (hover: hover) {
 		.mtile:hover :global(img) {
@@ -358,10 +441,17 @@
 		}
 		/* gently recede the rest while one frame is open */
 		.masonry.has-open .mtile:not(.is-expanded) :global(img) {
-			filter: saturate(0.78) brightness(0.74);
+			opacity: 0.5;
 		}
 		.masonry.has-open .mtile:not(.is-expanded):hover :global(img) {
-			filter: saturate(0.95) brightness(0.92);
+			opacity: 0.82;
 		}
+	}
+
+	/* Keyboard parity with the hover rule above, and deliberately outside the
+		 (hover: hover) query — a tile the keyboard has reached must not stay receded,
+		 on any input device. */
+	.masonry.has-open .mtile:not(.is-expanded):focus-within :global(img) {
+		opacity: 0.82;
 	}
 </style>

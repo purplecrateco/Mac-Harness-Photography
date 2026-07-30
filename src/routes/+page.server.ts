@@ -1,34 +1,40 @@
-import { latestProject } from '$lib/content/projects';
-import { pictures, GALLERY_PEEK_COUNT } from '$lib/content/pictures';
+import { featuredProject } from '$lib/content/projects';
+import { GALLERY_PEEK_COUNT } from '$lib/content/pictures';
+import { galleryPictures, picturesByName } from '$lib/content/gallery.server';
 import type { PageServerLoad } from './$types';
 
 export const prerender = true;
 
-// Number of gallery ("meta") images to feed the homepage collage alongside the cover.
-const META_COUNT = 3;
+// How many of the featured project's own gallery pictures fill the homepage collage.
+const META_COUNT = 4;
 
-// Resolve the most recent project on the server — gray-matter (used to parse the
-// markdown frontmatter) relies on Node's Buffer, so it can't run in the browser.
+// Resolved on the server — both the project frontmatter and the picture metadata are
+// parsed with gray-matter, which relies on Node's Buffer and can't run in the browser.
 // Only the homepage feature's meta is sent to the client (not the rendered html).
 export const load: PageServerLoad = () => {
-	const p = latestProject();
+	const p = featuredProject();
 
-	// Pictures already shown in the homepage "Selected Work" peek (Gallery.svelte).
-	// Skip these so the project collage never repeats a frame already on the page.
-	const shownInGallery = new Set(pictures.slice(0, GALLERY_PEEK_COUNT).map((pic) => pic.name));
+	// Editorial order + captions, same source the /gallery page uses.
+	const all = galleryPictures();
+
+	// The "Selected Work" peek (Gallery.svelte) shows the leading slice.
+	const peekPics = all.slice(0, GALLERY_PEEK_COUNT);
+
+	// Skip these below so the project collage never repeats a frame already on the page.
+	const shownInGallery = new Set(peekPics.map((pic) => pic.name));
 
 	// Resolve the project's gallery `name`s into enhanced-img Picture objects so the
-	// collage can render responsive variants with correct aspect ratios. Preserves
-	// frontmatter order, drops any name with no matching file, and skips frames the
-	// gallery peek already shows above.
-	const metaPics = (p?.gallery ?? [])
-		.map((name) => pictures.find((pic) => pic.name === name))
-		.filter((pic): pic is (typeof pictures)[number] => pic !== undefined)
+	// collage can render responsive variants with correct aspect ratios. Preserves the
+	// order the pictures were selected in, drops any name with no matching file, and
+	// skips frames the gallery peek already shows above — so "first four" means the
+	// first four that aren't already on this page.
+	const metaPics = picturesByName(p?.gallery ?? [])
 		.filter((pic) => !shownInGallery.has(pic.name))
 		.slice(0, META_COUNT);
 
 	return {
-		latest: p
+		peekPics,
+		featured: p
 			? {
 					slug: p.slug,
 					title: p.title,

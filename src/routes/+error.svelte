@@ -8,11 +8,11 @@
 </script>
 
 <svelte:head>
-	<title>Mac Harness — {status}</title>
+	<title>Mac Harness · {status}</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
-<div class="page flex h-screen flex-col overflow-hidden">
+<div class="page flex min-h-screen flex-col">
 	<NavBar />
 
 	<main class="flex flex-1 flex-col items-center justify-center px-6 text-center">

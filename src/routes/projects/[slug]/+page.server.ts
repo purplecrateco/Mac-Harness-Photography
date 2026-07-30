@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { getProject, projectSlugs } from '$lib/content/projects';
-import { pictures } from '$lib/content/pictures';
+import { picturesByName } from '$lib/content/gallery.server';
 import type { PageServerLoad, EntryGenerator } from './$types';
 
 export const load: PageServerLoad = ({ params }) => {
@@ -8,11 +8,10 @@ export const load: PageServerLoad = ({ params }) => {
 	if (!project) error(404, `No project found for “${params.slug}”`);
 
 	// Resolve the project's gallery `name`s into full enhanced-img Picture objects
-	// (preserving frontmatter order, skipping any name with no matching file) so the
-	// page can render a responsive mini-gallery with correct aspect ratios.
-	const galleryPics = (project.gallery ?? [])
-		.map((name) => pictures.find((p) => p.name === name))
-		.filter((p): p is (typeof pictures)[number] => p !== undefined);
+	// (preserving frontmatter order, skipping any name with no matching file, captions
+	// included) so the page can render a responsive mini-gallery with correct aspect
+	// ratios.
+	const galleryPics = picturesByName(project.gallery ?? []);
 
 	return { project, galleryPics };
 };

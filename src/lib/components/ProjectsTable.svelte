@@ -15,11 +15,6 @@
 	// server-side and passed down from +page.svelte. No hardcoded list.
 	let { projects = [] }: { projects?: Project[] } = $props();
 
-	// Hover preview uses the project's own cover image. Fall back to a neutral
-	// placeholder only when a project has no cover set in its frontmatter.
-	const previewSrc = (p: Project) =>
-		p.cover ?? `https://placehold.co/640x640/16161c/4c4c58?text=${encodeURIComponent(p.title.toUpperCase())}`;
-
 	const lag = 0.12; // eased cursor follow factor (was a design tweak; sensible default)
 
 	let hovering = $state(false);
@@ -29,6 +24,40 @@
 	let previewEl: HTMLDivElement | null = $state(null);
 	const target = { x: -9999, y: -9999 };
 	const pos = { x: -9999, y: -9999 };
+
+	/* Warm the hover previews.
+
+	   These covers appear nowhere else on this page, so without this the first hover
+	   over each row waits on a network fetch and then a decode, which is exactly when
+	   the delay is most obvious. Fetching and decoding them up front makes that first
+	   hover as instant as every later one.
+
+	   Deferred to idle so it never competes with the page's own render, and limited to
+	   projects that actually have a cover — a project without one shows no preview at
+	   all, so there is nothing to warm. */
+	$effect(() => {
+		const urls = [...new Set(projects.map((p) => p.cover).filter((c): c is string => !!c))];
+		if (!urls.length) return;
+
+		const warm = () => {
+			for (const src of urls) {
+				const img = new Image();
+				img.decoding = 'async';
+				img.src = src;
+				// Decode now too, so the first hover pays neither fetch nor decode.
+				img.decode?.().catch(() => {
+					/* decode is best-effort; the fetch above is what matters */
+				});
+			}
+		};
+
+		if (typeof window.requestIdleCallback === 'function') {
+			const id = window.requestIdleCallback(warm, { timeout: 2000 });
+			return () => window.cancelIdleCallback?.(id);
+		}
+		const id = window.setTimeout(warm, 400);
+		return () => window.clearTimeout(id);
+	});
 
 	// eased cursor follow — preview centered on the cursor (client-only via $effect)
 	$effect(() => {
@@ -51,12 +80,19 @@
 	}
 
 	function enterRow(p: Project, e: MouseEvent) {
+		// No cover in frontmatter means no preview: hide the panel rather than reach out
+		// to a third-party placeholder service for a decorative image.
+		const src = p.cover;
+		if (!src) {
+			hovering = false;
+			return;
+		}
+
 		// seed position on first contact so the preview doesn't fly in from the corner
 		if (pos.x < -9000) {
 			pos.x = e.clientX;
 			pos.y = e.clientY;
 		}
-		const src = previewSrc(p);
 		const top = stack[stack.length - 1];
 		hovering = true;
 		if (top && top.src === src) return;

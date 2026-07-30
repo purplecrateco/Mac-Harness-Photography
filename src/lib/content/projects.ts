@@ -1,5 +1,7 @@
 import matter from 'gray-matter';
 import { marked } from 'marked';
+import { normalizePictureRef } from './pictures';
+import homepage from './settings/homepage.json';
 
 /**
  * Project markdown content lives in ./projects/*.md and is bundled at build time
@@ -84,6 +86,19 @@ export function latestProject(): Project | null {
 }
 
 /**
+ * The project featured on the homepage.
+ *
+ * Editors pick it in the CMS (Site settings → Homepage), which writes a slug to
+ * settings/homepage.json. An empty setting — or one pointing at a project that has
+ * since been renamed or deleted — falls back to the most recent project, so the
+ * homepage feature can never end up blank because of a stale reference.
+ */
+export function featuredProject(): Project | null {
+	const slug = homepage.featured_project?.trim();
+	return (slug ? getProject(slug) : null) ?? latestProject();
+}
+
+/**
  * Reverse index: gallery picture `name` -> the project that features it.
  * Built from each project's `gallery` frontmatter. If two projects list the
  * same picture, the most recent one wins (getAllProjects is year-desc), then
@@ -92,7 +107,10 @@ export function latestProject(): Project | null {
 export function pictureProjectMap(): Record<string, { slug: string; title: string }> {
 	const map: Record<string, { slug: string; title: string }> = {};
 	for (const project of getAllProjects()) {
-		for (const name of project.gallery ?? []) {
+		for (const ref of project.gallery ?? []) {
+			// Keyed by the normalised `name` so it matches Picture.name regardless of
+			// whether the frontmatter reference carries a file extension.
+			const name = normalizePictureRef(ref);
 			if (!map[name]) map[name] = { slug: project.slug, title: project.title };
 		}
 	}

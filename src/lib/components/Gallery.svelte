@@ -2,12 +2,20 @@
 	import Ph from './Ph.svelte';
 	import Kicker from './Kicker.svelte';
 	import Pic from './Pic.svelte';
-	import { pictures, GALLERY_PEEK_COUNT } from '$lib/content/pictures';
+	import type { Picture } from '$lib/content/pictures';
+	import { copy, lines } from '$lib/content/copy';
 
-	/* `span` carries the asymmetric editorial grid placement (+ mobile collapse).
-	   The peek shows the first GALLERY_PEEK_COUNT (8) pictures from
-	   src/lib/content/pictures/, mapped onto the editorial grid below — one span per
-	   tile. If no pictures exist yet, it falls back to placeholders. */
+	const t = copy.gallery;
+	const noteLines = lines(t.note);
+
+	/* The peek tiles arrive from the route loader (`peekPics` — the leading
+	   GALLERY_PEEK_COUNT of the ordered gallery set, captions included), because the
+	   metadata parsing behind that ordering can't run in the browser.
+
+	   `span` carries the asymmetric editorial grid placement (+ mobile collapse) —
+	   one span per tile. If no pictures exist yet, it falls back to placeholders. */
+	let { pictures = [] }: { pictures?: Picture[] } = $props();
+
 	const SPANS = [
 		'col-span-2 row-span-3 max-[760px]:col-span-1 max-[760px]:row-span-2',
 		'col-span-2 row-span-2 max-[760px]:col-span-1',
@@ -19,7 +27,9 @@
 		'col-span-3 row-span-2 max-[760px]:col-span-2'
 	];
 
-	const tiles = pictures.slice(0, GALLERY_PEEK_COUNT).map((pic, i) => ({ pic, span: SPANS[i] }));
+	const tiles = $derived(
+		pictures.slice(0, SPANS.length).map((pic, i) => ({ pic, span: SPANS[i] }))
+	);
 
 	// Placeholder fallback (only when src/lib/content/pictures/ is empty).
 	const PLACEHOLDER = [
@@ -40,18 +50,25 @@
 	<div class="mx-auto w-full max-w-[1320px] px-6 sm:px-10 lg:px-14">
 		<div class="reveal mb-[60px] flex flex-wrap items-end justify-between gap-10">
 			<div>
-				<Kicker>Selected Work</Kicker>
+				<Kicker>{t.kicker}</Kicker>
 				<h2
 					class="mt-3.5 font-serif text-[clamp(44px,6vw,84px)] font-normal leading-[0.96] tracking-[-0.01em] text-ink"
 				>
-					Frames that <em class="italic text-gold">last</em>.
+					{t.heading} <em class="italic text-gold">{t.heading_accent}</em>.
 				</h2>
 			</div>
 			<div
 				class="max-w-[280px] font-mono text-[12.5px] leading-[1.9] tracking-[0.04em] text-ink-dim max-[760px]:text-left sm:text-right"
 			>
-				A rotating edit of portrait,<br />wedding &amp; editorial work.<br />
-				<span class="text-ink-faint">— 2018 → 2026</span>
+				{#each noteLines as line (line)}{line}<br />{/each}
+				<span class="text-ink-faint">{t.note_years}</span>
+				<br />
+				<a
+					href="/gallery"
+					class="mt-1 inline-block rounded-sm text-ink-dim underline decoration-ink-faint/50 underline-offset-4 transition-colors hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-1"
+				>
+					View all frames →
+				</a>
 			</div>
 		</div>
 
@@ -61,26 +78,38 @@
 		>
 			{#if tiles.length}
 				{#each tiles as { pic, span }, i (pic.id)}
-					<figure class="group relative overflow-hidden rounded-2xl {span}">
-						<Pic
-							{pic}
-							sizes={SIZES}
-							eager={i < 4}
-							class="rounded-2xl transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-105"
-						/>
-					</figure>
+					<a
+						href="/gallery"
+						aria-label="View the full gallery"
+						class="group block {span} rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-1"
+					>
+						<figure class="relative h-full w-full overflow-hidden rounded-2xl">
+							<Pic
+								{pic}
+								sizes={SIZES}
+								eager={i < 4}
+								class="rounded-2xl transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-105"
+							/>
+						</figure>
+					</a>
 				{/each}
 			{:else}
 				{#each PLACEHOLDER as s (s.t)}
-					<figure class="group relative overflow-hidden rounded-2xl {s.span}">
-						<Ph
-							w={s.w}
-							h={s.h}
-							label={s.t.toUpperCase()}
-							radius="16px"
-							class="transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-105"
-						/>
-					</figure>
+					<a
+						href="/gallery"
+						aria-label="View the full gallery"
+						class="group block {s.span} rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-1"
+					>
+						<figure class="relative h-full w-full overflow-hidden rounded-2xl">
+							<Ph
+								w={s.w}
+								h={s.h}
+								label={s.t.toUpperCase()}
+								radius="16px"
+								class="transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-105"
+							/>
+						</figure>
+					</a>
 				{/each}
 			{/if}
 		</div>

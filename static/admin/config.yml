@@ -1,0 +1,251 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
+#
+# Sveltia CMS config. Decap-compatible syntax (`widget:`), not Pages CMS (`type:`).
+#
+# Try it locally with zero auth (Chrome/Edge only — needs the File System Access API):
+#   npm run dev
+#   open http://localhost:5173/admin
+#   choose "Work with Local Repository" and pick the repo root
+# Edits are written straight to your working tree; commit with git as normal.
+#
+# For remote editing (i.e. handing this to Mac) the `backend` below needs an OAuth
+# relay — deploy sveltia-cms-auth as a Cloudflare Worker and add its `base_url`.
+# Do that under the Purple Crate Co account, not a personal one, and update `repo`
+# after the transfer. See docs/cms.md and docs/cloudflare-migration-plan.md.
+
+backend:
+  name: github
+  repo: josephheinz/Mac-Harness-Photography
+  branch: master
+
+# Default media root: static/project-media is served at a real, stable URL, which
+# is what project `cover:` images and inline markdown images need.
+# The gallery collection overrides this — see below.
+media_folder: static/project-media
+public_folder: /project-media
+
+collections:
+  # Singleton settings, edited as one form rather than a list of entries.
+  # Every string here is rendered by a homepage section — see src/lib/content/copy.ts.
+  # The custom preview pane for this file is registered in static/admin/preview.js.
+  - name: settings
+    label: Site settings
+    files:
+      - name: homepage
+        label: Homepage
+        file: src/lib/content/settings/homepage.json
+        description: Homepage copy, and which project the feature section shows.
+        fields:
+          # A picker over the Projects collection. `{{slug}}` stores the entry slug,
+          # which is what the site looks the project up by. Leave it empty to keep
+          # featuring the newest project automatically.
+          - name: featured_project
+            label: Featured project
+            widget: relation
+            required: false
+            collection: projects
+            value_field: '{{slug}}'
+            display_fields: [title, year]
+            search_fields: [title, cat, year]
+            hint: >-
+              The homepage pulls this project's intro and the first four of its featured
+              gallery pictures. Empty = use the most recent project.
+
+          - name: hero
+            label: Hero
+            widget: object
+            fields:
+              - { name: name_top, label: Name — first line, widget: string }
+              - { name: name_bottom, label: Name — second line, widget: string }
+              - name: blurb
+                label: Blurb
+                widget: text
+                hint: Small mono paragraph beside the portrait. Hidden on phones.
+              - { name: cta, label: Button label, widget: string }
+              - { name: scroll_hint, label: Scroll hint, widget: string }
+
+          - name: gallery
+            label: 'Section: Selected Work'
+            widget: object
+            fields:
+              - { name: kicker, label: Kicker, widget: string }
+              - name: heading
+                label: Heading
+                widget: string
+                hint: Rendered before the italic gold words, e.g. "Frames that"
+              - name: heading_accent
+                label: Heading — accent
+                widget: string
+                hint: Set in italic gold, with the full stop added automatically.
+              - name: note
+                label: Note
+                widget: text
+                hint: Right-aligned mono note. One line per line break.
+              - { name: note_years, label: Note — years, widget: string }
+
+          - name: project
+            label: 'Section: Featured project'
+            widget: object
+            hint: The rest of this section comes from the project picked above.
+            fields:
+              - { name: kicker, label: Kicker, widget: string }
+
+          - name: about
+            label: 'Section: About'
+            widget: object
+            fields:
+              - { name: kicker, label: Kicker, widget: string }
+              - { name: heading, label: Heading, widget: string }
+              - { name: lead, label: Lead paragraph, widget: text }
+              - { name: body, label: Second paragraph, widget: text }
+              - name: stats
+                label: Stats
+                widget: list
+                summary: '{{fields.num}} — {{fields.label}}'
+                fields:
+                  - { name: num, label: Number, widget: string }
+                  - { name: label, label: Label, widget: string }
+                hint: Three reads best; the row is a 3-column grid.
+              - name: services
+                label: Service tags
+                widget: list
+                hint: One tag per item.
+              - { name: signature, label: Signature, widget: string }
+
+          - name: contact
+            label: 'Section: Contact'
+            widget: object
+            fields:
+              - { name: kicker, label: Kicker, widget: string }
+              - { name: heading, label: Heading, widget: string }
+              - name: heading_accent
+                label: Heading — accent
+                widget: string
+                hint: Set in italic gold, with the full stop added automatically.
+              - { name: blurb, label: Blurb, widget: text }
+              - name: email
+                label: Email
+                widget: string
+                hint: Used for the big mailto link and the Enquiries column.
+              - { name: studio_title, label: 'Column 1: title', widget: string }
+              - name: studio_lines
+                label: 'Column 1: lines'
+                widget: text
+                hint: One line per line break.
+              - { name: follow_title, label: 'Column 2: title', widget: string }
+              - name: follow_links
+                label: 'Column 2: links'
+                widget: list
+                summary: '{{fields.label}}'
+                fields:
+                  - { name: label, label: Label, widget: string }
+                  - { name: url, label: URL, widget: string }
+              - { name: enquiries_title, label: 'Column 3: title', widget: string }
+              - { name: phone, label: Phone, widget: string }
+
+          - name: footer_note
+            label: Footer line
+            widget: string
+            hint: Shown in the footer on every page, not just the homepage.
+
+  - name: pictures
+    label: Gallery
+    label_singular: Picture
+    description: Photos on /gallery. Order controls the sequence, lowest first.
+    folder: src/lib/content/pictures
+    extension: md
+    format: yaml-frontmatter
+    create: true
+    # No explicit `slug`: there is no filter to strip a file extension, so any
+    # template based on `image` would yield e.g. "img_7250-jpg". Letting it default
+    # from identifier_field has the same cosmetic quirk for CMS-created entries, but
+    # it's harmless — the site pairs metadata to images via the `image` field, not
+    # the filename. (The 61 pre-existing files are named after their image.)
+    identifier_field: image
+    # `{{filename}}` is the basename without extension, i.e. the picture's `name`.
+    # Conditionals like {{#if}} are NOT supported — use the `default` filter.
+    summary: "{{order}} · {{filename}} — {{caption | default('(no caption)')}}"
+    sortable_fields: [order, image, caption]
+    # Empty string = store uploads alongside the entry, i.e. in this same folder.
+    # public_folder is meaningless here: enhanced-img rewrites these to hashed,
+    # per-variant build URLs, so nothing is ever served from this path directly.
+    media_folder: ''
+    public_folder: ''
+    fields:
+      - name: image
+        label: Photo
+        widget: image
+        hint: Use lowercase .jpg/.jpeg/.png/.webp — RAW files are ignored by the build
+
+      - name: caption
+        label: Caption
+        widget: string
+        required: false
+        hint: Used as alt text. Falls back to the filename when empty.
+
+      - name: order
+        label: Order
+        widget: number
+        required: false
+        value_type: int
+        hint: Lowest first. Entries with no order sort last, by filename.
+
+  - name: projects
+    label: Projects
+    label_singular: Project
+    description: Project pages at /projects/<slug>
+    folder: src/lib/content/projects
+    extension: md
+    format: yaml-frontmatter
+    create: true
+    slug: '{{slug}}'
+    identifier_field: title
+    summary: '{{title}} — {{year}}'
+    sortable_fields: [year, title]
+    fields:
+      - name: title
+        label: Title
+        widget: string
+
+      - name: cat
+        label: Category
+        widget: string
+        required: false
+        hint: 'Free text, e.g. "Automotive · Street"'
+
+      - name: year
+        label: Year
+        widget: string
+        required: false
+        hint: Drives ordering — projects sort newest first
+
+      - name: cover
+        label: Cover image
+        widget: image
+        required: false
+        hint: Shown on the projects table and as the page hero
+
+      - name: intro
+        label: Intro
+        widget: text
+        required: false
+
+      # A real picker over the Gallery collection rather than typed filenames.
+      # Stores the uploaded filename (e.g. "IMG_7250.jpg"). The site normalises
+      # picture references by stripping the extension, so this matches the bare
+      # names already in the existing project frontmatter — no content migration
+      # was needed, and both shapes keep working.
+      - name: gallery
+        label: Featured gallery pictures
+        widget: relation
+        required: false
+        collection: pictures
+        value_field: image
+        display_fields: [image, caption]
+        search_fields: [image, caption]
+        multiple: true
+
+      # Decap/Sveltia map the markdown body to the field named `body`.
+      - name: body
+        label: Body
+        widget: markdown

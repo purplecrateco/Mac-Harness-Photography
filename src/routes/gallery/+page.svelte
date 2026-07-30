@@ -6,19 +6,18 @@
 	import MasonryGallery from '$lib/components/MasonryGallery.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import { initPageMotion } from '$lib/motion';
-	import { pictures } from '$lib/content/pictures';
 
 	let { data } = $props();
 
 	let pageEl: HTMLDivElement;
 
 	// Falls back to the built-in placeholder set's count when no pictures are added yet.
-	const frameCount = pictures.length || 18;
+	const frameCount = $derived(data.pictures.length || 18);
 
 	onMount(() => initPageMotion(pageEl, { batch: '.mtile' }));
 </script>
 
-<Seo title="Gallery" description="Selected photographic work — portrait, wedding and editorial frames from Mac Harness." />
+<Seo title="Gallery" description="Portrait and automotive frames from Mac Harness." />
 
 <div class="page" bind:this={pageEl}>
 	<NavBar />
@@ -28,7 +27,7 @@
 		<div class="mx-auto w-[85vw] max-w-[1680px] max-[680px]:w-[90vw]">
 			<div data-anim="intro" class="reveal flex flex-wrap items-end justify-between gap-10">
 				<div>
-					<div data-load><Kicker>Gallery · 2022 → 2026</Kicker></div>
+					<div data-load><Kicker>Gallery · 2024 → 2026</Kicker></div>
 					<h1
 						data-load
 						class="mt-4 font-serif text-[clamp(48px,7vw,104px)] font-normal leading-[0.94] tracking-[-0.015em] text-ink"
@@ -49,7 +48,7 @@
 
 	<section class="pb-40">
 		<div class="mx-auto w-[85vw] max-w-[1680px] max-[680px]:w-[90vw]">
-			<MasonryGallery projectByPicture={data.projectByPicture} />
+			<MasonryGallery pictures={data.pictures} projectByPicture={data.projectByPicture} />
 		</div>
 	</section>
 
@@ -68,6 +67,7 @@
 	}
 	:global(.motion-armed [data-load]),
 	:global(.motion-armed .mtile) {
-		visibility: hidden;
+		opacity: 0;
+		animation: none;
 	}
 </style>

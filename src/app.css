@@ -11,12 +11,21 @@
 	--font-sans: 'Space Grotesk', sans-serif;
 	--font-display: 'Space Grotesk', sans-serif;
 	--font-mono: 'Space Mono', monospace;
-	--font-serif: 'Libre Caslon Display', serif;
+	--font-serif: 'Libre Caslon Text', serif;
+	/* Display-only serif for the hero wordmark. Libre Caslon Display ships no
+	   italic face at all, so italics elsewhere use --font-serif (Caslon Text,
+	   which does). This token is roman-only and scoped to the wordmark —
+	   Button.svelte's font-display is unrelated (Space Grotesk, keep as-is). */
+	--font-serif-display: 'Libre Caslon Display', serif;
 
 	/* Site-specific tokens */
 	--color-ink: #f3f1ec;
 	--color-ink-dim: #a7a39b;
-	--color-ink-faint: #6f6c66;
+	/* 5.55:1 on --color-base (#070708). Only ever used at 10.5–13px, so the WCAG
+	   large-text allowance never applies and it has to clear 4.5:1 on its own — the
+	   old #6f6c66 was 3.85:1. Same warm-grey line as --color-ink-dim (CIELAB hue 90°,
+	   chroma 4.8) and still clearly quieter than it: L* 56 vs 67, 5.6:1 vs 8.0:1. */
+	--color-ink-faint: #8a867e;
 	--color-gold: #c9aa6e;
 	--color-gold-ink: #16130c;
 	--color-base: #070708;
@@ -64,6 +73,27 @@
 			#070708;
 		background-attachment: fixed;
 	}
+
+	/* Thematic gold-on-dark scrollbar */
+	html {
+		scrollbar-width: thin;
+		scrollbar-color: var(--color-gold) var(--color-base);
+	}
+	::-webkit-scrollbar {
+		width: 11px;
+		height: 11px;
+	}
+	::-webkit-scrollbar-track {
+		background: var(--color-base);
+	}
+	::-webkit-scrollbar-thumb {
+		background: linear-gradient(var(--color-gold), #9c8047);
+		border: 2px solid var(--color-base);
+		border-radius: 999px;
+	}
+	::-webkit-scrollbar-thumb:hover {
+		background: var(--color-gold);
+	}
 }
 
 /* Liquid-glass primitive — reused on the hero polaroid, the about chip and
@@ -76,6 +106,14 @@
 	box-shadow:
 		inset 0 1px 0 rgba(255, 255, 255, 0.1),
 		0 24px 60px -28px rgba(0, 0, 0, 0.7);
+}
+
+/* Keyboard focus ring. One authored style so every interactive element rings the
+   same way; mirrors the ring Button.svelte and Gallery.svelte spell out inline.
+   Apply it through the variant at the call site, together with a radius:
+   `rounded-sm focus-visible:focus-ring`. */
+@utility focus-ring {
+	@apply outline-none ring-2 ring-ring/50 ring-offset-1;
 }
 
 /* One-time entrance fade. End-state is fully visible — content can never be
@@ -97,4 +135,59 @@
 	.reveal {
 		animation: none;
 	}
+}
+
+/* Entrance arming. The inline script in app.html adds .motion-armed to <html>
+   before the first paint, so anything GSAP animates in starts hidden instead of
+   flashing at its final position while the dynamic import resolves. Motion code
+   removes the class once it has applied its own start states, and the script's
+   timeout removes it if the bundle never arrives.
+
+   Hides with opacity rather than visibility. visibility:hidden takes the element
+   out of the accessibility tree and makes its descendants unfocusable, which is the
+   wrong trade even for the sub-second arming window — a screen reader landing
+   mid-arm would read a page with its intro missing. `animation: none` is what makes
+   the opacity stick: several armed elements also carry .reveal, and a running CSS
+   animation outranks a normal declaration, so revealIn would otherwise animate
+   straight over this. GSAP's inline opacity still wins once it owns the element.
+
+   [data-load] covers the secondary page intros; the hero-* hooks are the
+   homepage timeline. Keep this list in sync with the load animations. */
+.motion-armed [data-load],
+.motion-armed [data-anim='hero-name'],
+.motion-armed [data-anim='hero-portrait'] img,
+.motion-armed [data-anim='hero-blurb'],
+.motion-armed [data-anim='hero-fade'] {
+	opacity: 0;
+	animation: none;
+}
+
+/* Keyboard escape hatch for scroll reveals.
+
+   A reveal holds its start state until its ScrollTrigger fires, and Tab is how a
+   keyboard user scrolls — so focus has to be able to land inside something not yet
+   revealed and bring it into view. Now that reveals only fade opacity the element
+   stays focusable, but it would still be focused while invisible; this snaps whatever
+   the keyboard reaches to its end state. !important is load-bearing: GSAP writes its
+   start state as an inline style, and a stylesheet rule only outranks that when it is
+   important. Sibling tiles are left alone, so the reveal still reads as a reveal for
+   everyone else. The visibility reset is a guard: nothing sets visibility:hidden any
+   more, and this keeps a stray autoAlpha from silently costing keyboard access again. */
+.reveal:focus-within,
+[data-load]:focus-within,
+[data-anim='row']:focus-within,
+.mtile:focus-within {
+	opacity: 1 !important;
+	visibility: visible !important;
+}
+
+/* The reveal offset (y: 40) is a transform, so it needs clearing too — but not on the
+   masonry tiles, whose FLIP transition is itself transform-driven and would snap
+   instead of easing for whoever holds focus. A focused tile can sit 40px low for the
+   moment before its scroll trigger fires, which is a far cheaper cost than breaking the
+   animation for keyboard users only. */
+.reveal:focus-within,
+[data-load]:focus-within,
+[data-anim='row']:focus-within {
+	transform: none !important;
 }

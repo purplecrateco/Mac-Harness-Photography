@@ -3,6 +3,36 @@
 Status: not started
 Target: Cloudflare Workers (static assets), not Cloudflare Pages
 
+## Context: this is a pre-launch first deploy, not a migration
+
+The site has not launched. The Vercel deployment is a dev preview with no real
+traffic, and ownership of the repo transfers to **Purple Crate Co** imminently.
+Two consequences shape everything below:
+
+1. **No cutover risk.** There is no live production traffic to protect, so this
+   is a first-time domain setup rather than a migration with rollback. The
+   elaborate DNS choreography an in-place migration would need does not apply.
+2. **Provision account-bound resources exactly once, under the final owner.**
+   Do not create a Cloudflare project under a personal account and move it
+   later.
+
+Split the work accordingly:
+
+| Ownership-agnostic (do now, transfers free) | Account-bound (after transfer, in Purple Crate's accounts) |
+| --- | --- |
+| Adapter swap, `wrangler.jsonc`, `.nvmrc` | Cloudflare account + Workers project |
+| Pictures-as-collection refactor | GitHub OAuth App (owned by the org) |
+| `static/admin/` CMS config | `sveltia-cms-auth` Worker |
+| Local verification via `wrangler dev` | Domain registration + DNS |
+|  | `backend.repo` in the CMS config |
+
+Sequence: repo work → transfer repo → provision in Purple Crate's accounts →
+invite Mac → Mac populates real content → launch.
+
+Note that the current project markdown is placeholder content, so Mac loading
+real work through the CMS is part of launch. That puts the CMS refactor on the
+critical path, not beside it.
+
 ## Why Workers rather than Pages
 
 Cloudflare's SvelteKit framework guide now lives under Workers and is written for it —
@@ -146,24 +176,26 @@ connect the repo in the dashboard (Workers → Connect to Git):
 
 No environment variables or secrets to migrate — there are none.
 
-## 7. DNS cutover
+## 7. Domain setup
 
-The only step with real user-visible risk. Order matters:
+Pre-launch, so this is a first-time setup with nothing to roll back to. No TTL
+lowering, no parallel-running fallback, no propagation anxiety.
 
-1. Lower TTL on the current records 24h in advance
-2. Confirm the `workers.dev` URL is fully verified
-3. Add the custom domain in Cloudflare, let the cert issue
-4. Switch DNS
-5. Leave the Vercel deployment running until propagation completes — it's the
-   instant rollback
-6. Verify from a fresh network/device, not just a warm browser
+1. Confirm the `workers.dev` URL passes the step 5 checklist
+2. Add the custom domain in Cloudflare, let the cert issue
+3. Point DNS at it
+4. Verify once from any device
 
-## 8. Post-cutover cleanup
+If the domain isn't registered yet, register it in the Purple Crate account
+directly — registering personally and transferring later is avoidable work.
 
-- Disconnect the Vercel GitHub integration, or every CMS commit triggers a wasted
-  double build on both platforms
+## 8. Decommission Vercel
+
+- Disconnect the Vercel GitHub integration, or every CMS commit triggers a
+  wasted double build on both platforms
 - Delete the local `.vercel/` directory (contains only stale `output/`)
-- Delete or pause the Vercel project after a week of stable Cloudflare traffic
+- Delete the Vercel project — no need to keep it warm as a fallback, since it
+  was never serving real traffic
 
 ## Risks, ranked
 

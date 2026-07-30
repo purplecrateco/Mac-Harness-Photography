@@ -5,7 +5,7 @@
  * rasterise it without bundling a webfont — the live site still uses Libre
  * Caslon Display, this is just the social-card approximation.
  */
-export function ogSvg({ title = 'Mac Harness', subtitle = 'Visual storyteller · since 2014' } = {}) {
+export function ogSvg({ title = 'Mac Harness', subtitle = 'Visual storyteller · since 2024' } = {}) {
 	const esc = (s) =>
 		String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 	return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
@@ -33,6 +33,6 @@ export function ogSvg({ title = 'Mac Harness', subtitle = 'Visual storyteller ·
 	<!-- headline -->
 	<text x="80" y="490" font-family="Georgia,'Times New Roman',serif" font-size="104" fill="#f3f1ec">${esc(title)}</text>
 
-	<text x="1120" y="560" text-anchor="end" font-family="'Space Mono','Courier New',monospace" font-size="18" letter-spacing="3" fill="#6f6c66">PORTRAIT · WEDDING · EDITORIAL</text>
+	<text x="1120" y="560" text-anchor="end" font-family="'Space Mono','Courier New',monospace" font-size="18" letter-spacing="3" fill="#6f6c66">PORTRAIT · AUTOMOTIVE</text>
 </svg>`;
 }

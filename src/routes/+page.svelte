@@ -14,18 +14,28 @@
 
 	let pageEl: HTMLDivElement;
 
+	// Elements are hidden before first paint by the inline script in app.html (see the
+	// .motion-armed rules in app.css). Release them once GSAP owns their start states,
+	// so there's no window where they sit visible at their final position.
+	const disarm = () => document.documentElement.classList.remove('motion-armed');
+
 	onMount(() => {
 		// Respect reduced-motion: leave the CSS .reveal fades in place and skip GSAP.
+		// Nothing to disarm here, since the inline script skips arming in that case.
 		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
 		let ctx: { revert: () => void } | undefined;
 		let cancelled = false;
 
 		(async () => {
-			const [{ gsap }, { ScrollTrigger }] = await Promise.all([
-				import('gsap'),
-				import('gsap/ScrollTrigger')
-			]);
+			let mods;
+			try {
+				mods = await Promise.all([import('gsap'), import('gsap/ScrollTrigger')]);
+			} catch {
+				disarm(); // never strand the hero hidden if GSAP fails to load
+				return;
+			}
+			const [{ gsap }, { ScrollTrigger }] = mods;
 			if (cancelled) return;
 			gsap.registerPlugin(ScrollTrigger);
 
@@ -37,26 +47,24 @@
 				const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 				tl.from('[data-anim="hero-name"]', {
 					yPercent: 24,
-					autoAlpha: 0,
+					opacity: 0,
 					duration: 1.1,
 					stagger: 0.15
 				})
-					.from(
-						'[data-anim="hero-portrait"] img',
-						{ y: 70, autoAlpha: 0, duration: 1.1 },
-						'-=0.8'
-					)
-					.from('[data-anim="hero-blurb"]', { y: 18, autoAlpha: 0, duration: 0.8 }, '-=0.7')
-					.from(
-						'[data-anim="hero-fade"]',
-						{ autoAlpha: 0, duration: 0.8, stagger: 0.12 },
-						'-=0.6'
-					);
+					.from('[data-anim="hero-portrait"] img', { y: 70, opacity: 0, duration: 1.1 }, '-=0.8')
+					.from('[data-anim="hero-blurb"]', { y: 18, opacity: 0, duration: 0.8 }, '-=0.7')
+					.from('[data-anim="hero-fade"]', { opacity: 0, duration: 0.8, stagger: 0.12 }, '-=0.6');
+
+				// `from` tweens render their start state on creation, so by this point the
+				// hero is held at opacity 0 by GSAP rather than by the arming class. These
+				// fade `opacity`, never `autoAlpha` — see the note in motion.ts for why
+				// visibility:hidden is off limits on anything a reveal holds back.
+				disarm();
 
 				// ---------- SCROLL: section reveals ----------
 				gsap.utils.toArray<HTMLElement>('.reveal:not([data-anim])').forEach((el) => {
 					gsap.from(el, {
-						autoAlpha: 0,
+						opacity: 0,
 						y: 40,
 						duration: 0.9,
 						ease: 'power3.out',
@@ -68,7 +76,7 @@
 				const grid = pageEl.querySelector<HTMLElement>('[data-anim="gallery"]');
 				if (grid) {
 					gsap.from(Array.from(grid.children), {
-						autoAlpha: 0,
+						opacity: 0,
 						y: 50,
 						duration: 0.7,
 						ease: 'power3.out',
@@ -104,6 +112,7 @@
 		return () => {
 			cancelled = true;
 			ctx?.revert();
+			disarm();
 		};
 	});
 </script>
@@ -114,8 +123,8 @@
 	<NavBar />
 	<Hero />
 	<!-- Default section order from homepageApp.jsx: gallery → project → about → contact -->
-	<Gallery />
-	<Project project={data.latest} />
+	<Gallery pictures={data.peekPics} />
+	<Project project={data.featured} />
 	<About />
 	<Contact />
 	<Footer />

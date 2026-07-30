@@ -6,7 +6,7 @@
 	   the OG image resolves correctly when scraped. */
 	let {
 		title,
-		description = 'Mac Harness — portrait, wedding & editorial photography. A visual storyteller since 2014.',
+		description = 'Portrait and automotive photography by Mac Harness. Shooting since 2024.',
 		image = '/og.png',
 		type = 'website'
 	}: {
@@ -16,7 +16,7 @@
 		type?: 'website' | 'article';
 	} = $props();
 
-	const fullTitle = $derived(title === 'Mac Harness' ? title : `Mac Harness — ${title}`);
+	const fullTitle = $derived(title === 'Mac Harness' ? title : `Mac Harness · ${title}`);
 	const origin = $derived(page.url.origin);
 	const canonical = $derived(origin + page.url.pathname);
 	const imageUrl = $derived(image.startsWith('http') ? image : origin + image);
