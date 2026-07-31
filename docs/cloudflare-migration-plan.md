@@ -1,7 +1,7 @@
 # Vercel → Cloudflare Migration Plan
 
-Status: not started
-Target: Cloudflare Workers (static assets), not Cloudflare Pages
+Status: repo-side work done (steps 1–5). Account-bound work not started (steps 6–8).
+Target: **Cloudflare Pages** — reversed from Workers on 2026-07-31, see "Decision" below.
 
 ## Context: this is a pre-launch first deploy, not a migration
 
@@ -20,10 +20,10 @@ Split the work accordingly:
 
 | Ownership-agnostic (do now, transfers free) | Account-bound (after transfer, in Purple Crate's accounts) |
 | --- | --- |
-| Adapter swap, `wrangler.jsonc`, `.nvmrc` | Cloudflare account + Workers project |
+| Adapter swap, `wrangler.jsonc`, `.nvmrc` | Cloudflare account + Pages project |
 | Pictures-as-collection refactor | GitHub OAuth App (owned by the org) |
 | `static/admin/` CMS config | `sveltia-cms-auth` Worker |
-| Local verification via `wrangler dev` | Domain registration + DNS |
+| Local verification via `wrangler pages dev` | Domain registration + DNS |
 |  | `backend.repo` in the CMS config |
 
 Sequence: repo work → transfer repo → provision in Purple Crate's accounts →
@@ -33,20 +33,33 @@ Note that the current project markdown is placeholder content, so Mac loading
 real work through the CMS is part of launch. That puts the CMS refactor on the
 critical path, not beside it.
 
-## Why Workers rather than Pages
+## Decision: Pages
 
-Cloudflare's SvelteKit framework guide now lives under Workers and is written for it —
-`wrangler deploy` auto-detects SvelteKit and points at `.svelte-kit/cloudflare`. New
-platform work (Vite plugin, gradual deployments, remote dev, better observability)
-lands on Workers. Pages retains only native Early Hints and finer-grained branch
-deploy controls, neither of which this site uses.
+**Target is Cloudflare Pages.** An earlier revision of this plan argued for Workers;
+that was reversed on 2026-07-31. What's built and verified is Pages:
+`@sveltejs/adapter-cloudflare` in `svelte.config.js`, output `.svelte-kit/cloudflare`,
+and a [`wrangler.jsonc`](../wrangler.jsonc) carrying `pages_build_output_dir`.
 
-Pages is not deprecated and the docs carry no such banner, but there's no reason to
-start a new deploy on the older path.
+The case for Workers is recorded here because it hasn't gone away — it's the tradeoff
+being accepted, not a mistake:
 
-Build quotas also favour Workers for a CMS-driven site: 3,000 build-*minutes*/month
-(per account) versus Pages' 500 build-*counts*/month. A ~90s rebuild triggered by a
-CMS save costs 1/2000th of the monthly budget instead of 1/500th.
+- **Build quota is the real cost.** Pages Free allows **500 builds/month** with **1
+  build at a time**; Workers allows 3,000 build-*minutes* (~2,000 rebuilds at 90s).
+  Every CMS save is a commit is a build, so the ceiling is on *editing activity*, not
+  traffic. Steady state for a photography site is nowhere near 500 — but populating
+  captions for 61 gallery photos one save at a time is a few hundred builds in an
+  afternoon, and concurrent saves queue behind each other. Pro raises it to 5,000 if it
+  ever bites.
+- Cloudflare's SvelteKit framework guide now lives under Workers, and new platform work
+  (Vite plugin, gradual deployments, remote dev, observability) lands there. The Pages
+  docs carry a "Migrate to Workers" link in the sidebar.
+
+Pages is **not deprecated**, its SvelteKit guide is current, and the same
+`@sveltejs/adapter-cloudflare` serves both — so this is reversible. Switching later
+means changing `wrangler.jsonc` and the deploy target, not the app.
+
+What Pages gives in exchange: a simpler Git-integration flow, per-branch deploy
+controls, and instant rollbacks in the dashboard.
 
 ## Migration surface
 
@@ -75,6 +88,8 @@ Commit, push, confirm Vercel builds green. That green build is the rollback base
 
 ## 1. Dependencies
 
+Done.
+
 ```bash
 npm rm @sveltejs/adapter-vercel @sveltejs/adapter-auto && npm i -D @sveltejs/adapter-cloudflare wrangler
 ```
@@ -82,41 +97,55 @@ npm rm @sveltejs/adapter-vercel @sveltejs/adapter-auto && npm i -D @sveltejs/ada
 `adapter-auto` goes too — unused once the adapter is explicit, and leaving it invites
 confusion about which adapter is actually live.
 
+`wrangler` is installed **explicitly** even though `@sveltejs/adapter-cloudflare` pulls
+it in transitively — the `pages dev` / `pages deploy` commands here invoke it directly,
+and depending on another package's transitive bin is how that breaks on a minor bump.
+
 ## 2. Adapter swap
 
-In `svelte.config.js`, replace the import and drop the stale doc comment:
+Done — `svelte.config.js` imports `@sveltejs/adapter-cloudflare`; the `adapter()` call
+and the `runes` compiler option are unchanged.
 
 ```js
 import adapter from '@sveltejs/adapter-cloudflare';
 ```
 
-The `adapter()` call and the `runes` compiler option stay exactly as they are.
-
 ## 3. Add `wrangler.jsonc`
+
+Done — see [`wrangler.jsonc`](../wrangler.jsonc). The Pages shape, which is **not** the
+Workers shape:
 
 ```jsonc
 {
-  "name": "mac-harness-photography",
-  "main": ".svelte-kit/cloudflare/_worker.js",
-  "compatibility_date": "2026-07-28",
-  "compatibility_flags": ["nodejs_compat"],
-  "assets": {
-    "directory": ".svelte-kit/cloudflare",
-    "binding": "ASSETS"
-  }
+  "name": "mac-harness",
+  "pages_build_output_dir": ".svelte-kit/cloudflare",
+  "compatibility_date": "2026-07-31",
+  "compatibility_flags": ["nodejs_compat"]
 }
 ```
 
-Paths match Cloudflare's SvelteKit guide. `nodejs_compat` is probably unnecessary —
-`gray-matter` and `marked` run at build time during prerendering, not in the worker —
-but it's free insurance against a confusing failure if a server route is ever added.
+`pages_build_output_dir` is the Pages-only key, and it's what marks this as a Pages
+project rather than a Worker — there's no `main` and no `assets` binding. One
+consequence worth knowing: once that key is present, a deploy treats this file as
+production config, so it has to stay production-ready.
+
+**`nodejs_compat` is required, not insurance.** An earlier revision of this plan guessed
+it was probably unnecessary since `gray-matter` and `marked` run at build time. That's
+wrong: SvelteKit's own server entry imports `node:async_hooks` (via
+`@sveltejs/kit`'s internal event module), and `wrangler pages dev` warns that the Worker
+may throw at runtime without the flag. Adding it silences the warning; removing it
+brings it straight back. Verified both ways.
 
 ## 4. Pin the Node version
 
-Cloudflare's build image defaults to Node 22.16.0; local is 20.20.2. Both satisfy
-Vite 8, but silent local/CI version drift produces builds that only fail in CI.
+Done — `.nvmrc` already pins `22`.
 
-Add `.nvmrc`:
+Cloudflare's build image defaults to Node 22.16.0; local is currently **Node 26.4.0**, which
+is why the pin matters: silent local/CI drift produces builds that only fail in CI. (Node
+26 is also what the old Vercel adapter refused outright — that failure disappeared with
+the adapter swap, but the drift it exposed is real.)
+
+`.nvmrc`:
 
 ```
 22
@@ -130,58 +159,78 @@ not blocking.
 
 ## 5. Local verification (before touching DNS)
 
-```bash
-npm run build && npx wrangler dev
-```
-
-Walk every route shape the app produces:
-
-- [ ] `/` — hero, gallery peek, latest-project block
-- [ ] `/gallery` — all 61 processed images, masonry aspect ratios correct, expand
-      interaction, "from project" tag
-- [ ] `/projects` — the table
-- [ ] `/projects/golden-hour-gulf`, `/projects/idle-revs`, `/projects/pit-lane-pink` —
-      the `entries` generator in `src/routes/projects/[slug]/+page.server.ts` must
-      emit all three
-- [ ] `/does-not-exist` — renders `src/routes/+error.svelte`, not a Cloudflare
-      default page
-
-Then verify assets, where hosts differ most:
-
-- [ ] `static/project-media/` — all 7 files resolve (referenced from project
-      frontmatter and markdown body)
-- [ ] `enhanced-img` output: `avif`/`webp` variants present in `srcset` and served
-      with correct `Content-Type`
-- [ ] Hashed assets carry long-lived `Cache-Control: immutable`
-- [ ] Trailing-slash behaviour matches what Vercel served
-
-## 6. Create the Cloudflare project
-
-Smoke-test manually first, then wire up Git:
+Note `pages dev`, not `dev` — the Workers command won't serve a Pages build. No path
+argument needed; it reads `pages_build_output_dir` from `wrangler.jsonc`.
 
 ```bash
-npx wrangler deploy
+npm run build && npx wrangler pages dev
 ```
 
-Verify the `*.workers.dev` URL end to end using the checklist above. Only then
-connect the repo in the dashboard (Workers → Connect to Git):
+Route shapes — all confirmed on the real Pages build, 2026-07-31:
 
-| Setting                       | Value                                |
-| ----------------------------- | ------------------------------------ |
-| Build command                 | `npm run build`                      |
-| Deploy command                | `npx wrangler deploy` (default)      |
-| Non-production branch command | `npx wrangler versions upload` (default) |
-| Production branch             | `master`                             |
-| Root directory                | *(blank)*                            |
+- [x] `/` — 200, hero photo serves and renders
+- [x] `/gallery` — 200
+- [x] `/projects` — 200
+- [x] `/projects/[slug]` — all three (`golden-hour-gulf`, `idle-revs`, `pit-lane-pink`)
+      return 200, so the `entries` generator in
+      `src/routes/projects/[slug]/+page.server.ts` is emitting every one
+- [x] `/does-not-exist` — 404 serving `src/routes/+error.svelte` (site nav present),
+      not a Cloudflare default page
+- [x] `/admin/` — 200, CMS loads with `config.yml`
 
-No environment variables or secrets to migrate — there are none.
+Assets, where hosts differ most — all confirmed:
+
+- [x] `static/project-media/` — all 7 files 200
+- [x] `enhanced-img` output — `avif` **and** `webp` variants present in `srcset` at
+      480w/800w/…, served as `Content-Type: image/avif`
+- [x] Hashed assets — `Cache-Control: public, immutable, max-age=31536000`
+- [x] Trailing slash — `/gallery/` 308s to `/gallery`. Worth an eye on the live site:
+      this is Pages' redirect, and a change from what Vercel served would matter for
+      any existing inbound links (there are none pre-launch).
+
+Not yet checked: masonry aspect ratios and the expand interaction on `/gallery`, which
+need a real browser rather than a status code.
+
+## 6. Create the Cloudflare Pages project
+
+Smoke-test with a direct upload first, then wire up Git:
+
+```bash
+npm run build && npx wrangler pages deploy
+```
+
+That gives a `*.pages.dev` URL — verify it end to end with the checklist above. Only
+then connect the repo in the dashboard (**Workers & Pages → Pages → Connect to Git**):
+
+| Setting                     | Value                    |
+| --------------------------- | ------------------------ |
+| Framework preset            | SvelteKit                |
+| Build command               | `npm run build`          |
+| Build output directory      | `.svelte-kit/cloudflare` |
+| Production branch           | `master`                 |
+| Root directory              | *(blank)*                |
+
+Two notes:
+
+- **Compatibility flags come from [`wrangler.jsonc`](../wrangler.jsonc)**, so there's no
+  need to set `nodejs_compat` in the dashboard — and no risk of losing it if the project
+  is recreated. If you ever delete that file, set the flag in the dashboard instead or
+  the deploy can throw at runtime.
+- **Node version.** The `.nvmrc` from step 4 is what Pages reads; don't rely on the
+  build image default. Local is currently Node 26, which the *Vercel* adapter rejected
+  outright — that failure is gone with the adapter swap, but the pin still matters to
+  keep CI and local from drifting.
+
+No environment variables or secrets to migrate — there are none. (The CMS OAuth relay of
+[oauth-setup.md](oauth-setup.md) is a *separate* Worker with its own secrets; don't put
+them here.)
 
 ## 7. Domain setup
 
 Pre-launch, so this is a first-time setup with nothing to roll back to. No TTL
 lowering, no parallel-running fallback, no propagation anxiety.
 
-1. Confirm the `workers.dev` URL passes the step 5 checklist
+1. Confirm the `pages.dev` URL passes the step 5 checklist
 2. Add the custom domain in Cloudflare, let the cert issue
 3. Point DNS at it
 4. Verify once from any device
@@ -203,7 +252,7 @@ directly — registering personally and transferring later is avoidable work.
 image is Ubuntu 24.04 / x86_64, so npm should pull the prebuilt `linux-x64` binary
 cleanly — but `sharp` and `@resvg/resvg-js` are the only native deps, and native
 binaries are where CI diverges from a Windows dev machine. This surfaces in step 6,
-before any DNS change, which is why the manual `wrangler deploy` comes first.
+before any DNS change, which is why the manual `wrangler pages deploy` comes first.
 
 **Build duration vs. the 20-minute cap.** 61 images through `sharp` on every commit,
 no incremental cache. Fine today. Measure actual build time in step 6 and treat it as

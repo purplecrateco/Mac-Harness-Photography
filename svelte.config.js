@@ -1,4 +1,4 @@
-import adapter from '@sveltejs/adapter-vercel';
+import adapter from '@sveltejs/adapter-cloudflare';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -7,7 +7,9 @@ const config = {
 		runes: ({ filename }) => (filename.split(/[/\\]/).includes('node_modules') ? undefined : true)
 	},
 	kit: {
-		// See https://svelte.dev/docs/kit/adapter-vercel for configuration options.
+		// Cloudflare Pages. Same adapter Cloudflare recommends for Workers — it covers
+		// both — and it builds to .svelte-kit/cloudflare, which is the output directory
+		// to set in the Pages project. See https://svelte.dev/docs/kit/adapter-cloudflare
 		adapter: adapter()
 	}
 };
