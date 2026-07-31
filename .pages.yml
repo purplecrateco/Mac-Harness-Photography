@@ -1,0 +1,262 @@
+# Pages CMS config, for the Purple Crate instance at cms.purplecrate.co.
+#
+# This is Pages CMS syntax (`type:`), NOT the Decap/Sveltia syntax (`widget:`) used by
+# static/admin/config.yml. The two configs coexist deliberately — Sveltia stays until
+# this one is verified against a real editing session, because it is also what provides
+# zero-auth local editing (`/admin` -> "Work with Local Repository"), which Pages CMS
+# has no equivalent for.
+#
+# Content model reference: docs/cms.md.
+
+# Two media roots, and they are not interchangeable.
+#
+#  project_media — served at a real, stable URL. Project `cover:` images double as
+#    og:image (scrapers want a plain JPEG at a fixed URL, not an avif/webp srcset), and
+#    body images are rendered from markdown by `marked`, which emits raw <img src> with
+#    no chance to substitute a processed asset. Nothing here gets responsive variants,
+#    so keep uploads <=2000px on the long edge — the browser downloads them at full size.
+#
+#  pictures — gallery photos, processed at build time by @sveltejs/enhanced-img into
+#    hashed responsive variants. These are never served from their repo path, which is
+#    why `output` mirrors `input` rather than being a public URL: the value only has to
+#    survive `basename()` in src/lib/content/gallery.server.ts, which strips directory
+#    and extension both. Lowercase extensions only — enhanced-img skips uppercase, and
+#    RAW (.NEF) never reaches the build.
+media:
+  - name: project_media
+    label: Project media
+    input: static/project-media
+    output: /project-media
+    categories: [image]
+    extensions: [jpg, jpeg, png, webp]
+  - name: pictures
+    label: Gallery photos
+    input: src/lib/content/pictures
+    output: src/lib/content/pictures
+    categories: [image]
+    extensions: [jpg, jpeg, png, webp]
+
+content:
+  # ---------------------------------------------------------------- Site settings
+  # Singleton: one form editing one JSON file, rather than a list of entries.
+  # Every string here is rendered by a homepage section — see src/lib/content/copy.ts.
+  # Adding a field means touching the JSON, the type in copy.ts, this file, and the
+  # component.
+  - name: settings
+    label: Site settings
+    type: file
+    path: src/lib/content/settings/homepage.json
+    format: json
+    fields:
+      # Stores the project's slug. Project files are src/lib/content/projects/<slug>.md,
+      # so `{name}` — the entry name, i.e. filename without extension — IS the slug.
+      # Leave empty to feature the newest project by year; a slug pointing at a deleted
+      # or renamed project falls back the same way, so the section can't go blank.
+      - name: featured_project
+        label: Featured project
+        type: reference
+        required: false
+        options:
+          collection: projects
+          value: '{name}'
+          label: '{fields.title} ({fields.year})'
+          search: 'fields.title,fields.cat,fields.year'
+        description: >-
+          The homepage pulls this project's intro and the first four of its featured
+          gallery pictures. Empty = use the most recent project.
+
+      - name: hero
+        label: Hero
+        type: object
+        fields:
+          - { name: name_top, label: Name — first line, type: string }
+          - { name: name_bottom, label: Name — second line, type: string }
+          - name: blurb
+            label: Blurb
+            type: text
+            description: Small mono paragraph in the hero. Hidden on phones.
+          - { name: cta, label: Button label, type: string }
+          - { name: scroll_hint, label: Scroll hint, type: string }
+
+      - name: gallery
+        label: 'Section: Selected Work'
+        type: object
+        fields:
+          - { name: kicker, label: Kicker, type: string }
+          - name: heading
+            label: Heading
+            type: string
+            description: Rendered before the italic gold words, e.g. "Frames that"
+          - name: heading_accent
+            label: Heading — accent
+            type: string
+            description: Set in italic gold, with the full stop added automatically.
+          - name: note
+            label: Note
+            type: text
+            description: Right-aligned mono note. One line per line break.
+          - { name: note_years, label: Note — years, type: string }
+
+      - name: project
+        label: 'Section: Featured project'
+        type: object
+        description: The rest of this section comes from the project picked above.
+        fields:
+          - { name: kicker, label: Kicker, type: string }
+
+      - name: about
+        label: 'Section: About'
+        type: object
+        fields:
+          - { name: kicker, label: Kicker, type: string }
+          - { name: heading, label: Heading, type: string }
+          - { name: lead, label: Lead paragraph, type: text }
+          - { name: body, label: Second paragraph, type: text }
+          - name: stats
+            label: Stats
+            type: object
+            list: true
+            description: Three reads best; the row is a 3-column grid.
+            fields:
+              - { name: num, label: Number, type: string }
+              - { name: label, label: Label, type: string }
+          - name: services
+            label: Service tags
+            type: string
+            list: true
+            description: One tag per item.
+          - { name: signature, label: Signature, type: string }
+
+      - name: contact
+        label: 'Section: Contact'
+        type: object
+        fields:
+          - { name: kicker, label: Kicker, type: string }
+          - { name: heading, label: Heading, type: string }
+          - name: heading_accent
+            label: Heading — accent
+            type: string
+            description: Set in italic gold, with the full stop added automatically.
+          - { name: blurb, label: Blurb, type: text }
+          - name: email
+            label: Email
+            type: string
+            description: Used for the big mailto link and the Enquiries column.
+          - { name: studio_title, label: 'Column 1: title', type: string }
+          - name: studio_lines
+            label: 'Column 1: lines'
+            type: text
+            description: One line per line break.
+          - { name: follow_title, label: 'Column 2: title', type: string }
+          - name: follow_links
+            label: 'Column 2: links'
+            type: object
+            list: true
+            fields:
+              - { name: label, label: Label, type: string }
+              - { name: url, label: URL, type: string }
+          - { name: enquiries_title, label: 'Column 3: title', type: string }
+          - { name: phone, label: Phone, type: string }
+
+      - name: footer_note
+        label: Footer line
+        type: string
+        description: Shown in the footer on every page, not just the homepage.
+
+  # ---------------------------------------------------------------- Gallery
+  # One entry per photo, editing the paired sidecar files in src/lib/content/pictures/
+  # (IMG_7250.jpg + IMG_7250.md).
+  #
+  # An image with no metadata entry still appears on the site, so nothing vanishes if a
+  # file lands here outside the CMS.
+  - name: pictures
+    label: Gallery
+    type: collection
+    path: src/lib/content/pictures
+    format: yaml-frontmatter
+    exclude: [README.md]
+    view:
+      fields: [order, image, caption]
+      primary: image
+      sort: [order, image, caption]
+      search: [image, caption]
+      default:
+        sort: order
+        order: asc
+    fields:
+      - name: image
+        label: Photo
+        type: image
+        options:
+          media: pictures
+        description: Lowercase .jpg/.jpeg/.png/.webp — RAW files are ignored by the build.
+      - name: caption
+        label: Caption
+        type: string
+        required: false
+        description: Used as alt text. Falls back to the filename when empty.
+      - name: order
+        label: Order
+        type: number
+        required: false
+        options:
+          step: 1
+        description: Lowest first. Entries with no order sort last, by filename.
+
+  # ---------------------------------------------------------------- Projects
+  - name: projects
+    label: Projects
+    type: collection
+    path: src/lib/content/projects
+    format: yaml-frontmatter
+    view:
+      fields: [title, year, cat]
+      primary: title
+      sort: [year, title]
+      search: [title, cat, year]
+      default:
+        sort: year
+        order: desc
+    fields:
+      - { name: title, label: Title, type: string }
+      - name: cat
+        label: Category
+        type: string
+        required: false
+        description: 'Free text, e.g. "Automotive · Street"'
+      - name: year
+        label: Year
+        type: string
+        required: false
+        description: Drives ordering — projects sort newest first.
+      - name: cover
+        label: Cover image
+        type: image
+        required: false
+        options:
+          media: project_media
+        description: Shown on the projects table and as the page hero. Also the og:image.
+      - { name: intro, label: Intro, type: text, required: false }
+
+      # `value: '{name}'` is load-bearing. This must store the BARE picture name
+      # (e.g. "IMG_7250"), because normalizePictureRef() in src/lib/content/pictures.ts
+      # strips the extension but NOT a directory — so a path-prefixed value would
+      # silently fail to resolve and the project would render with no pictures.
+      # `{name}` is the sidecar's filename without extension, which is exactly the bare
+      # name already in the committed frontmatter. Don't change this to {path}.
+      - name: gallery
+        label: Featured gallery pictures
+        type: reference
+        required: false
+        options:
+          collection: pictures
+          multiple: true
+          value: '{name}'
+          label: '{fields.image} — {fields.caption}'
+          search: 'fields.image,fields.caption'
+
+      # Maps to the markdown body, not a frontmatter key, because `format` above is
+      # yaml-frontmatter.
+      - name: body
+        label: Body
+        type: rich-text

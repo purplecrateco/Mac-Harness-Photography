@@ -8,15 +8,29 @@
 #   choose "Work with Local Repository" and pick the repo root
 # Edits are written straight to your working tree; commit with git as normal.
 #
-# For remote editing (i.e. handing this to Mac) the `backend` below needs an OAuth
-# relay — deploy sveltia-cms-auth as a Cloudflare Worker and add its `base_url`.
-# Do that under the Purple Crate Co account, not a personal one, and update `repo`
-# after the transfer. See docs/cms.md and docs/cloudflare-migration-plan.md.
+# Remote editing: there are two sign-in buttons on the /admin login screen, and only
+# one of them works right now.
+#
+#   "Sign In Using Access Token"  — WORKS TODAY. Personal access token, no OAuth app,
+#     no Worker, no config change. This is the interim path for handing the CMS to Mac.
+#   "Sign In with GitHub"         — BROKEN until `base_url` below is set. With no
+#     base_url, Sveltia falls back to using Netlify as the OAuth provider (its
+#     Netlify-CMS-compatibility default). This site isn't on Netlify, so it dead-ends.
+#
+# To fix the GitHub button: deploy sveltia-cms-auth as a Cloudflare Worker, register a
+# GitHub OAuth App, then uncomment base_url and point it at the Worker. Do that under
+# the Purple Crate Co account, not a personal one, and update `repo` after the repo
+# transfers. See docs/cms.md and docs/cloudflare-migration-plan.md.
 
 backend:
   name: github
-  repo: josephheinz/Mac-Harness-Photography
+  repo: purplecrateco/Mac-Harness-Photography
   branch: master
+  # base_url: https://<worker-name>.<subdomain>.workers.dev
+  #
+  # Careful: for the *GitHub Enterprise* case the same key means something else
+  # entirely (your GHE server, paired with `api_root`). Here it is the OAuth client
+  # URL. Don't set both meanings.
 
 # Default media root: static/project-media is served at a real, stable URL, which
 # is what project `cover:` images and inline markdown images need.

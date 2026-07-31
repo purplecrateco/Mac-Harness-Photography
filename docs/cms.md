@@ -1,12 +1,36 @@
-# CMS (Sveltia)
+# CMS
 
-The site's content is edited through [Sveltia CMS](https://sveltiacms.app), served
-from `/admin`. It's a git-based CMS: every save is a commit to this repo, and the
-site rebuilds from it. There is no database and no separate content service — the
-content lives in `src/lib/content/` and travels with the repo.
+Content is edited through a git-based CMS: every save is a commit to this repo, and the
+site rebuilds from it. There is no database and no separate content service — the content
+lives in `src/lib/content/` and travels with the repo.
 
-- Admin page: [static/admin/index.html](../static/admin/index.html)
-- Config: [static/admin/config.yml](../static/admin/config.yml)
+**Two CMSes are configured right now, deliberately.**
+
+| | Pages CMS | Sveltia CMS |
+| --- | --- | --- |
+| Where | Purple Crate's instance at `cms.purplecrate.co` | `/admin` on this site |
+| Config | [`.pages.yml`](../.pages.yml) (`type:` syntax) | [static/admin/config.yml](../static/admin/config.yml) (`widget:` syntax) |
+| Auth | Already solved — the instance holds the GitHub App | Needs an OAuth relay ([oauth-setup.md](oauth-setup.md)) or the token button |
+| Local editing | No | Yes — zero-auth, straight into your working tree |
+
+**Pages CMS is the intended path for Mac**, because the shared instance already handles
+GitHub auth — that's what makes the Sveltia OAuth relay unnecessary for the handover.
+
+Sveltia is kept because it is the only one offering **local mode**: `/admin` →
+"Work with Local Repository" edits your working tree directly with no auth at all
+(Chromium only). Don't delete `static/admin/` to tidy up — that's the feature you'd lose.
+
+Two known differences after the switch:
+
+- **No custom preview pane.** [static/admin/preview.js](../static/admin/preview.js) is a
+  Sveltia-only feature — the section-by-section copy proof for judging headlines that
+  split across two fields. Pages CMS has no equivalent, so previewing means saving and
+  looking at the site.
+- **New gallery uploads store a path, not a bare filename.** Existing sidecars say
+  `image: IMG_7250.jpg`; ones created through Pages CMS will say
+  `image: src/lib/content/pictures/IMG_7250.jpg`. Both resolve — `basename()` in
+  `gallery.server.ts` strips directory and extension both — so this is cosmetic. It's a
+  consequence of Pages CMS requiring a media `output` path.
 
 Nothing is installed into the app. The admin page is a static file that loads the
 CMS from a CDN, so it adds nothing to the site bundle and has no build step.
@@ -33,8 +57,25 @@ Exactly one thing: **a GitHub account with write access to this repo.**
 
 He can sign up using **Continue with Google** — GitHub has supported Google social
 login since July 2025 — so he never creates or remembers a GitHub password. Then he
-accepts the repo invite, opens `/admin`, clicks **Sign in with GitHub**, and approves
-once. After that it's just a URL he visits.
+accepts the repo invite and opens `/admin`.
+
+**Which button he clicks depends on whether the OAuth Worker is deployed yet.**
+
+| Button | Works? | What it needs |
+| --- | --- | --- |
+| **Sign In Using Access Token** | Yes, today | Nothing deployed. He generates a PAT from a link the dialog gives him (scopes pre-selected) and pastes it in. |
+| **Sign In with GitHub** | Not yet | `base_url` in the config, pointing at a deployed OAuth relay — see below. |
+
+Until the Worker exists, the token button is the way in. Two caveats that make it an
+interim measure rather than the destination:
+
+- **Tokens expire.** He has to generate a new one when it lapses, which is exactly the
+  kind of task you don't want to walk a client through repeatedly.
+- **The token lives in his browser's local storage**, so it's per-browser — a new
+  laptop or a cleared profile means generating another.
+
+That's the argument for finishing the OAuth setup before handover, not a blocker on
+him starting to edit.
 
 Set expectations with him on two points:
 
@@ -45,17 +86,36 @@ Set expectations with him on two points:
 
 ## Still to do before handing it over
 
-Remote editing needs an OAuth relay — the CMS can't complete a GitHub sign-in without
-one. Deploy [sveltia-cms-auth](https://github.com/sveltia/sveltia-cms-auth) as a
-Cloudflare Worker, register a GitHub OAuth App, and add the Worker's URL as
-`base_url` under `backend` in the config.
+**Why "Sign in with GitHub" currently dead-ends.** Sveltia supports the OAuth
+authorization code flow, but it needs an OAuth client server to hold the app secret —
+the flow can't be completed from the browser alone. When `base_url` is absent, Sveltia
+falls back to **using Netlify as the OAuth provider**, purely for Netlify CMS
+backward compatibility. That fallback is the default, so a config with no `base_url`
+silently points sign-in at Netlify. This site isn't on Netlify and has no Netlify
+OAuth app, so the button goes nowhere.
 
-Do that **after** the repo transfers to Purple Crate Co, and register the OAuth App
-to that org rather than a personal account — otherwise you stay permanently in the
-loop for the client's logins. Same reasoning as
+To be explicit: **setting up Netlify is not the fix.** It's a compatibility path for
+existing Netlify customers, and adopting it would mean taking on a hosting account the
+project doesn't otherwise use. Deploy the relay instead.
+
+**The fix is a step-by-step runbook: [docs/oauth-setup.md](oauth-setup.md).** In short —
+deploy [sveltia-cms-auth](https://github.com/sveltia/sveltia-cms-auth) as a Cloudflare
+Worker, register a GitHub OAuth App, give the Worker the client ID and secret, then set
+`base_url` in the config. Only that last step touches this repo.
+
+Do the dashboard work **after** the repo transfers to Purple Crate Co, and register the
+OAuth App to that org rather than a personal account — otherwise you stay permanently in
+the loop for the client's logins. Same reasoning as
 [the migration plan](cloudflare-migration-plan.md).
 
-Until then, local mode is fully functional for your own editing.
+Meanwhile nothing is blocked: **local mode** covers your own editing, and the
+**access-token** button covers Mac's (see the table above).
+
+Note that PKCE — which would remove the need for a relay entirely — is *not* available
+for GitHub. It's on GitHub's roadmap and was slated for Q4 2025 with no ship date;
+Sveltia's docs call it out as unimplemented, and specifically warn that AI assistants
+tend to claim otherwise by confusing it with GitLab, which does support it. Don't plan
+around it until GitHub ships it.
 
 ## Content model
 
