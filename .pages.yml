@@ -175,8 +175,14 @@ content:
     path: src/lib/content/pictures
     format: yaml-frontmatter
     exclude: [README.md]
+    # Pages CMS collection layouts are `list` or `tree` only — there is no grid/gallery
+    # layout, so a wall of thumbnails isn't available here. `image` is listed first so
+    # the photo leads each row, which is the closest thing to visual scanning while
+    # still being able to edit caption and order. For actual grid browsing, use the
+    # Media section (src/lib/content/pictures), which renders a thumbnail grid — it
+    # just can't edit these fields.
     view:
-      fields: [order, image, caption]
+      fields: [image, order, caption]
       primary: image
       sort: [order, image, caption]
       search: [image, caption]
