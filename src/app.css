@@ -27,6 +27,13 @@
 	   chroma 4.8) and still clearly quieter than it: L* 56 vs 67, 5.6:1 vs 8.0:1. */
 	--color-ink-faint: #8a867e;
 	--color-gold: #c9aa6e;
+	/* Wordmark gold, hero only. #c9aa6e sits at relative luminance 0.42 — fine on the
+	   #070708 base everywhere else, but mid-tone over a photograph, where it loses
+	   contrast against blown highlights AND dark silhouette. Measured over IMG_7387 at
+	   brightness 1.35, #c9aa6e needs a 0.70 scrim to clear 3:1 where this paler tone
+	   clears it at 0.60 — a lighter wordmark is what buys back a less-murdered photo.
+	   Kept separate from --color-gold so buttons/logo/scrollbar are untouched. */
+	--color-gold-hero: #ddc38d;
 	--color-gold-ink: #16130c;
 	--color-base: #070708;
 	--color-glass-line: rgba(255, 255, 255, 0.14);
@@ -155,7 +162,7 @@
    homepage timeline. Keep this list in sync with the load animations. */
 .motion-armed [data-load],
 .motion-armed [data-anim='hero-name'],
-.motion-armed [data-anim='hero-portrait'] img,
+.motion-armed [data-anim='hero-photo'],
 .motion-armed [data-anim='hero-blurb'],
 .motion-armed [data-anim='hero-fade'] {
 	opacity: 0;

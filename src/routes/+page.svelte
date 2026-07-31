@@ -51,7 +51,9 @@
 					duration: 1.1,
 					stagger: 0.15
 				})
-					.from('[data-anim="hero-portrait"] img', { y: 70, opacity: 0, duration: 1.1 }, '-=0.8')
+					// Fade only — the photo is full-bleed now, so any y offset would slide a
+					// bare edge into frame.
+					.from('[data-anim="hero-photo"]', { opacity: 0, duration: 1.2 }, '-=0.8')
 					.from('[data-anim="hero-blurb"]', { y: 18, opacity: 0, duration: 0.8 }, '-=0.7')
 					.from('[data-anim="hero-fade"]', { opacity: 0, duration: 0.8, stagger: 0.12 }, '-=0.6');
 
@@ -85,23 +87,9 @@
 					});
 				}
 
-				// ---------- SCROLL: subtle portrait parallax ----------
-				// xPercent:-50 preserves the centering (it owns the transform once GSAP touches it).
-				gsap.fromTo(
-					'[data-anim="hero-portrait"]',
-					{ xPercent: -50, yPercent: 0 },
-					{
-						xPercent: -50,
-						yPercent: 12,
-						ease: 'none',
-						scrollTrigger: {
-							trigger: '#top',
-							start: 'top top',
-							end: 'bottom top',
-							scrub: true
-						}
-					}
-				);
+				// ponytail: dropped the hero parallax with the floating portrait it was built
+				// for — on a full-bleed cover a yPercent shift just walks the image edge into
+				// frame. Add back with an over-sized image (h-[115%]) if the motion is wanted.
 
 				// images settle the layout after load → recompute trigger positions
 				requestAnimationFrame(() => ScrollTrigger.refresh());
