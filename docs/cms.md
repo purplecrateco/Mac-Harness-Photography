@@ -26,11 +26,16 @@ Two known differences after the switch:
   Sveltia-only feature — the section-by-section copy proof for judging headlines that
   split across two fields. Pages CMS has no equivalent, so previewing means saving and
   looking at the site.
-- **New gallery uploads store a path, not a bare filename.** Existing sidecars say
-  `image: IMG_7250.jpg`; ones created through Pages CMS will say
-  `image: src/lib/content/pictures/IMG_7250.jpg`. Both resolve — `basename()` in
-  `gallery.server.ts` strips directory and extension both — so this is cosmetic. It's a
-  consequence of Pages CMS requiring a media `output` path.
+- **Gallery sidecars store a repo path, not a bare filename.** All 61 were migrated from
+  `image: IMG_7250.jpg` to `image: src/lib/content/pictures/IMG_7250.jpg`, because Pages
+  CMS resolves an image field's preview by matching the stored value against its media
+  source's `output` prefix — a bare filename matches nothing, so the thumbnail comes up
+  empty. The site is indifferent: `basename()` in `gallery.server.ts` strips directory
+  and extension both.
+
+  **Project `gallery:` references are the opposite and must stay bare** (`IMG_7250`),
+  because `normalizePictureRef()` strips the extension but *not* a directory. Two
+  different fields, two different formats, on purpose. Don't "unify" them.
 
 Nothing is installed into the app. The admin page is a static file that loads the
 CMS from a CDN, so it adds nothing to the site bundle and has no build step.
