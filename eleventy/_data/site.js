@@ -60,5 +60,11 @@ export default async function () {
 		}
 	}
 
-	return { copy, projects, featured, pictureProjects };
+	/* Header copy for /projects is derived from the loaded projects, not written by hand,
+	   so it never drifts from what is actually in the projects directory. `range` is empty
+	   when no project carries a year, which makes the kicker read just "Index". */
+	const years = projects.map((p) => Number(p.year)).filter((y) => !Number.isNaN(y));
+	const projectsRange = years.length ? ` · ${Math.min(...years)} → ${Math.max(...years)}` : '';
+
+	return { copy, projects, featured, pictureProjects, projectsRange };
 }
