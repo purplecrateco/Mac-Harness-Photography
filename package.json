@@ -14,10 +14,11 @@
 		"css:11ty": "tailwindcss -i eleventy/css/tailwind.css -o _site/assets/app.css --minify",
 		"css:11ty:watch": "tailwindcss -i eleventy/css/tailwind.css -o _site/assets/app.css --watch",
 		"dev": "vite dev",
-		"dev:11ty": "run-p \"eleventy --serve\" css:11ty:watch \"js:11ty -- --watch\"",
+		"dev:11ty": "run-p serve:11ty css:11ty:watch \"js:11ty -- --watch\"",
 		"js:11ty": "esbuild eleventy/assets/motion.js --bundle --splitting --format=esm --minify --target=es2022 --outdir=_site/assets",
 		"prepare": "svelte-kit sync || echo ''",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"serve:11ty": "eleventy --serve"
 	},
 	"devDependencies": {
 		"@11ty/eleventy": "^3.1.6",
