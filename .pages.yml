@@ -66,99 +66,152 @@ content:
           The homepage pulls this project's intro and the first four of its featured
           gallery pictures. Empty = use the most recent project.
 
-      - name: hero
-        label: Hero
-        type: object
-        fields:
-          - { name: name_top, label: Name — first line, type: string }
-          - { name: name_bottom, label: Name — second line, type: string }
-          - name: blurb
-            label: Blurb
-            type: text
-            description: Small mono paragraph in the hero. Hidden on phones.
-          - { name: cta, label: Button label, type: string }
-          - { name: scroll_hint, label: Scroll hint, type: string }
-
-      - name: gallery
-        label: 'Section: Selected Work'
-        type: object
-        fields:
-          - { name: kicker, label: Kicker, type: string }
-          - name: heading
-            label: Heading
-            type: string
-            description: Rendered before the italic gold words, e.g. "Frames that"
-          - name: heading_accent
-            label: Heading — accent
-            type: string
-            description: Set in italic gold, with the full stop added automatically.
-          - name: note
-            label: Note
-            type: text
-            description: Right-aligned mono note. One line per line break.
-          - { name: note_years, label: Note — years, type: string }
-
-      - name: project
-        label: 'Section: Featured project'
-        type: object
-        description: The rest of this section comes from the project picked above.
-        fields:
-          - { name: kicker, label: Kicker, type: string }
-
-      - name: about
-        label: 'Section: About'
-        type: object
-        fields:
-          - { name: kicker, label: Kicker, type: string }
-          - { name: heading, label: Heading, type: string }
-          - { name: lead, label: Lead paragraph, type: text }
-          - { name: body, label: Second paragraph, type: text }
-          - name: stats
-            label: Stats
-            type: object
-            list: true
-            description: Three reads best; the row is a 3-column grid.
+      # The homepage, as an ordered list of sections. This is what the Preview field below
+      # renders: the CMS fetches eleventy/_includes/blocks/<type>.njk out of this repo and
+      # runs it against the section being edited, so the preview is the site's own markup
+      # and cannot drift from it.
+      #
+      # Two constraints come from that, and both are load-bearing:
+      #   1. `name` here MUST match a partial filename in eleventy/_includes/blocks/.
+      #   2. Those partials may only read `sec.*` — see eleventy/_includes/blocks/README.md.
+      #
+      # These sections are reorderable and removable because a block list is what makes the
+      # preview possible. They are NOT actually interchangeable: the hero carries the page's
+      # <h1> and its own background, .t-gallery's tablet rules assume Selected Work follows
+      # the hero, and the GSAP timeline targets sections by data-anim. Reordering is safe;
+      # deleting the hero costs the page its heading.
+      - name: blocks
+        label: Homepage sections
+        type: block
+        blockKey: type
+        list:
+          collapsible:
+            collapsed: true
+            summary: '{fields.type}'
+        blocks:
+          # ── Hero ────────────────────────────────────────────────────────────
+          - name: hero
+            label: Hero
             fields:
-              - { name: num, label: Number, type: string }
-              - { name: label, label: Label, type: string }
-          - name: services
-            label: Service tags
-            type: string
-            list: true
-            description: One tag per item.
-          - { name: signature, label: Signature, type: string }
+              - { name: name_top, label: Name — first line, type: string }
+              - { name: name_bottom, label: Name — second line, type: string }
+              - name: blurb
+                label: Blurb
+                type: text
+                description: Small mono paragraph in the hero. Hidden on phones.
+              - { name: cta, label: Button label, type: string }
+              - { name: scroll_hint, label: Scroll hint, type: string }
 
-      - name: contact
-        label: 'Section: Contact'
-        type: object
-        fields:
-          - { name: kicker, label: Kicker, type: string }
-          - { name: heading, label: Heading, type: string }
-          - name: heading_accent
-            label: Heading — accent
-            type: string
-            description: Set in italic gold, with the full stop added automatically.
-          - { name: blurb, label: Blurb, type: text }
-          - name: email
-            label: Email
-            type: string
-            description: Used for the big mailto link and the Enquiries column.
-          - { name: studio_title, label: 'Column 1: title', type: string }
-          - name: studio_lines
-            label: 'Column 1: lines'
-            type: text
-            description: One line per line break.
-          - { name: follow_title, label: 'Column 2: title', type: string }
-          - name: follow_links
-            label: 'Column 2: links'
-            type: object
-            list: true
+          # ── Selected Work ───────────────────────────────────────────────────
+          # The photographs come from the Gallery collection (the first eight, in
+          # gallery order), not from this section — only the copy is edited here.
+          - name: selected-work
+            label: 'Selected Work (gallery peek)'
             fields:
-              - { name: label, label: Label, type: string }
-              - { name: url, label: URL, type: string }
-          - { name: enquiries_title, label: 'Column 3: title', type: string }
-          - { name: phone, label: Phone, type: string }
+              - { name: kicker, label: Kicker, type: string }
+              - name: heading
+                label: Heading
+                type: string
+                description: Rendered before the italic gold words, e.g. "Frames that"
+              - name: heading_accent
+                label: Heading — accent
+                type: string
+                description: Set in italic gold, with the full stop added automatically.
+              # A list, not a text field: the partial has to render this without a
+              # filter, and Nunjucks cannot split a string (see blocks/README.md).
+              - name: note
+                label: Note
+                type: string
+                list: true
+                description: Right-aligned mono note. One item per line.
+              - { name: note_years, label: Note — years, type: string }
 
+          # ── Featured project ────────────────────────────────────────────────
+          - name: featured-project
+            label: Featured project
+            fields:
+              - { name: kicker, label: Kicker, type: string }
+              # Everything else in this section — title, intro, category, year and
+              # the collage — comes from the project picked in Featured project
+              # above, so there is nothing else to edit here.
+
+          # ── About ───────────────────────────────────────────────────────────
+          - name: about
+            label: About
+            fields:
+              - { name: kicker, label: Kicker, type: string }
+              - { name: heading, label: Heading, type: string }
+              - { name: lead, label: Lead paragraph, type: text }
+              - { name: body, label: Second paragraph, type: text }
+              - name: stats
+                label: Stats
+                type: object
+                list: true
+                description: Three reads best; the row is a 3-column grid.
+                fields:
+                  - { name: num, label: Number, type: string }
+                  - { name: label, label: Label, type: string }
+              - name: services
+                label: Service tags
+                type: string
+                list: true
+                description: One tag per item.
+              - { name: signature, label: Signature, type: string }
+
+          # ── Contact ─────────────────────────────────────────────────────────
+          - name: contact
+            label: Contact
+            fields:
+              - { name: kicker, label: Kicker, type: string }
+              - { name: heading, label: Heading, type: string }
+              - name: heading_accent
+                label: Heading — accent
+                type: string
+                description: Set in italic gold, with the full stop added automatically.
+              - { name: blurb, label: Blurb, type: text }
+              - name: email
+                label: Email
+                type: string
+                description: Used for the big mailto link.
+              - { name: follow_title, label: 'Links: title', type: string }
+              - name: follow_links
+                label: 'Links'
+                type: object
+                list: true
+                fields:
+                  - { name: label, label: Label, type: string }
+                  - { name: url, label: URL, type: string }
+              # studio_title / studio_lines / enquiries_title / phone are still in
+              # the JSON but no template renders them. Left out of the form rather
+              # than offering an editor fields that change nothing.
+
+      # Live preview pane, rendered by the CMS's custom `preview` field
+      # (fields/custom/preview in purplecrateco/purplecrate-cms). It POSTs the live
+      # `blocks` value to the render endpoint, which renders the partials above straight
+      # out of this repo. Nothing is written to the content file — the field has no value.
+      #
+      # baseHref and stylesheets need a DEPLOYED site: the preview iframe loads the real
+      # stylesheet over the network. Until this site is hosted, uncommenting them buys
+      # nothing and the pane renders unstyled. Set baseHref to the site root and leave the
+      # sheet list as-is — one stylesheet is all this build emits.
+      - name: _preview
+        label: Preview
+        type: preview
+        options:
+          # Form field whose value drives the preview.
+          watch: blocks
+          # Repo directory holding one partial per block type.
+          templates: eleventy/_includes/blocks
+          # Key on each block naming its type, and the Nunjucks variable the
+          # partials read it from (see eleventy/index.njk).
+          blockKey: type
+          contextKey: sec
+          # baseHref: https://macharness.com/
+          stylesheets:
+            # Copied verbatim from layouts/base.njk — same families and weights, or the
+            # preview renders in faces the site never loads.
+            - https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital@0;1&display=swap
+            - /assets/app.css
       - name: footer_note
         label: Footer line
         type: string

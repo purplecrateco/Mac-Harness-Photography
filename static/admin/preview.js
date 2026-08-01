@@ -95,11 +95,12 @@
 	const para = (text, style) =>
 		h('p', { style: Object.assign({ margin: '0 0 12px', lineHeight: 1.6, color: DIM }, style) }, text || '');
 
-	/** Multi-line text field → one <div> per line, mirroring the site's <br/>s. */
+	/* Multi-line copy → one <div> per line, mirroring the site's <br/>s.
+	   Takes either a list field (the Selected Work note, now a real list because a block
+	   partial cannot split a string) or a text field with line breaks. */
 	const multiline = (text, style) =>
-		String(text || '')
-			.split('\n')
-			.map((line) => line.trim())
+		(Array.isArray(text) ? text : String(text || '').split('\n'))
+			.map((line) => String(line == null ? '' : line).trim())
 			.filter(Boolean)
 			.map((line, i) => h('div', { key: i, style: style }, line));
 
@@ -124,11 +125,23 @@
 			const { entry } = this.props;
 			const get = (path) => read(entry, path);
 
-			const hero = get(['hero']) || {};
-			const gallery = get(['gallery']) || {};
-			const project = get(['project']) || {};
-			const about = get(['about']) || {};
-			const contact = get(['contact']) || {};
+			/* Sections live in the `blocks` list, keyed by `type`, so each one is found
+			   rather than read from a fixed path. A type the editor hasn't added yet — or
+			   has added twice — degrades to `{}` / the first match, which keeps this a copy
+			   proof rather than something that can throw mid-edit.
+
+			   This pane deliberately stays a hand-written copy proof: it is Sveltia-only,
+			   and Pages CMS renders the real templates instead (see .pages.yml's _preview).
+			   Keep the section list here in step with eleventy/_includes/blocks/. */
+			const blocks = get(['blocks']) || [];
+			const block = (type) =>
+				(Array.isArray(blocks) && blocks.find((b) => b && b.type === type)) || {};
+
+			const hero = block('hero');
+			const gallery = block('selected-work');
+			const project = block('featured-project');
+			const about = block('about');
+			const contact = block('contact');
 
 			return h(
 				'div',
