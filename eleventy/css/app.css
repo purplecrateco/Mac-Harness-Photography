@@ -1,12 +1,10 @@
 @import 'tailwindcss';
-@import 'tw-animate-css';
-
-@custom-variant dark (&:is(.dark *));
 
 /* ============ Mac Harness — design tokens ============
    Palette and type scale available as Tailwind utilities (text-ink, bg-gold,
-   font-serif, …). Site-specific tokens live alongside the shadcn-svelte
-   semantic token set so both the custom components and shadcn primitives work. */
+   font-serif, …). The semantic set below (--color-background, --color-ring, …) is
+   inherited from the shadcn-svelte theme the site was built on; the utilities it
+   backs are still in use, so the names stay. */
 @theme {
 	--font-sans: 'Space Grotesk', sans-serif;
 	--font-display: 'Space Grotesk', sans-serif;
@@ -15,7 +13,7 @@
 	/* Display-only serif for the hero wordmark. Libre Caslon Display ships no
 	   italic face at all, so italics elsewhere use --font-serif (Caslon Text,
 	   which does). This token is roman-only and scoped to the wordmark —
-	   Button.svelte's font-display is unrelated (Space Grotesk, keep as-is). */
+	   --font-display is unrelated (Space Grotesk, keep as-is). */
 	--font-serif-display: 'Libre Caslon Display', serif;
 
 	/* Site-specific tokens */
@@ -116,7 +114,7 @@
 }
 
 /* Keyboard focus ring. One authored style so every interactive element rings the
-   same way; mirrors the ring Button.svelte and Gallery.svelte spell out inline.
+   same way, matching the ring the buttons and gallery tiles spell out inline.
    Apply it through the variant at the call site, together with a radius:
    `rounded-sm focus-visible:focus-ring`. */
 @utility focus-ring {
@@ -144,7 +142,7 @@
 	}
 }
 
-/* Entrance arming. The inline script in app.html adds .motion-armed to <html>
+/* Entrance arming. The inline script in layouts/base.njk adds .motion-armed to <html>
    before the first paint, so anything GSAP animates in starts hidden instead of
    flashing at its final position while the dynamic import resolves. Motion code
    removes the class once it has applied its own start states, and the script's

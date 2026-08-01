@@ -1,22 +1,22 @@
-/* Tailwind entry for the Eleventy build.
+/* Tailwind entry for the site build.
  *
- * src/app.css is imported unchanged — all the design tokens, @utility definitions and
- * the .motion-armed / focus-within accessibility rules are shared verbatim with the
- * SvelteKit build, so there is one source of truth for styling during the port.
+ * app.css holds the design tokens, @utility definitions and the .motion-armed /
+ * focus-within accessibility rules. It is kept separate so this file stays what it
+ * says on the tin: the build entry, plus the rules that have nowhere better to live.
  *
  * @source is required: Tailwind v4's automatic content detection starts from this
  * file's directory, which would miss the Nunjucks templates and the client JS that
  * both carry utility classes. Without these, classes used only in .njk are stripped.
  */
-@import '../../src/app.css';
+@import './app.css';
 
 @source '../**/*.njk';
 @source '../assets/**/*.js';
 
 /* ---------------------------------------------------------------------------
-   Rules that lived in Svelte components' scoped <style> blocks. Nunjucks has no
-   scoping, so they move here rather than into src/app.css — that file stays shared
-   verbatim with the SvelteKit build for as long as both exist.
+   Component-scoped rules. These were scoped <style> blocks before the port; Nunjucks
+   has no scoping, so they live here rather than in app.css, which is reserved for
+   tokens and site-wide primitives.
    --------------------------------------------------------------------------- */
 
 /* Tablet / medium screens (bigger than phones, smaller than the lg desktop layout).
