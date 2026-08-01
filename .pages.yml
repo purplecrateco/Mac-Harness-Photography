@@ -49,23 +49,6 @@ content:
     path: src/lib/content/settings/homepage.json
     format: json
     fields:
-      # Stores the project's slug. Project files are src/lib/content/projects/<slug>.md,
-      # so `{name}` — the entry name, i.e. filename without extension — IS the slug.
-      # Leave empty to feature the newest project by year; a slug pointing at a deleted
-      # or renamed project falls back the same way, so the section can't go blank.
-      - name: featured_project
-        label: Featured project
-        type: reference
-        required: false
-        options:
-          collection: projects
-          value: '{name}'
-          label: '{fields.title} ({fields.year})'
-          search: 'fields.title,fields.cat,fields.year'
-        description: >-
-          The homepage pulls this project's intro and the first four of its featured
-          gallery pictures. Empty = use the most recent project.
-
       # The homepage, as an ordered list of sections. This is what the Preview field below
       # renders: the CMS fetches eleventy/_includes/blocks/<type>.html out of this repo and
       # runs it against the section being edited, so the preview is the site's own markup
@@ -151,6 +134,29 @@ content:
             label: Featured project
             fields:
               - { name: kicker, label: Kicker, type: string }
+              # Which project this section shows. It lives on the block rather than at the
+              # top level so the preview can see it — the preview renders a block with
+              # only that block's own fields in scope.
+              #
+              # Stores the slug: project files are src/lib/content/projects/<slug>.md, so
+              # `{name}` — the entry name, i.e. filename without extension — IS the slug.
+              #
+              # Empty still means "the newest project by year", and a slug naming a
+              # deleted or renamed project falls back the same way, so the section cannot
+              # go blank. But empty is resolved at BUILD time, so the preview has nothing
+              # to show for it — pick a project explicitly to preview this section.
+              - name: featured_project
+                label: Project
+                type: reference
+                required: false
+                options:
+                  collection: projects
+                  value: '{name}'
+                  label: '{fields.title} ({fields.year})'
+                  search: 'fields.title,fields.cat,fields.year'
+                description: >-
+                  The section pulls this project's title, intro, category, year and the
+                  first four of its gallery pictures. Empty = the most recent project.
               # Everything else in this section — title, intro, category, year and
               # the collage — comes from the project picked in Featured project
               # above, so there is nothing else to edit here.

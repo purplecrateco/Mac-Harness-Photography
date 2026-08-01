@@ -48,12 +48,21 @@ Consequences worth knowing before editing:
   are content-hashed and underivable. Note the URL appends `.jpg` rather than replacing the
   extension, because Nunjucks can't split a string.
 
-  **Featured project cannot, and falls back to plates.** Its content is a different entry
-  (`src/lib/content/projects/<slug>.md`) and the block holds only a kicker; worse,
-  `featured_project` is a top-level field *outside* `blocks`, so the field — which watches
-  `blocks` — never learns which project is featured. Rendering it would mean copying the
-  project's title, intro and cover into this block, which is the drift the reference picker
-  exists to prevent. Grey plates are the honest answer.
+  **Featured project renders partially, on purpose.** Its title and intro live in another
+  entry (`src/lib/content/projects/<slug>.md`) and are *not* copied into the block — that
+  would be exactly the drift the reference picker prevents. What the block does carry is the
+  slug, which is enough for the section's identity, both button targets, and a real
+  photograph: the build writes each project's cover to `/preview/project-<slug>.jpg`
+  (`_data/site.js`), because the cover's own URL is stable but its filename isn't derivable
+  from the slug. The remaining three plates stay placeholders — which photographs fill them
+  is the project's own gallery selection, resolvable only at build time.
+
+  Note `previewCover` in that partial: the preview cover consumes a collage slot, so without
+  it the section would render five plates where the site renders four.
+
+  One consequence for editors: an empty Project field means "the newest project by year",
+  resolved at build time — so the preview has nothing to show for it. The section has to
+  name its project explicitly to preview.
 - **Only `markdownify` and `{% icon %}` exist in the preview renderer.** Don't reach for
   `markdown`, `lines` or `json` here — those are this build's own filters, and a partial
   using one throws in the preview. Note that Nunjucks has no `split` either, so a block

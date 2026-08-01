@@ -31,7 +31,8 @@
     },
     {
       "type": "featured-project",
-      "kicker": "Latest Project"
+      "kicker": "Latest Project",
+      "featured_project": "golden-hour-gulf"
     },
     {
       "type": "about",

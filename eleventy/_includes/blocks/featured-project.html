@@ -57,12 +57,34 @@
 	{ w: 480, h: 600, label: 'PLATE 04' }
 ] -%}
 {%- set showCover = p and p.cover and (p.metaPics | length) == 0 -%}
-{%- set usedSlots = ((p.metaPics | length) if p else 0) + (1 if showCover else 0) -%}
+{#- In the preview the cover occupies the first plate, so it consumes a slot too — without
+    this the section would render five plates where the site renders four. -#}
+{%- set previewCover = (not p) and sec.featured_project -%}
+{%- set usedSlots = ((p.metaPics | length) if p else 0) + (1 if showCover else 0) + (1 if previewCover else 0) -%}
 
 <section id="project" class="relative border-t border-white/[0.055] py-20 sm:py-28 lg:py-[140px]">
 	<div class="mx-auto grid w-full max-w-[1320px] grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] items-center gap-[72px] px-6 sm:px-10 lg:px-14 max-[900px]:grid-cols-1 max-[900px]:gap-12">
 		<div class="reveal">
 			{{ kicker(sec.kicker) }}
+			{#-
+				CMS preview: no sec.project, because resolving it means reading another entry.
+				What the block does carry is the slug, and that is enough for the section's
+				identity, its real cover photograph and both button targets — everything except
+				the title and intro, which live in the project's own markdown file and are
+				deliberately not copied in here.
+			-#}
+			{% if not p and sec.featured_project %}
+			<h2 class="mb-7 mt-3.5 font-serif text-[clamp(40px,5.4vw,76px)] font-normal leading-[0.96] tracking-[-0.01em] text-ink">
+				<em class="italic text-gold">{{ sec.featured_project }}</em>
+			</h2>
+			<p class="mb-[34px] font-mono text-[13px] leading-[1.7] tracking-[0.02em] text-ink-faint">
+				Title, intro, category and year come from this project’s own entry.
+			</p>
+			<div class="flex flex-wrap items-center gap-3">
+				{{ ghostButton('View project', '/projects/' ~ sec.featured_project ~ '/') }}
+				{{ ghostButton('View all projects', '/projects/') }}
+			</div>
+			{% endif %}
 			{% if p %}
 			<h2 class="mb-7 mt-3.5 font-serif text-[clamp(40px,5.4vw,76px)] font-normal leading-[0.96] tracking-[-0.01em] text-ink">
 				{%- if p.titleHead %}{{ p.titleHead }}&nbsp;{% endif -%}
@@ -102,6 +124,21 @@
 				{{ pic(pic_, '(max-width: 900px) 90vw, 420px', '!h-auto transition-transform duration-[600ms] ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-[1.04]') }}
 			</a>
 			{% endfor %}{% endif %}
+			{#- Preview: the project's real cover leads the collage, at the slug-derived path
+			    the build writes for exactly this purpose (see _data/site.js). The remaining
+			    plates stay placeholders — which photographs fill them is the project's own
+			    gallery selection, resolved at build time from another entry. -#}
+			{% if not p and sec.featured_project %}
+			<div class="group mb-4 break-inside-avoid overflow-hidden rounded-xl">
+				<img
+					src="/preview/project-{{ sec.featured_project }}.jpg"
+					alt=""
+					draggable="false"
+					class="block h-auto w-full border border-glass-line bg-[#15151a] object-cover shadow-[0_30px_70px_-30px_rgba(0,0,0,0.8)]"
+					style="border-radius:12px"
+				/>
+			</div>
+			{% endif %}
 			{% for s in SLOTS %}{% if loop.index0 >= usedSlots %}
 			<div class="group mb-4 break-inside-avoid overflow-hidden rounded-xl">
 				{{ ph(s.w, s.h, s.label) }}

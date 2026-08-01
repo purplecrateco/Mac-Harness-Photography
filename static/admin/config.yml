@@ -50,21 +50,6 @@ collections:
         file: src/lib/content/settings/homepage.json
         description: Homepage copy, and which project the feature section shows.
         fields:
-          # A picker over the Projects collection. `{{slug}}` stores the entry slug,
-          # which is what the site looks the project up by. Leave it empty to keep
-          # featuring the newest project automatically.
-          - name: featured_project
-            label: Featured project
-            widget: relation
-            required: false
-            collection: projects
-            value_field: '{{slug}}'
-            display_fields: [title, year]
-            search_fields: [title, cat, year]
-            hint: >-
-              The homepage pulls this project's intro and the first four of its featured
-              gallery pictures. Empty = use the most recent project.
-
           # The homepage as an ordered list of sections, matching the `blocks` array in
           # homepage.json. Decap/Sveltia express a polymorphic list with `types` — each
           # variant's `name` is stored under the `type` key, which is the same key the
@@ -130,10 +115,22 @@ collections:
               - name: featured-project
                 label: Featured project
                 widget: object
-                # Title, intro, category, year and the collage all come from the project
-                # picked in Featured project above, so the kicker is all there is here.
                 fields:
                   - { name: kicker, label: Kicker, widget: string }
+                  # On the block, not at the top level, so the Pages CMS preview can see
+                  # which project this section shows. Empty = the newest project by year,
+                  # resolved at build time (so the preview shows nothing for it).
+                  - name: featured_project
+                    label: Project
+                    widget: relation
+                    required: false
+                    collection: projects
+                    value_field: '{{slug}}'
+                    display_fields: [title, year]
+                    search_fields: [title, cat, year]
+                    hint: >-
+                      The section pulls this project's title, intro, category, year and
+                      the first four of its gallery pictures.
 
               - name: about
                 label: About

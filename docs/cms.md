@@ -29,8 +29,16 @@ Two known differences after the switch:
   of this repo and run each one against the section in the form, so it cannot drift from
   what ships. That is what the Eleventy port bought.
 
+  What it can and can't show: Hero, Selected Work, About and Contact render fully,
+  photographs included. **Featured project renders partially** — its identity, cover and
+  buttons, but not its title or intro, which live in the project's own entry and are
+  deliberately not copied into the homepage settings. Three of its four collage plates stay
+  placeholders for the same reason. And an empty *Project* field previews as nothing at all,
+  because "the newest project" is resolved at build time; name it explicitly to see it.
+
   Two things to know about it. It needs the **site deployed** — the preview iframe loads
-  `/assets/app.css` over the network, so until hosting exists the pane renders unstyled;
+  `/assets/app.css` and `/preview/*.jpg` over the network, so a photo added but not yet
+  deployed previews as a broken image;
   set `baseHref` in `.pages.yml` once it does. And block partials must stay
   self-contained: see
   [eleventy/\_includes/blocks/README.md](../eleventy/_includes/blocks/README.md), because
@@ -144,8 +152,9 @@ and its own background, the tablet spacing rules assume Selected Work follows th
 the scroll animations target sections by name. Reordering is safe; deleting the hero costs
 the page its heading.
 
-**Which project the homepage features.** *Featured project* is a picker over the
-Projects collection storing that project's slug. The section then pulls the project's
+**Which project the homepage features.** *Project*, inside the **Featured project**
+section, is a picker over the Projects collection storing that project's slug. It sits on
+that section rather than on the form as a whole so the rendered preview can see it. The section then pulls the project's
 title, intro, category, year and the **first four of its featured gallery pictures**
 automatically — none of that is retyped here. Leave the field empty and the homepage
 falls back to the newest project by year, which is what it did before the field
