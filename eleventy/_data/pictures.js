@@ -58,13 +58,35 @@ export default async function () {
 	// --- process every image ---------------------------------------------------------
 	const pictures = [];
 	for (const [i, file] of imageFiles.entries()) {
-		const stats = await Image(path.join(PICTURES_DIR, file), {
+		const source = path.join(PICTURES_DIR, file);
+		const stats = await Image(source, {
 			widths: WIDTHS,
 			formats: ['avif', 'webp', 'jpeg'],
 			outputDir: '_site/img/',
 			urlPath: '/img/',
 			// Content-hashed, so long-lived immutable caching stays correct.
 			filenameFormat: (id, src, width, format) => `${basename(src)}-${width}.${id}.${format}`
+		});
+
+		/* One extra 480w JPEG at a PREDICTABLE path, for the CMS preview only.
+		 *
+		 * The preview renders a block partial with nothing but the block object, so it has
+		 * no picture metadata and cannot use the hashed URLs above — it can only build a URL
+		 * from the reference the editor picked. Hence a stable name.
+		 *
+		 * The name is the original filename with `.jpg` appended, NOT the extension
+		 * replaced: that way the partial derives the URL with one string replace and no
+		 * knowledge of the source extension, which matters because Nunjucks cannot split a
+		 * string. `_DSC0373.webp` -> `/preview/_DSC0373.webp.jpg`.
+		 *
+		 * Deliberately not used by the site. Hashing is what makes the real URLs safe to
+		 * cache immutably, and this path is the opposite of that — a re-encode reuses it. */
+		await Image(source, {
+			widths: [480],
+			formats: ['jpeg'],
+			outputDir: '_site/preview/',
+			urlPath: '/preview/',
+			filenameFormat: () => `${file}.jpg`
 		});
 
 		// Largest jpeg is the <img src> fallback and carries the intrinsic dimensions.

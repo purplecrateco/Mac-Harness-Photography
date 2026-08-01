@@ -88,8 +88,6 @@ collections:
                   - { name: cta, label: Button label, widget: string }
                   - { name: scroll_hint, label: Scroll hint, widget: string }
 
-              # The photographs come from the Gallery collection (the first eight, in
-              # gallery order), not from this section — only the copy is edited here.
               - name: selected-work
                 label: 'Selected Work (gallery peek)'
                 widget: object
@@ -111,6 +109,23 @@ collections:
                     field: { name: line, label: Line, widget: string }
                     hint: Right-aligned mono note. One item per line.
                   - { name: note_years, label: Note — years, widget: string }
+                  # Curated, not automatic — naming the photographs here is what lets
+                  # the Pages CMS preview render them (see .pages.yml). media_folder /
+                  # public_folder are set per-field because this collection's default is
+                  # static/project-media, and these have to store the pictures path so
+                  # both configs and the partial agree on the prefix.
+                  - name: photos
+                    label: Photos
+                    widget: list
+                    field:
+                      name: photo
+                      label: Photo
+                      widget: image
+                      media_folder: /src/lib/content/pictures
+                      public_folder: src/lib/content/pictures
+                    hint: >-
+                      Eight photographs, in the order they should appear. Clearing this
+                      falls back to the first eight in gallery order.
 
               - name: featured-project
                 label: Featured project

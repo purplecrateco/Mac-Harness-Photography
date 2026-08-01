@@ -104,8 +104,6 @@ content:
               - { name: scroll_hint, label: Scroll hint, type: string }
 
           # ── Selected Work ───────────────────────────────────────────────────
-          # The photographs come from the Gallery collection (the first eight, in
-          # gallery order), not from this section — only the copy is edited here.
           - name: selected-work
             label: 'Selected Work (gallery peek)'
             fields:
@@ -126,6 +124,27 @@ content:
                 list: true
                 description: Right-aligned mono note. One item per line.
               - { name: note_years, label: Note — years, type: string }
+              # Curated, not automatic. This used to be "the first eight in gallery
+              # order", computed at build time — which the preview cannot know, so it
+              # rendered grey plates. Naming them here puts them in the editor form,
+              # which is what lets the preview show the real photographs.
+              #
+              # `media: pictures` stores the src/lib/content/pictures/ prefix, and the
+              # partial turns that into /preview/<file>.jpg. Eight is what the grid is
+              # built for: the layout hard-codes eight spans, so a ninth is ignored and
+              # a shorter list simply leaves gaps.
+              #
+              # Clearing the field falls back to the first eight in gallery order, so
+              # the section cannot end up empty.
+              - name: photos
+                label: Photos
+                type: image
+                list: true
+                options:
+                  media: pictures
+                description: >-
+                  Eight photographs, in the order they should appear. Picked from the
+                  Gallery, so a photo has to be uploaded there first.
 
           # ── Featured project ────────────────────────────────────────────────
           - name: featured-project

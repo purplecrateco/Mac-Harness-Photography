@@ -77,11 +77,32 @@
 				</figure>
 			</a>
 			{% endfor %}
-			{#- No pics means the CMS preview: fill the grid so the layout still reads. -#}
-			{% if not sec.pics %}{% for span in SPANS %}
-			<div class="block {{ span }} rounded-2xl">
-				<figure class="relative h-full w-full overflow-hidden rounded-2xl border border-glass-line bg-[#16161c]"></figure>
-			</div>
+			{#-
+				No sec.pics means the CMS preview, which gets the editor's references but no
+				picture metadata. Those references are enough on their own: the build writes a
+				stable-named 480w JPEG per photo (see _data/pictures.js), so the URL is the
+				reference with its directory swapped for /preview/ and `.jpg` appended —
+				appended rather than substituted because Nunjucks cannot split a string, so the
+				source extension has to stay untouched.
+
+				One flat <img> each, no srcset: this is a 400px-wide pane, and the real
+				responsive markup above needs metadata the preview doesn't have.
+			-#}
+			{% if not sec.pics %}{% for ref in sec.photos %}
+			<a
+				href="/gallery/"
+				aria-label="View the full gallery"
+				class="group block {{ SPANS[loop.index0] }} rounded-2xl"
+			>
+				<figure class="relative h-full w-full overflow-hidden rounded-2xl">
+					<img
+						src="/preview/{{ ref | replace('src/lib/content/pictures/', '') }}.jpg"
+						alt=""
+						draggable="false"
+						class="block h-full w-full rounded-2xl bg-[#16161c] object-cover"
+					/>
+				</figure>
+			</a>
 			{% endfor %}{% endif %}
 		</div>
 	</div>

@@ -21,18 +21,33 @@ import site from './site.js';
 /** How many of the featured project's own gallery pictures fill the homepage collage. */
 const META_COUNT = 4;
 
-/** How many frames the "Selected Work" peek shows. */
+/** Fallback peek size, used only when the Selected Work block names no photos. */
 const GALLERY_PEEK_COUNT = 8;
 
 /** Strips a trailing image extension only, matching normalizePictureRef. */
 const normalizePictureRef = (ref) => String(ref).replace(/\.(jpe?g|png|webp|avif|gif)$/i, '');
 
+/** Picture name from a CMS reference, which carries a directory and an extension. */
+const refName = (ref) => normalizePictureRef(String(ref).split('/').pop());
+
 export default async function () {
 	const all = await pictures();
 	const { copy, featured } = await site();
 
-	// The "Selected Work" peek shows the leading slice of the ordered set.
-	const peekPics = all.slice(0, GALLERY_PEEK_COUNT);
+	/* The "Selected Work" peek is curated: the block names its photographs, and they are
+	   resolved here in the order the editor picked. That is what lets the CMS render the
+	   real photographs in its preview — it has the references in the form, whereas "the
+	   first eight in gallery order" is knowable only here.
+
+	   Unresolvable references are dropped rather than rendered as a gap, so deleting a
+	   photo from the gallery costs the homepage a frame instead of breaking it. Naming none
+	   at all falls back to the old behaviour, which keeps the section populated if the field
+	   is ever cleared. */
+	const byName = new Map(all.map((p) => [p.name, p]));
+	const picked = (copy.blocks ?? []).find((b) => b.type === 'selected-work')?.photos ?? [];
+	const peekPics = picked.length
+		? picked.map((ref) => byName.get(refName(ref))).filter(Boolean)
+		: all.slice(0, GALLERY_PEEK_COUNT);
 
 	// Skip these below so the project collage never repeats a frame already on the page.
 	const shownInGallery = new Set(peekPics.map((pic) => pic.name));
@@ -40,8 +55,7 @@ export default async function () {
 	/* Resolve the project's gallery `name`s into picture objects so the collage renders
 	   responsive variants with correct aspect ratios. Preserves the order they were
 	   selected in, drops any name with no matching file, and skips frames the peek already
-	   shows above. */
-	const byName = new Map(all.map((p) => [p.name, p]));
+	   shows above. Project refs are bare names, so they need only the extension stripped. */
 	const metaPics = (featured?.gallery ?? [])
 		.map((ref) => byName.get(normalizePictureRef(ref)))
 		.filter(Boolean)

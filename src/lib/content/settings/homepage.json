@@ -17,7 +17,17 @@
         "A rotating edit of portrait",
         "& automotive work."
       ],
-      "note_years": "2024 → 2026"
+      "note_years": "2024 → 2026",
+      "photos": [
+        "src/lib/content/pictures/_DSC0373.webp",
+        "src/lib/content/pictures/_DSC0374.webp",
+        "src/lib/content/pictures/_DSC0690.jpg",
+        "src/lib/content/pictures/_DSC0693.jpg",
+        "src/lib/content/pictures/_DSC0712.jpg",
+        "src/lib/content/pictures/_DSC0729.jpg",
+        "src/lib/content/pictures/_DSC0734.jpg",
+        "src/lib/content/pictures/_DSC0743.jpg"
+      ]
     },
     {
       "type": "featured-project",

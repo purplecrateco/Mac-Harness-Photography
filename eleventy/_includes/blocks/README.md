@@ -36,10 +36,24 @@ Consequences worth knowing before editing:
   is still shared by everything that is *not* a block (the layout, `projects.njk`,
   `project.njk`, `gallery.njk`, `404.njk`).
 - **Computed data is attached to the block, not read as a global.** `sec.pics` and
-  `sec.project` are folded in by `_data/homepage.js`. In the CMS preview they're absent,
-  because it doesn't run Eleventy's data files — so each partial that uses them falls back
-  to placeholder frames. An editor sees the real copy and layout with grey plates where the
-  photographs go, which is the point: the copy is what they're editing.
+  `sec.project` are folded in by `_data/homepage.js`. Neither exists in the CMS preview,
+  which doesn't run Eleventy's data files — so `{% if not sec.pics %}` is how a partial
+  detects that it's being previewed, and what it renders in that branch is the whole
+  question of how good the preview is.
+
+  **Selected Work renders real photographs there.** It can, because the block *names* them:
+  `sec.photos` holds the editor's references, which the preview does have. The build writes
+  one stable-named 480w JPEG per photo (`/preview/<file>.jpg`, see `_data/pictures.js`)
+  precisely so a partial can build that URL from a reference alone — the real `/img/` URLs
+  are content-hashed and underivable. Note the URL appends `.jpg` rather than replacing the
+  extension, because Nunjucks can't split a string.
+
+  **Featured project cannot, and falls back to plates.** Its content is a different entry
+  (`src/lib/content/projects/<slug>.md`) and the block holds only a kicker; worse,
+  `featured_project` is a top-level field *outside* `blocks`, so the field — which watches
+  `blocks` — never learns which project is featured. Rendering it would mean copying the
+  project's title, intro and cover into this block, which is the drift the reference picker
+  exists to prevent. Grey plates are the honest answer.
 - **Only `markdownify` and `{% icon %}` exist in the preview renderer.** Don't reach for
   `markdown`, `lines` or `json` here — those are this build's own filters, and a partial
   using one throws in the preview. Note that Nunjucks has no `split` either, so a block
