@@ -47,6 +47,87 @@
 	}
 }
 
+/* --- masonry gallery, from MasonryGallery.svelte's scoped styles ------------------ */
+.masonry {
+	position: relative;
+	width: 100%;
+	margin: 0 auto;
+	opacity: 0;
+	transition: opacity 0.55s ease;
+}
+.masonry.ready {
+	opacity: 1;
+}
+
+/* "From the project" tag over an expanded frame: a dark bottom gradient with a subtle
+   backdrop blur, masked so the blur itself fades out toward the top (otherwise it would
+   blur the whole image, not just the caption band). */
+.tag-from {
+	background-image: linear-gradient(
+		to top,
+		rgba(0, 0, 0, 0.85),
+		rgba(0, 0, 0, 0.55) 50%,
+		transparent
+	);
+	backdrop-filter: blur(3px);
+	-webkit-backdrop-filter: blur(3px);
+	-webkit-mask-image: linear-gradient(to top, #000 62%, transparent);
+	mask-image: linear-gradient(to top, #000 62%, transparent);
+	mix-blend-mode: normal;
+	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
+	animation: tag-rise 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) 0.5s both;
+}
+@keyframes tag-rise {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.tag-from {
+		animation-duration: 0.01ms;
+		animation-delay: 0ms;
+	}
+}
+
+/* Dimming uses opacity rather than a filter. `filter` forces a repaint of every affected
+   image, and with one frame open that meant animating a filter across sixty large images
+   at once, which is a visible stall (Firefox especially). Opacity is composited, so the
+   same recede costs almost nothing. The tiles sit on a near-black stage, so fading toward
+   it reads much like the old darkening. */
+.mtile img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transform: scale(1.001); /* avoids hairline edge on scale-in */
+	transition:
+		transform 0.7s cubic-bezier(0.2, 0.7, 0.3, 1),
+		opacity 0.4s ease;
+}
+@media (hover: hover) {
+	.mtile:hover img {
+		transform: scale(1.045);
+	}
+	/* gently recede the rest while one frame is open */
+	.masonry.has-open .mtile:not(.is-expanded) img {
+		opacity: 0.5;
+	}
+	.masonry.has-open .mtile:not(.is-expanded):hover img {
+		opacity: 0.82;
+	}
+}
+
+/* Keyboard parity with the hover rule above, and deliberately outside the (hover: hover)
+   query — a tile the keyboard has reached must not stay receded, on any input device. */
+.masonry.has-open .mtile:not(.is-expanded):focus-within img {
+	opacity: 0.82;
+}
+
 /* Mobile nav drawer. `dialog` is display:none until opened, so the flex layout only
    applies to the open state — otherwise `flex` would defeat the built-in hiding. */
 dialog.nav-drawer[open] {

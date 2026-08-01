@@ -11,6 +11,11 @@ export default async function (eleventyConfig) {
 	// static/ is served from the site root, exactly as SvelteKit did
 	eleventyConfig.addPassthroughCopy({ static: '.' });
 
+	// Client JS. Shipped as native ES modules rather than bundled — motion.js imports
+	// masonry.js directly, and neither has an npm dependency. GSAP will need a bundler
+	// step when the animation port lands; nothing here does yet.
+	eleventyConfig.addPassthroughCopy({ 'eleventy/assets': 'assets' });
+
 	// Tailwind is built separately by @tailwindcss/cli (see the `css:*` npm scripts) —
 	// keeping it out of Eleventy avoids a plugin that would need to re-run per template.
 	eleventyConfig.ignores.add('eleventy/css/**');

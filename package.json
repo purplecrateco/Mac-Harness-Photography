@@ -9,6 +9,7 @@
 		"build:11ty": "eleventy && npm run css:11ty",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:contrast": "node scripts/check-hero-contrast.cjs",
+		"check:masonry": "node scripts/check-masonry.mjs",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"css:11ty": "tailwindcss -i eleventy/css/tailwind.css -o _site/assets/app.css --minify",
 		"css:11ty:watch": "tailwindcss -i eleventy/css/tailwind.css -o _site/assets/app.css --watch",

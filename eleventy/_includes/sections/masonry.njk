@@ -1,0 +1,79 @@
+{#
+  Port of MasonryGallery.svelte's markup. Geometry is set inline by assets/masonry.js;
+  everything here is static.
+
+  - .mtile carries data-id/data-w/data-h so the packer can read frame geometry off the
+    DOM instead of the dataset being serialised into the page twice.
+  - The button handles expand/collapse. The project tag is a SIBLING link, not nested,
+    because an <a> inside a <button> is invalid HTML.
+  - No blanket will-change: with 60+ frames that asks the compositor for a layer per
+    tile, each holding a large decoded image, which costs far more than it saves. The
+    FLIP uses the Web Animations API, so the browser promotes what it's animating.
+  - aria-labels for both states are emitted as data attributes so the script can swap
+    them without building strings in JS.
+#}
+{%- set SIZES = '(max-width: 680px) 45vw, 18vw' -%}
+{#- How many leading frames load eagerly: roughly two rows at the widest layout, which
+    covers the first screen. Eager-loading all 61 put that many simultaneous decodes in
+    front of the first paint and the entrance animation. -#}
+{%- set EAGER_COUNT = 12 -%}
+
+<div class="masonry" style="border-radius:14px">
+	{% for im in pictures %}
+	{%- set proj = site.pictureProjects[im.name] -%}
+	{#- Camera filenames (_DSC0373) are worse than a generic name for a screen reader, so
+	    an empty caption falls back to a positional label. -#}
+	{%- set label = im.caption | trim if im.caption else 'photograph ' ~ loop.index ~ ' of ' ~ pictures.length -%}
+	<div
+		class="mtile absolute left-0 top-0 origin-top-left overflow-hidden bg-[#141318]"
+		style="border-radius:14px"
+		data-id="{{ im.id }}"
+		data-w="{{ im.w }}"
+		data-h="{{ im.h }}"
+	>
+		<button
+			type="button"
+			class="absolute inset-0 block h-full w-full cursor-pointer border-0 bg-transparent p-0 outline-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-gold"
+			aria-expanded="false"
+			aria-label="Expand {{ label }}"
+			data-label-expand="Expand {{ label }}"
+			data-label-collapse="Collapse {{ label }}"
+		>
+			{#- Alt text prefers the editorial caption; an unlabelled image is better for a
+			    screen reader than a camera filename, so it stays empty until captions exist. -#}
+			<picture class="block h-full w-full">
+				<source type="image/avif" srcset="{{ im.sources['image/avif'] }}" sizes="{{ SIZES }}" />
+				<source type="image/webp" srcset="{{ im.sources['image/webp'] }}" sizes="{{ SIZES }}" />
+				<img
+					src="{{ im.src }}"
+					srcset="{{ im.srcset }}"
+					width="{{ im.w }}"
+					height="{{ im.h }}"
+					sizes="{{ SIZES }}"
+					alt="{{ im.caption | trim if im.caption else '' }}"
+					loading="{{ 'eager' if loop.index0 < EAGER_COUNT else 'lazy' }}"
+					decoding="async"
+					draggable="false"
+					class="block h-full w-full object-cover"
+				/>
+			</picture>
+		</button>
+
+		{% if proj %}
+		<a
+			href="/projects/{{ proj.slug }}/"
+			hidden
+			class="tag-from group absolute inset-x-0 bottom-0 z-10 flex flex-col items-start gap-1 px-5 pb-5 pt-16 no-underline"
+		>
+			<span class="font-mono text-[10.5px] uppercase tracking-[0.22em] text-white/70">
+				From the project
+			</span>
+			<span class="flex items-center gap-2 font-serif text-[clamp(17px,1.7vw,24px)] leading-tight text-white">
+				{{ proj.title }}
+				<span aria-hidden="true" class="text-gold transition-transform duration-300 group-hover:translate-x-1">→</span>
+			</span>
+		</a>
+		{% endif %}
+	</div>
+	{% endfor %}
+</div>

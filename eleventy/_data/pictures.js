@@ -10,8 +10,14 @@
  *  2. The same responsive ladder the enhanced-img build used —
  *     480/800/1280/2000 in avif + webp, with a jpeg fallback. Rungs are clamped to the
  *     intrinsic width and de-duplicated, so a 1560px original yields 480/800/1280/1560
- *     and nothing is ever upscaled. `widths` below includes null for exactly that: it
- *     emits the original width as its own rung rather than upscaling to 2000.
+ *     and nothing is ever upscaled.
+ *
+ *     The ladder deliberately STOPS at 2000 — no `null` rung. Passing null makes
+ *     eleventy-img emit the original width as its own candidate, which for these
+ *     originals means 3072w and 6000w entries: multi-megabyte files offered to any
+ *     browser on a wide hi-dpi screen. Nothing on the site renders wider than ~1400
+ *     device px, so those candidates are pure download risk, and shipping them is
+ *     exactly what the enhanced-img config avoided.
  *
  * Sidecar pairing matches gallery.server.ts: prefer the `image` field so an entry keeps
  * working when the CMS names the metadata file differently, and fall back to the
@@ -25,7 +31,7 @@ import Image from '@11ty/eleventy-img';
 import matter from 'gray-matter';
 
 const PICTURES_DIR = 'src/lib/content/pictures';
-const WIDTHS = [480, 800, 1280, 2000, null];
+const WIDTHS = [480, 800, 1280, 2000];
 const IMAGE_RE = /\.(jpg|jpeg|png|webp)$/i;
 
 const basename = (p) => p.split('/').pop().replace(/\.[^.]+$/, '');
