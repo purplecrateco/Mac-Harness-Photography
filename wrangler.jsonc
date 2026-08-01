@@ -1,18 +1,24 @@
-// Cloudflare Pages config.
+// Cloudflare Workers config — a static-assets Worker, deployed by `wrangler deploy`.
 //
-// `pages_build_output_dir` is the Pages-only key — it's what makes this file apply to a
-// Pages project rather than a Worker, and it replaces setting the output directory in
-// the dashboard. Note the consequence: once this key is present, a deploy uses THIS file
-// as production config, so it has to stay production-ready.
+// This was `pages_build_output_dir` (a Pages project) until the build pipeline showed
+// otherwise: the build log runs a *deploy command*, which Pages projects don't have, and
+// wrangler warned that `wrangler deploy` was being run against a Pages config. Workers
+// Builds is what's actually wired up, so the config matches it.
 //
-// The site is fully static: Eleventy writes plain HTML, there is no functions/ directory
-// and no _worker.js, so Pages serves the output without running a Worker at all. That is
-// why there are no compatibility_flags here — nodejs_compat was needed only for
-// SvelteKit's server entry, which imported node:async_hooks. Add the flag back if a
-// Pages Function is ever introduced.
+// `assets.directory` with no `main` is a Worker that only serves files — no script runs,
+// which is right for a site Eleventy has already rendered to HTML. That is also why there
+// are no compatibility_flags: nodejs_compat existed for SvelteKit's server entry, which
+// imported node:async_hooks. Add it back if a Worker script is ever introduced.
+//
+// not_found_handling serves the built /404.html for unknown paths, so a bad URL gets the
+// site's own 404 with its nav rather than a bare Cloudflare error. Directory URLs like
+// /gallery/ resolve to index.html under the default html_handling.
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "mac-harness",
-	"pages_build_output_dir": "_site",
-	"compatibility_date": "2026-07-31"
+	"compatibility_date": "2026-07-31",
+	"assets": {
+		"directory": "./_site",
+		"not_found_handling": "404-page"
+	}
 }
