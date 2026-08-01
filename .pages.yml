@@ -175,13 +175,25 @@ content:
     path: src/lib/content/pictures
     format: yaml-frontmatter
     exclude: [README.md]
-    # Pages CMS collection layouts are `list` or `tree` only — there is no grid/gallery
-    # layout, so a wall of thumbnails isn't available here. `image` is listed first so
-    # the photo leads each row, which is the closest thing to visual scanning while
-    # still being able to edit caption and order. For actual grid browsing, use the
-    # Media section (src/lib/content/pictures), which renders a thumbnail grid — it
-    # just can't edit these fields.
+    # `layout: grid` browses these as a wall of thumbnails instead of rows — the
+    # Media section could already do that, but couldn't edit caption and order.
+    # Tiles take their image from the first `type: image` field (`image` here);
+    # set `view.thumbnail: <field>` to pick a different one. Custom to our Pages CMS
+    # fork, see components/collection/README.md in purplecrateco/purplecrate-cms.
+    #
+    # `primary: image` means each tile is labelled with the photo's path, which is
+    # ugly. Don't "fix" it by switching to `caption` without thinking, for two
+    # reasons: all 61 captions are currently empty, and no `filename` is set here, so
+    # the default template `{year}-{month}-{day}-{primary}.md` (lib/config.ts) feeds
+    # `primary` into the filenames of NEW entries.
+    #
+    # That default is survivable either way: filename tokens are slugified with
+    # `strict: true`, so a path value loses its slashes rather than creating
+    # subdirectories — which matters because the glob in pictures.ts is not
+    # recursive and would silently ignore a nested sidecar. New CMS-created entries
+    # just get a long name; pairing keys off the `image` field, not the filename.
     view:
+      layout: grid
       fields: [image, order, caption]
       primary: image
       sort: [order, image, caption]
