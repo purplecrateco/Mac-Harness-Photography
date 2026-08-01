@@ -99,10 +99,24 @@ export function initProjectsTable(root) {
 			const incoming = layers[1 - front];
 			const outgoing = layers[front];
 			incoming.src = src;
-			// Start slightly scaled up and transparent, then settle — the same two-step the
-			// keyed stack produced via requestAnimationFrame.
-			incoming.classList.remove('scale-100', 'opacity-100');
+
+			/* Start slightly scaled up and transparent, then settle — the same two-step the
+			   keyed stack produced via requestAnimationFrame.
+
+			   Svelte mounted a brand-new <img> per hover, so its start state applied with no
+			   transition. These two layers are reused, so the start state has to be snapped in
+			   with transitions suppressed and flushed — otherwise it merely *animates* toward
+			   scale-[1.08] and gets retargeted a frame later, which drops the zoom entirely
+			   and can leave the photo inset with the layer background showing as a border.
+
+			   The layers alternate, so the incoming one is also whichever was last faded out
+			   at scale-[0.96]; that class has to come off with the rest. */
+			incoming.style.transition = 'none';
+			incoming.classList.remove('scale-100', 'scale-[0.96]', 'opacity-100');
 			incoming.classList.add('scale-[1.08]', 'opacity-0');
+			void incoming.offsetWidth; // flush, so the snap is not animated
+			incoming.style.transition = '';
+
 			requestAnimationFrame(() => {
 				incoming.classList.remove('scale-[1.08]', 'opacity-0');
 				incoming.classList.add('scale-100', 'opacity-100');
