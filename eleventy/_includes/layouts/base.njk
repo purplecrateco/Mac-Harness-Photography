@@ -43,6 +43,7 @@
 		<meta name="twitter:title" content="{{ fullTitle }}" />
 		<meta name="twitter:description" content="{{ desc }}" />
 		<meta name="twitter:image" content="{{ imageUrl }}" />
+		{% if robots %}<meta name="robots" content="{{ robots }}" />{% endif %}
 
 		<link rel="icon" href="/favicon.png" sizes="512x512" type="image/png" />
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />

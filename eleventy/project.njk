@@ -1,0 +1,91 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: projectPages
+  size: 1
+  alias: p
+permalink: /projects/{{ p.slug }}/
+eleventyComputed:
+  title: '{{ p.title }}'
+  description: '{{ p.intro }}'
+  image: '{{ p.cover or "/og.png" }}'
+  ogType: article
+---
+{% import "macros.njk" as m %}
+
+{#
+  Port of /projects/[slug]. Pagination with size 1 over projectPages is Eleventy's
+  equivalent of SvelteKit's EntryGenerator: one prerendered page per markdown file.
+#}
+
+<article class="relative px-6 pb-[120px] pt-[120px] sm:px-10 sm:pt-[150px] lg:px-14 lg:pt-[172px]">
+	<div class="mx-auto w-full max-w-[820px]">
+		<header data-anim="intro" class="reveal">
+			<div data-load>{{ m.kicker(p.meta) }}</div>
+			<h1
+				data-load
+				class="mt-4 font-serif text-[clamp(44px,6.5vw,92px)] font-normal leading-[0.96] tracking-[-0.015em] text-ink"
+			>
+				{{ p.title }}
+			</h1>
+			{% if p.intro %}
+			<p
+				data-load
+				class="mt-6 max-w-[640px] font-sans text-[clamp(16px,1.6vw,20px)] leading-[1.65] text-ink-dim"
+			>
+				{{ p.intro }}
+			</p>
+			{% endif %}
+		</header>
+
+		{% if p.cover %}
+		<figure
+			data-load
+			class="reveal mt-12 overflow-hidden rounded-[14px] border border-glass-line shadow-[0_40px_90px_-34px_rgba(0,0,0,0.85)]"
+		>
+			<img src="{{ p.cover }}" alt="{{ p.title }}" class="block aspect-[16/9] w-full object-cover" />
+		</figure>
+		{% endif %}
+
+		{# Rendered markdown body. Styling is scoped via the .prose class in the CSS entry. #}
+		<div data-load class="prose reveal mt-14">{{ p.html | safe }}</div>
+
+		{# Mini-gallery: the gallery frames tagged to this project (frontmatter `gallery`).
+		   Each tile links into the full gallery. Hidden entirely when none are set. #}
+		{% if p.galleryPics | length %}
+		<section data-load class="reveal mt-16 border-t border-white/10 pt-10">
+			<div class="flex items-end justify-between gap-6">
+				{{ m.kicker('From this set · ' ~ (p.galleryPics | length)) }}
+				<a
+					href="/gallery/"
+					class="font-mono text-[12px] uppercase tracking-[0.18em] text-ink-dim no-underline transition-colors duration-300 hover:text-gold"
+				>
+					Full gallery →
+				</a>
+			</div>
+			<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+				{% for pic in p.galleryPics %}
+				<a
+					href="/gallery/"
+					class="group block overflow-hidden rounded-[10px] border border-glass-line bg-[#141318]"
+					aria-label="View {{ pic.name }} in the gallery"
+				>
+					<div class="aspect-square w-full overflow-hidden">
+						{{ m.pic(pic, '(max-width: 640px) 45vw, 260px', false, 'transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-[1.05]') }}
+					</div>
+				</a>
+				{% endfor %}
+			</div>
+		</section>
+		{% endif %}
+
+		<div data-load class="reveal mt-16 border-t border-white/10 pt-8">
+			<a
+				href="/projects/"
+				class="inline-flex items-center gap-2 font-mono text-[12.5px] uppercase tracking-[0.18em] text-ink-dim no-underline transition-colors duration-300 hover:text-gold"
+			>
+				<span aria-hidden="true">←</span> All projects
+			</a>
+		</div>
+	</div>
+</article>

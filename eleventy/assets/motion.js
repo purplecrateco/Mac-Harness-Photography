@@ -82,3 +82,9 @@ if (dialog && openBtn) {
 
 const masonry = document.querySelector('.masonry');
 if (masonry) initMasonry(masonry);
+
+const projects = document.querySelector('[data-projects]');
+if (projects) {
+	const { initProjectsTable } = await import('./projects-table.js');
+	initProjectsTable(projects);
+}

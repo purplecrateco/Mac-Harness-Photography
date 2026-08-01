@@ -128,6 +128,80 @@
 	opacity: 0.82;
 }
 
+/* Tablet/medium: tighten the gap between the hero and Selected Work. From Gallery.svelte. */
+@media (min-width: 761px) and (max-width: 1023px) {
+	.t-gallery {
+		padding-top: 2.5rem;
+	}
+}
+/* Phones + tablets: never let a gallery tile grow taller than ~90% of the viewport. */
+@media (max-width: 1023px) {
+	.t-gallery figure {
+		max-height: 90vh;
+	}
+}
+
+/* Editorial prose styling for rendered project markdown — tuned to the site's ink/accent
+   palette and serif/mono type scale. From projects/[slug]/+page.svelte. */
+.prose {
+	color: var(--color-ink-dim);
+	font-size: 17px;
+	line-height: 1.75;
+}
+.prose h2 {
+	margin: 2.4em 0 0.6em;
+	font-family: var(--font-serif);
+	font-size: clamp(28px, 3.4vw, 40px);
+	font-weight: 400;
+	line-height: 1.1;
+	letter-spacing: -0.01em;
+	color: var(--color-ink);
+}
+.prose h3 {
+	margin: 1.8em 0 0.5em;
+	font-family: var(--font-sans);
+	font-size: clamp(18px, 2vw, 22px);
+	font-weight: 500;
+	color: var(--color-ink);
+}
+.prose p { margin: 1.1em 0; }
+.prose a { color: var(--color-gold); text-underline-offset: 3px; }
+.prose strong { color: var(--color-ink); font-weight: 600; }
+.prose ul, .prose ol { margin: 1.2em 0; padding-left: 1.4em; }
+.prose ul { list-style: disc; }
+.prose ol { list-style: decimal; }
+.prose li { margin: 0.4em 0; }
+.prose li::marker { color: var(--color-gold); }
+.prose blockquote {
+	margin: 1.6em 0;
+	padding: 0.2em 0 0.2em 1.2em;
+	border-left: 2px solid var(--color-gold);
+	font-family: var(--font-serif);
+	font-style: italic;
+	font-size: clamp(20px, 2.4vw, 26px);
+	line-height: 1.4;
+	color: var(--color-ink);
+}
+.prose code {
+	font-family: var(--font-mono);
+	font-size: 0.88em;
+	color: var(--color-ink);
+	background: rgba(255, 255, 255, 0.06);
+	padding: 0.15em 0.4em;
+	border-radius: 4px;
+}
+.prose pre {
+	margin: 1.4em 0;
+	padding: 1.1em 1.3em;
+	overflow-x: auto;
+	border-radius: 10px;
+	border: 1px solid var(--color-glass-line);
+	background: rgba(255, 255, 255, 0.04);
+}
+.prose pre code { background: none; padding: 0; }
+.prose hr { margin: 2.4em 0; border: none; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+.prose img { margin: 1.6em 0; border-radius: 12px; max-width: 100%; }
+
 /* Mobile nav drawer. `dialog` is display:none until opened, so the flex layout only
    applies to the open state — otherwise `flex` would defeat the built-in hiding. */
 dialog.nav-drawer[open] {

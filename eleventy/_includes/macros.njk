@@ -37,6 +37,54 @@
 {%- endif -%}
 {% endmacro %}
 
+{#
+  Port of Pic.svelte — a responsive <picture> over the eleventy-img data shape.
+  Intrinsic width/height are emitted so the browser reserves space and the layout stays
+  stable before pixels arrive. Alt prefers the editorial caption: an unlabelled image is
+  better for a screen reader than a camera filename, so it stays empty until captions exist.
+#}
+{% macro pic(p, sizes, eager=false, class='') %}
+<picture class="block h-full w-full">
+	<source type="image/avif" srcset="{{ p.sources['image/avif'] }}" sizes="{{ sizes }}" />
+	<source type="image/webp" srcset="{{ p.sources['image/webp'] }}" sizes="{{ sizes }}" />
+	<img
+		src="{{ p.src }}"
+		srcset="{{ p.srcset }}"
+		width="{{ p.w }}"
+		height="{{ p.h }}"
+		sizes="{{ sizes }}"
+		alt="{{ p.caption | trim if p.caption else '' }}"
+		loading="{{ 'eager' if eager else 'lazy' }}"
+		decoding="async"
+		draggable="false"
+		class="block h-full w-full object-cover {{ class }}"
+	/>
+</picture>
+{% endmacro %}
+
+{#
+  Port of Ph.svelte — dark-toned placeholder, or a real image when `src` is given.
+  The fallback is an inline SVG data URI rather than a third-party placeholder service, so
+  the site never makes a runtime request to another host — and least of all on the path
+  that renders when there is nothing to show.
+#}
+{% macro ph(w, h, label, src=none, alt='', radius=none, class='') %}
+{%- if src -%}
+	{%- set imgSrc = src -%}
+{%- else -%}
+	{%- set fontSize = ((w if w < h else h) / 12) | round | int -%}
+	{%- set svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' ~ w ~ '" height="' ~ h ~ '" viewBox="0 0 ' ~ w ~ ' ' ~ h ~ '"><rect width="100%" height="100%" fill="#16161c"/><text x="50%" y="50%" fill="#4c4c58" font-family="monospace" font-size="' ~ fontSize ~ '" text-anchor="middle" dominant-baseline="middle">' ~ label ~ '</text></svg>' -%}
+	{%- set imgSrc = 'data:image/svg+xml,' ~ (svg | urlencode) -%}
+{%- endif -%}
+<img
+	src="{{ imgSrc }}"
+	alt="{{ alt }}"
+	draggable="false"
+	class="block h-full w-full border border-glass-line bg-[#15151a] object-cover shadow-[0_30px_70px_-30px_rgba(0,0,0,0.8)] {{ class }}"
+	{% if radius %}style="border-radius:{{ radius }}"{% endif %}
+/>
+{% endmacro %}
+
 {# Eyebrow label with a leading accent rule — used by every section heading. #}
 {% macro kicker(text, center=false) %}
 <span class="inline-flex items-center gap-3 font-mono text-xs uppercase tracking-[0.28em] text-gold before:h-px before:w-[34px] before:bg-gold before:opacity-60 before:content-[''] {{ 'justify-center' if center else '' }}">{{ text }}</span>
