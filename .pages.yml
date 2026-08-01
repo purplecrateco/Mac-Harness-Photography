@@ -207,7 +207,16 @@ content:
           # partials read it from (see eleventy/index.njk).
           blockKey: type
           contextKey: sec
-          # baseHref: https://macharness.com/
+          # Resolves the root-relative URLs below — and the templates' own /IMG_7387.JPG,
+          # /portrait.jpeg and gallery sources — against the deployed site. Without it they
+          # resolve against the CMS origin, which has none of them, and the pane renders
+          # unstyled with alt text where the photographs should be.
+          #
+          # Points at the workers.dev URL for now; swap it for the custom domain when there
+          # is one. It must be a deployed build: the preview fetches the real stylesheet
+          # over the network, so a section edited but not yet deployed previews against the
+          # CSS and images of the last deploy.
+          baseHref: https://mac-harness-photography.josephheinz28.workers.dev/
           stylesheets:
             # Copied verbatim from layouts/base.njk — same families and weights, or the
             # preview renders in faces the site never loads.

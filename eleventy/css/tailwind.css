@@ -4,13 +4,19 @@
  * focus-within accessibility rules. It is kept separate so this file stays what it
  * says on the tin: the build entry, plus the rules that have nowhere better to live.
  *
- * @source is required: Tailwind v4's automatic content detection starts from this
- * file's directory, which would miss the Nunjucks templates and the client JS that
- * both carry utility classes. Without these, classes used only in .njk are stripped.
+ * The @source lines name every file type carrying utility classes. Measured: they are
+ * currently belt-and-braces — the output is byte-identical without them, because Tailwind
+ * v4's automatic detection already finds all of this when the build runs from the repo
+ * root. That depends on the working directory, so the globs stay as the explicit contract.
+ *
+ * Note the two template extensions. The homepage block partials in _includes/blocks/ are
+ * .html, because the CMS preview looks a partial up by that extension; everything else is
+ * .njk. Add a glob if a third ever appears.
  */
 @import './app.css';
 
 @source '../**/*.njk';
+@source '../**/*.html';
 @source '../assets/**/*.js';
 
 /* ---------------------------------------------------------------------------
