@@ -7,17 +7,24 @@ session should be able to start from this file without prior context.
 The critique's own snapshot lives under `.impeccable/`, which is gitignored, so this
 file is the durable record. Findings below were verified by measurement, not inferred.
 
+> **Written before the Eleventy port.** Every finding still applies — the port was 1:1,
+> so the markup and CSS these items describe are unchanged. Only the filenames moved:
+> a component named `Hero.svelte` below is now
+> `eleventy/_includes/sections/hero.njk`, `MasonryGallery.svelte` is
+> `sections/masonry.njk` plus `eleventy/assets/masonry.js`, and `src/lib/motion.ts` is
+> `eleventy/assets/animate.js`.
+
 ## What this site is
 
-A photography portfolio for Mac Harness. SvelteKit 2 + Svelte 5 (runes) + Tailwind v4,
-fully prerendered, dark editorial aesthetic. Content is file-based and edited through
+A photography portfolio for Mac Harness. Eleventy + Tailwind v4, fully static, dark
+editorial aesthetic. Content is file-based and edited through
 Sveltia CMS at `/admin` (see [cms.md](cms.md)).
 
 Content lives in three places:
 
 | Content | Source | Edited via |
 | --- | --- | --- |
-| Site copy (hero, about, contact, footer) | `src/lib/content/settings/homepage.json`, read through `src/lib/content/copy.ts` | CMS → Site settings → Homepage |
+| Site copy (hero, about, contact, footer) | `src/lib/content/settings/homepage.json`, read through `eleventy/_data/site.js` | CMS → Site settings → Homepage |
 | Projects | `src/lib/content/projects/*.md` | CMS → Projects |
 | Gallery photos + captions + order | `src/lib/content/pictures/` (image + sibling `.md`) | CMS → Gallery |
 
@@ -25,9 +32,9 @@ Content lives in three places:
 
 - **Mac shoots portraits and automotive**, not weddings. The copy currently overstates
   weddings; see P1 below. Confirmed 2026-07-28.
-- **Hosting moves to Cloudflare Workers** (not Pages), *after* the repo transfers to
-  Purple Crate Co, so account-bound resources are provisioned once. See
-  [cloudflare-migration-plan.md](cloudflare-migration-plan.md).
+- **Hosting moves to Cloudflare Pages** (reversed from Workers on 2026-07-31), *after*
+  the repo transfers to Purple Crate Co, so account-bound resources are provisioned once.
+  See [cloudflare-migration-plan.md](cloudflare-migration-plan.md).
 - **Node 22** is pinned in `.nvmrc`, matching Cloudflare's build image.
 - `.claude/` and `.impeccable/` are gitignored as per-machine tooling.
 
@@ -71,12 +78,13 @@ Measured 7,558 KB transferred, **identical at 375×812 and at desktop**. Each `<
 emits only two candidates. For `_DSC0373`/`_DSC0374` (6000×4000 sources) the srcset is
 `3000w | 6000w` against a 230 CSS px slot, so the smallest option is 13× too large.
 
-Separately, the 7 files in `static/project-media/` (3.4 MB) bypass `enhanced-img`
+Separately, the 7 files in `static/project-media/` (3.4 MB) bypass image processing
 entirely: no srcset, no avif/webp. These are the project heroes and the homepage cover,
 and they are also what the projects-table hover prewarm fetches.
 
-Fix: widen the `enhanced-img` width ladder in `vite.config.ts` so the floor lands near
-the real slot size, and route `project-media` through the pipeline or resize the sources.
+Fix: the width ladder is now `WIDTHS` in `eleventy/_data/pictures.js`, already narrowed
+to 480/800/1280/2000 by the port — re-measure before acting on this. Routing
+`project-media` through the pipeline, or resizing the sources, is still open.
 
 ### P1 — Copy still leads with weddings
 

@@ -3,6 +3,14 @@
 Status: repo-side work done (steps 1–5). Account-bound work not started (steps 6–8).
 Target: **Cloudflare Pages** — reversed from Workers on 2026-07-31, see "Decision" below.
 
+> **Written before the Eleventy port; the hosting decision stands, the SvelteKit
+> specifics don't.** The site is now static HTML with no Worker, so where this plan says
+> to set the framework preset to SvelteKit and the output directory to
+> `.svelte-kit/cloudflare`, use **no framework preset** and **`_site`**. The build
+> command is still `npm run build`. `nodejs_compat` is no longer needed — it existed for
+> SvelteKit's server entry, which imported `node:async_hooks`. Everything about accounts,
+> DNS, the repo transfer, plan limits and Vercel decommissioning is unaffected.
+
 ## Context: this is a pre-launch first deploy, not a migration
 
 The site has not launched. The Vercel deployment is a dev preview with no real

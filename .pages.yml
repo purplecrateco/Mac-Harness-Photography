@@ -16,12 +16,13 @@
 #    no chance to substitute a processed asset. Nothing here gets responsive variants,
 #    so keep uploads <=2000px on the long edge — the browser downloads them at full size.
 #
-#  pictures — gallery photos, processed at build time by @sveltejs/enhanced-img into
+#  pictures — gallery photos, processed at build time by @11ty/eleventy-img into
 #    hashed responsive variants. These are never served from their repo path, which is
 #    why `output` mirrors `input` rather than being a public URL: the value only has to
-#    survive `basename()` in src/lib/content/gallery.server.ts, which strips directory
-#    and extension both. Lowercase extensions only — enhanced-img skips uppercase, and
-#    RAW (.NEF) never reaches the build.
+#    survive the basename() in eleventy/_data/pictures.js, which strips directory and
+#    extension both. jpg/jpeg/png/webp, any case — the port made the extension filter
+#    case-insensitive, so the old lowercase-only rule is gone. RAW (.NEF) never reaches
+#    the build.
 media:
   - name: project_media
     label: Project media
@@ -39,9 +40,9 @@ media:
 content:
   # ---------------------------------------------------------------- Site settings
   # Singleton: one form editing one JSON file, rather than a list of entries.
-  # Every string here is rendered by a homepage section — see src/lib/content/copy.ts.
-  # Adding a field means touching the JSON, the type in copy.ts, this file, and the
-  # component.
+  # Every string here is rendered by a homepage section — see eleventy/_data/site.js.
+  # Adding a field means touching the JSON, this file, and the section template that
+  # renders it.
   - name: settings
     label: Site settings
     type: file
@@ -257,7 +258,7 @@ content:
       - { name: intro, label: Intro, type: text, required: false }
 
       # `value: '{name}'` is load-bearing. This must store the BARE picture name
-      # (e.g. "IMG_7250"), because normalizePictureRef() in src/lib/content/pictures.ts
+      # (e.g. "IMG_7250"), because normalizePictureRef() in eleventy/_data/site.js
       # strips the extension but NOT a directory — so a path-prefixed value would
       # silently fail to resolve and the project would render with no pictures.
       # `{name}` is the sidecar's filename without extension, which is exactly the bare

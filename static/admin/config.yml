@@ -40,7 +40,7 @@ public_folder: /project-media
 
 collections:
   # Singleton settings, edited as one form rather than a list of entries.
-  # Every string here is rendered by a homepage section — see src/lib/content/copy.ts.
+  # Every string here is rendered by a homepage section — see eleventy/_data/site.js.
   # The custom preview pane for this file is registered in static/admin/preview.js.
   - name: settings
     label: Site settings
@@ -181,7 +181,7 @@ collections:
     summary: "{{order}} · {{filename}} — {{caption | default('(no caption)')}}"
     sortable_fields: [order, image, caption]
     # Empty string = store uploads alongside the entry, i.e. in this same folder.
-    # public_folder is meaningless here: enhanced-img rewrites these to hashed,
+    # public_folder is meaningless here: eleventy-img rewrites these to hashed,
     # per-variant build URLs, so nothing is ever served from this path directly.
     media_folder: ''
     public_folder: ''

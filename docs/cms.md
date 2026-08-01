@@ -30,8 +30,8 @@ Two known differences after the switch:
   `image: IMG_7250.jpg` to `image: src/lib/content/pictures/IMG_7250.jpg`, because Pages
   CMS resolves an image field's preview by matching the stored value against its media
   source's `output` prefix — a bare filename matches nothing, so the thumbnail comes up
-  empty. The site is indifferent: `basename()` in `gallery.server.ts` strips directory
-  and extension both.
+  empty. The site is indifferent: `basename()` in `eleventy/_data/pictures.js` strips
+  directory and extension both.
 
   **Project `gallery:` references are the opposite and must stay bare** (`IMG_7250`),
   because `normalizePictureRef()` strips the extension but *not* a directory. Two
@@ -151,12 +151,14 @@ conventions worth knowing:
 - **Multi-line fields.** *Note*, *Studio lines* and similar render one line per line
   break. Blank lines are dropped.
 
-The copy is read by [src/lib/content/copy.ts](../src/lib/content/copy.ts), which is
-the place to look when adding a field: add it to the JSON, the type there, the config,
-and the component. The *Footer line* renders on every page, not just the homepage.
+The copy is loaded by [eleventy/\_data/site.js](../eleventy/_data/site.js) and reaches
+templates as `site.copy`. To add a field: add it to the JSON, to the CMS config, and to
+the section template that renders it. The *Footer line* renders on every page, not just
+the homepage.
 
 Nav links and the nav's own button label are not CMS-editable — they're site
-navigation rather than copy, and live in `NavBar.svelte`.
+navigation rather than copy, and live in
+[eleventy/\_includes/sections/navbar.njk](../eleventy/_includes/sections/navbar.njk).
 
 #### Preview pane
 
@@ -210,7 +212,7 @@ Two roots, deliberately:
   long edge** — the browser downloads whatever is in this folder at full size. The
   committed files were re-encoded once to that budget (progressive JPEG, quality 76).
 - **`src/lib/content/pictures/`** (Gallery collection override) — gallery photos.
-  Processed at build time by `@sveltejs/enhanced-img` into hashed responsive variants,
+  Processed at build time by `@11ty/eleventy-img` into hashed responsive variants,
   so they're never served from that path directly and its `public_folder` is
   meaningless.
 
