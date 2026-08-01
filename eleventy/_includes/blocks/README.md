@@ -4,6 +4,17 @@ One partial per homepage section. `index.njk` renders them in the order the `blo
 in `src/lib/content/settings/homepage.json` lists them, with the block object bound to
 `sec`.
 
+## These are `.html`, not `.njk`
+
+Deliberately, and it is not cosmetic. The CMS looks a partial up at
+`<templatesDir>/<type>.html` — the extension is hardcoded in `getTemplatePath`
+(`lib/preview/github-templates.ts`) — so a `.njk` file here is a partial the preview
+reports as missing while the site renders it perfectly. That failure shows up in the CMS
+only, which is exactly the kind of thing nobody notices for a week.
+
+They're still Nunjucks: `htmlTemplateEngine` is `njk`, and `{% include %}` doesn't care
+about the extension. Everything outside this directory stays `.njk`.
+
 ## The one rule: a block partial must be self-contained
 
 Every partial here has to render correctly **on its own**, given nothing but `sec`. That

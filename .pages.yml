@@ -67,12 +67,13 @@ content:
           gallery pictures. Empty = use the most recent project.
 
       # The homepage, as an ordered list of sections. This is what the Preview field below
-      # renders: the CMS fetches eleventy/_includes/blocks/<type>.njk out of this repo and
+      # renders: the CMS fetches eleventy/_includes/blocks/<type>.html out of this repo and
       # runs it against the section being edited, so the preview is the site's own markup
       # and cannot drift from it.
       #
       # Two constraints come from that, and both are load-bearing:
-      #   1. `name` here MUST match a partial filename in eleventy/_includes/blocks/.
+      #   1. `name` here MUST match a partial at eleventy/_includes/blocks/<name>.html —
+      #      the CMS hardcodes that .html extension, so a .njk partial reads as missing.
       #   2. Those partials may only read `sec.*` — see eleventy/_includes/blocks/README.md.
       #
       # These sections are reorderable and removable because a block list is what makes the

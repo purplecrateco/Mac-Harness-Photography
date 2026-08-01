@@ -25,7 +25,7 @@ Two known differences after the switch:
 - **Two different previews.** [static/admin/preview.js](../static/admin/preview.js) is
   Sveltia-only — a hand-written copy proof, useful for judging headlines that split across
   two fields. Pages CMS instead renders the **site's own templates**: the `_preview` field
-  in [`.pages.yml`](../.pages.yml) makes it fetch `eleventy/_includes/blocks/<type>.njk` out
+  in [`.pages.yml`](../.pages.yml) makes it fetch `eleventy/_includes/blocks/<type>.html` out
   of this repo and run each one against the section in the form, so it cannot drift from
   what ships. That is what the Eleventy port bought.
 
@@ -59,7 +59,7 @@ it needs the File System Access API, which Firefox and Safari don't support.
 npm run dev
 ```
 
-Then open <http://localhost:5173/admin>, choose **Work with Local
+Then open <http://localhost:8080/admin>, choose **Work with Local
 Repository**, and pick this repo's root directory when prompted.
 
 Edits land in your working tree as ordinary file changes. Sveltia performs no git

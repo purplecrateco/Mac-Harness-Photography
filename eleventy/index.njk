@@ -13,5 +13,5 @@ permalink: /
   `ignore missing` matters: a block type with no partial is content the CMS can write but
   this build does not know about, and that must not fail the whole build.
 #}
-{% for sec in homepage.blocks %}{% set blockTemplate = 'blocks/' ~ sec.type ~ '.njk' %}{% include blockTemplate ignore missing %}
+{% for sec in homepage.blocks %}{% set blockTemplate = 'blocks/' ~ sec.type ~ '.html' %}{% include blockTemplate ignore missing %}
 {% endfor %}
