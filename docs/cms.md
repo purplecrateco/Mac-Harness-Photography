@@ -22,10 +22,19 @@ Sveltia is kept because it is the only one offering **local mode**: `/admin` →
 
 Two known differences after the switch:
 
-- **No custom preview pane.** [static/admin/preview.js](../static/admin/preview.js) is a
-  Sveltia-only feature — the section-by-section copy proof for judging headlines that
-  split across two fields. Pages CMS has no equivalent, so previewing means saving and
-  looking at the site.
+- **Two different previews.** [static/admin/preview.js](../static/admin/preview.js) is
+  Sveltia-only — a hand-written copy proof, useful for judging headlines that split across
+  two fields. Pages CMS instead renders the **site's own templates**: the `_preview` field
+  in [`.pages.yml`](../.pages.yml) makes it fetch `eleventy/_includes/blocks/<type>.njk` out
+  of this repo and run each one against the section in the form, so it cannot drift from
+  what ships. That is what the Eleventy port bought.
+
+  Two things to know about it. It needs the **site deployed** — the preview iframe loads
+  `/assets/app.css` over the network, so until hosting exists the pane renders unstyled;
+  set `baseHref` in `.pages.yml` once it does. And block partials must stay
+  self-contained: see
+  [eleventy/\_includes/blocks/README.md](../eleventy/_includes/blocks/README.md), because
+  an `{% import %}` there breaks the preview and nothing else.
 - **Gallery sidecars store a repo path, not a bare filename.** All 61 were migrated from
   `image: IMG_7250.jpg` to `image: src/lib/content/pictures/IMG_7250.jpg`, because Pages
   CMS resolves an image field's preview by matching the stored value against its media
@@ -127,6 +136,13 @@ around it until GitHub ships it.
 ### Site settings → Homepage
 
 One form, editing `src/lib/content/settings/homepage.json`. It holds two things.
+
+The homepage copy is an ordered list of **sections** (Hero, Selected Work, Featured
+project, About, Contact), which is what makes the rendered preview possible. They can be
+reordered and removed, but they are not interchangeable: the hero carries the page's `<h1>`
+and its own background, the tablet spacing rules assume Selected Work follows the hero, and
+the scroll animations target sections by name. Reordering is safe; deleting the hero costs
+the page its heading.
 
 **Which project the homepage features.** *Featured project* is a picker over the
 Projects collection storing that project's slug. The section then pulls the project's
