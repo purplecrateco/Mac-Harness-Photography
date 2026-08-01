@@ -1,0 +1,43 @@
+{#
+  Shared markup helpers — the Nunjucks equivalents of Mark.svelte, Button.svelte and
+  Kicker.svelte.
+
+  Button's class strings are written out literally rather than composed at runtime.
+  tailwind-variants built them by concatenation in Svelte, which was fine because Vite
+  scanned the source; Tailwind's scanner is a text scan, so a class it never sees as a
+  literal is a class it strips from the output. Keep these expanded.
+#}
+
+{% macro mark(size=22) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" style="display:block" aria-hidden="true">
+	<path d="M12 1 L15 9 L23 12 L15 15 L12 23 L9 15 L1 12 L9 9 Z" fill="var(--color-gold)" />
+</svg>
+{% endmacro %}
+
+{% set BTN_BASE = 'inline-flex cursor-pointer items-center gap-2.5 whitespace-nowrap rounded-full font-display font-semibold no-underline transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50' %}
+{% set BTN_SOLID = 'bg-gold text-gold-ink border border-transparent hover:brightness-110' %}
+{% set BTN_GHOST = 'bg-white/[0.085] text-ink border border-glass-line backdrop-blur-[20px] hover:bg-white/[0.13]' %}
+{% set BTN_MD = 'px-[26px] py-[14px] text-[15px]' %}
+{% set BTN_SM = 'px-[22px] py-[11px] text-[14px]' %}
+
+{#
+  `section` marks a link as an in-page scroll target. On the homepage the client
+  intercepts it and smooth-scrolls; elsewhere it falls through to /#section as a real
+  navigation. That is the same behaviour NavBar's onLink had, moved into a data
+  attribute so the markup stays static.
+#}
+{% macro button(label, href=none, variant='solid', size='default', section=none, class='') %}
+{%- set v = BTN_GHOST if variant == 'ghost' else BTN_SOLID -%}
+{%- set s = BTN_SM if size == 'sm' else BTN_MD -%}
+{%- set cls = BTN_BASE ~ ' ' ~ v ~ ' ' ~ s ~ ' ' ~ class -%}
+{%- if href -%}
+<a href="{{ href }}" class="{{ cls }}"{% if section %} data-scroll-to="{{ section }}"{% endif %}>{{ label | safe }} <span class="text-sm opacity-90">→</span></a>
+{%- else -%}
+<button type="button" class="{{ cls }}"{% if section %} data-scroll-to="{{ section }}"{% endif %}>{{ label | safe }} <span class="text-sm opacity-90">→</span></button>
+{%- endif -%}
+{% endmacro %}
+
+{# Eyebrow label with a leading accent rule — used by every section heading. #}
+{% macro kicker(text, center=false) %}
+<span class="inline-flex items-center gap-3 font-mono text-xs uppercase tracking-[0.28em] text-gold before:h-px before:w-[34px] before:bg-gold before:opacity-60 before:content-[''] {{ 'justify-center' if center else '' }}">{{ text }}</span>
+{% endmacro %}

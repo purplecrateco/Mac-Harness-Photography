@@ -1,0 +1,62 @@
+{#
+  Port of Footer.svelte.
+
+  "Back to top" showed on the homepage, or anywhere the document had scrolled. That was
+  reactive state; here the link is always rendered and assets/motion.js toggles a
+  `hidden` class, so it degrades to always-visible with JS off rather than never.
+#}
+{% import "macros.njk" as m %}
+
+<footer class="border-t border-white/[0.07]">
+	<div
+		class="mx-auto flex w-full max-w-[1320px] flex-wrap items-center justify-between gap-6 px-6 py-[34px] sm:px-10 lg:px-14"
+	>
+		<a
+			href="/"
+			class="flex items-center gap-[11px] rounded-sm font-mono text-xs font-bold uppercase tracking-[0.16em] text-ink no-underline focus-visible:focus-ring"
+		>
+			{{ m.mark(18) }} MAC HARNESS
+		</a>
+		<span class="font-mono text-[11px] tracking-[0.08em] text-ink-faint">
+			{{ site.copy.footer_note }}
+		</span>
+		<a
+			href="#top"
+			data-back-to-top
+			{% if page.url != '/' %}hidden{% endif %}
+			class="cursor-pointer rounded-sm font-mono text-[11px] uppercase tracking-[0.14em] text-ink-dim no-underline transition hover:text-gold focus-visible:focus-ring"
+			>Back to top ↑</a
+		>
+		{#
+			The Purple Crate mark is tucked behind the wordmark (lower z-index, shifted
+			left, invisible). On hover it slides left→right out from behind the text and
+			fades in, while the gold "Purple Crate Digital" turns the brand purple.
+			prefers-reduced-motion drops the slide and just resolves the final state.
+		#}
+		<a
+			href="https://purplecrate.co"
+			target="_blank"
+			rel="noopener noreferrer"
+			class="group relative inline-flex items-center rounded-sm pr-6 font-mono text-[11px] tracking-[0.08em] text-ink-faint no-underline transition hover:text-ink focus-visible:focus-ring"
+		>
+			<span class="relative z-10"
+				>Made by <span
+					class="text-gold transition-colors duration-300 group-hover:text-[#8b5cf6]"
+					>Purple Crate Digital</span
+				></span
+			>
+			<span
+				aria-hidden="true"
+				class="pointer-events-none absolute right-0 top-1/2 z-0 flex -translate-y-1/2 -translate-x-8 -rotate-90 items-center text-[#8b5cf6] opacity-0 transition-all duration-300 ease-out group-hover:translate-x-0 group-hover:rotate-0 group-hover:opacity-100 motion-reduce:transition-none"
+			>
+				<svg viewBox="0 0 100 100" class="h-[14px] w-[14px]" fill="currentColor" aria-hidden="true">
+					<rect x="0" y="0" width="100" height="16" />
+					<rect x="0" y="84" width="100" height="16" />
+					<rect x="0" y="0" width="16" height="100" />
+					<rect x="84" y="0" width="16" height="100" />
+					<polygon points="22,64 22,78 36,78 78,36 78,22 64,22" />
+				</svg>
+			</span>
+		</a>
+	</div>
+</footer>

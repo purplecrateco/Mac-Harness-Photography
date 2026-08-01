@@ -1,0 +1,99 @@
+{#
+  Port of NavBar.svelte.
+
+  Two things changed shape, both deliberately:
+
+  - The mobile drawer was a bits-ui Sheet (Svelte-only). It is now a native <dialog>,
+    which supplies the focus trap, Escape handling, backdrop and inert background that
+    bits-ui was providing — rather than reimplementing them in vanilla JS and getting
+    them subtly wrong. Styling matches the Sheet's right-side panel.
+  - `scrolled` state and the in-page scroll interception moved to assets/motion.js.
+    Links carry data-scroll-to so the markup stays static and works with JS disabled
+    (falling through to /#section as a real navigation).
+
+  The 44px hit areas with symmetric negative margins are preserved exactly — they are
+  what keeps the bar height and every glyph position unchanged while giving each link a
+  real touch target.
+#}
+{% import "macros.njk" as m %}
+{% set links = [
+	{ label: 'Gallery', href: '/gallery/', path: '/gallery/' },
+	{ label: 'Projects', href: '/projects/', path: '/projects/' },
+	{ label: 'About', href: '/#about', section: 'about' },
+	{ label: 'Contact', href: '/#contact', section: 'contact' }
+] %}
+
+<div class="fixed inset-x-0 top-0 z-[100]">
+	<nav
+		data-navbar
+		class="relative flex items-center justify-between border-b border-transparent bg-[rgba(8,8,11,0.3)] px-6 py-5 backdrop-blur-[22px] backdrop-saturate-150 transition-all duration-300 sm:px-10 lg:px-14"
+	>
+		<a
+			href="/"
+			class="-my-2.5 flex min-h-11 items-center gap-3 rounded-sm no-underline focus-visible:focus-ring"
+		>
+			{{ m.mark(22) }}
+			<span class="font-mono text-xs font-bold uppercase tracking-[0.16em] text-ink">MAC HARNESS</span>
+		</a>
+
+		<div class="hidden items-center gap-[34px] min-[881px]:flex">
+			{% for l in links %}
+			{%- set current = l.path and page.url == l.path -%}
+			<a
+				href="{{ l.href }}"
+				{% if l.section %}data-scroll-to="{{ l.section }}"{% endif %}
+				{% if current %}aria-current="page"{% endif %}
+				class="-mx-2 -my-3.5 inline-flex min-h-11 cursor-pointer items-center rounded-sm px-2 font-mono text-xs uppercase tracking-[0.16em] transition-colors hover:text-ink focus-visible:focus-ring {{ 'text-ink' if current else 'text-ink-dim' }}"
+				>{{ l.label }}</a
+			>
+			{% endfor %}
+		</div>
+
+		<div class="hidden items-center gap-[22px] min-[881px]:flex">
+			{{ m.button('Book a session', '/#contact', 'solid', 'sm', 'contact') }}
+		</div>
+
+		<button
+			type="button"
+			data-nav-open
+			aria-label="Toggle menu"
+			aria-expanded="false"
+			class="-m-0.5 flex h-11 w-11 cursor-pointer flex-col items-center justify-center gap-[5px] rounded-sm border-0 bg-transparent p-0 min-[881px]:hidden focus-visible:focus-ring"
+		>
+			<span class="h-px w-6 bg-ink transition-transform duration-200"></span>
+			<span class="h-px w-6 bg-ink transition-opacity duration-200"></span>
+			<span class="h-px w-6 bg-ink transition-transform duration-200"></span>
+		</button>
+	</nav>
+</div>
+
+{# Right-side drawer. `dialog` is styled to the panel; the ::backdrop rule lives in
+   app.css so it stays with the rest of the design tokens. #}
+<dialog
+	data-nav-dialog
+	class="nav-drawer fixed inset-y-0 right-0 left-auto m-0 h-full w-[min(320px,85vw)] max-w-none flex-col gap-1 border-l border-white/[0.07] p-6 text-ink min-[881px]:hidden"
+	style="background: rgba(11,11,14,0.92); backdrop-filter: blur(34px) saturate(170%); -webkit-backdrop-filter: blur(34px) saturate(170%);"
+>
+	<h2 class="sr-only">Navigation</h2>
+	<button
+		type="button"
+		data-nav-close
+		aria-label="Close menu"
+		class="absolute right-4 top-4 flex h-11 w-11 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent p-0 text-ink focus-visible:focus-ring"
+	>✕</button>
+	<div class="mt-10 flex flex-col gap-1">
+		{% for l in links %}
+		{%- set current = l.path and page.url == l.path -%}
+		<a
+			href="{{ l.href }}"
+			{% if l.section %}data-scroll-to="{{ l.section }}"{% endif %}
+			{% if current %}aria-current="page"{% endif %}
+			class="cursor-pointer border-b border-white/[0.06] py-3 font-mono text-sm uppercase tracking-[0.16em] no-underline transition-colors hover:text-ink focus-visible:focus-ring {{ 'text-ink' if current else 'text-ink-dim' }}"
+			>{{ l.label }}</a
+		>
+		{% endfor %}
+		<div class="pt-4">
+			{{ m.button('Book a session', '/#contact', 'solid', 'default', 'contact') }}
+		</div>
+	</div>
+</dialog>

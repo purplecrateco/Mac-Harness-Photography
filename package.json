@@ -4,24 +4,32 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
 		"assets": "node scripts/generate-assets.js",
-		"check:contrast": "node scripts/check-hero-contrast.cjs",
-		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
+		"build": "vite build",
+		"build:11ty": "eleventy && npm run css:11ty",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:contrast": "node scripts/check-hero-contrast.cjs",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"css:11ty": "tailwindcss -i eleventy/css/tailwind.css -o _site/assets/app.css --minify",
+		"css:11ty:watch": "tailwindcss -i eleventy/css/tailwind.css -o _site/assets/app.css --watch",
+		"dev": "vite dev",
+		"dev:11ty": "run-p \"eleventy --serve\" css:11ty:watch",
+		"prepare": "svelte-kit sync || echo ''",
+		"preview": "vite preview"
 	},
 	"devDependencies": {
+		"@11ty/eleventy": "^3.1.6",
+		"@11ty/eleventy-img": "^7.0.0",
 		"@lucide/svelte": "^0.561.0",
 		"@resvg/resvg-js": "^2.6.2",
 		"@sveltejs/adapter-cloudflare": "^7.2.9",
 		"@sveltejs/enhanced-img": "^0.10.4",
 		"@sveltejs/kit": "^2.57.0",
 		"@sveltejs/vite-plugin-svelte": "^7.0.0",
+		"@tailwindcss/cli": "^4.3.3",
 		"@tailwindcss/vite": "^4.3.0",
 		"@types/node": "^25.9.2",
+		"npm-run-all": "^4.1.5",
 		"sharp": "^0.35.3",
 		"svelte": "^5.55.2",
 		"svelte-check": "^4.4.6",
@@ -47,6 +55,7 @@
 		"sharp@0.35.3": true,
 		"fsevents@2.3.3": true,
 		"esbuild@0.28.1": true,
-		"workerd@1.20260730.1": true
+		"workerd@1.20260730.1": true,
+		"@parcel/watcher": false
 	}
 }

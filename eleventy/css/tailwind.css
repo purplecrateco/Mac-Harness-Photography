@@ -1,0 +1,58 @@
+/* Tailwind entry for the Eleventy build.
+ *
+ * src/app.css is imported unchanged — all the design tokens, @utility definitions and
+ * the .motion-armed / focus-within accessibility rules are shared verbatim with the
+ * SvelteKit build, so there is one source of truth for styling during the port.
+ *
+ * @source is required: Tailwind v4's automatic content detection starts from this
+ * file's directory, which would miss the Nunjucks templates and the client JS that
+ * both carry utility classes. Without these, classes used only in .njk are stripped.
+ */
+@import '../../src/app.css';
+
+@source '../**/*.njk';
+@source '../assets/**/*.js';
+
+/* ---------------------------------------------------------------------------
+   Rules that lived in Svelte components' scoped <style> blocks. Nunjucks has no
+   scoping, so they move here rather than into src/app.css — that file stays shared
+   verbatim with the SvelteKit build for as long as both exist.
+   --------------------------------------------------------------------------- */
+
+/* Tablet / medium screens (bigger than phones, smaller than the lg desktop layout).
+   Recompose the hero the way it sits on desktop: MAC drops down-and-right, HARNESS
+   lifts up-and-left, and the blurb moves to the right above the CTA. From Hero.svelte. */
+@media (min-width: 761px) and (max-width: 1023px) {
+	.t-mac {
+		top: -4%;
+		left: 4%;
+	}
+	.t-harness {
+		top: 16%;
+		right: 16%;
+	}
+	.t-blurb {
+		left: auto;
+		right: 7%; /* aligned over the CTA button */
+		top: 38%;
+		width: clamp(200px, 30vw, 280px);
+		text-align: right;
+	}
+	.t-cta {
+		top: 58%;
+	}
+	.t-scroll {
+		display: flex; /* show the scroll prompt on tablet */
+		bottom: 90px; /* lift it up off the bottom edge */
+	}
+}
+
+/* Mobile nav drawer. `dialog` is display:none until opened, so the flex layout only
+   applies to the open state — otherwise `flex` would defeat the built-in hiding. */
+dialog.nav-drawer[open] {
+	display: flex;
+}
+dialog.nav-drawer::backdrop {
+	background: rgba(7, 7, 8, 0.6);
+	backdrop-filter: blur(2px);
+}
