@@ -1,26 +1,31 @@
-{# Port of About.svelte. #}
-{% import "macros.njk" as m %}
-{%- set t = site.copy.about -%}
+{# About block. Self-contained; see blocks/README.md. #}
+{% macro kicker(text) %}<span class="inline-flex items-center gap-3 font-mono text-xs uppercase tracking-[0.28em] text-gold before:h-px before:w-[34px] before:bg-gold before:opacity-60 before:content-[''] ">{{ text }}</span>{% endmacro %}
 
 <section id="about" class="relative border-t border-white/[0.055] py-20 sm:py-28 lg:py-[140px]">
 	<div class="mx-auto grid w-full max-w-[1320px] grid-cols-[minmax(0,440px)_1fr] items-center gap-[72px] px-6 sm:px-10 lg:px-14 max-[900px]:grid-cols-1 max-[900px]:gap-16">
 		<div class="reveal">
 			<div class="aspect-[44/56] w-full">
-				{{ m.ph(880, 1120, 'MAC · PORTRAIT', '/portrait.jpeg', 'Mac Harness', '20px') }}
+				<img
+					src="/portrait.jpeg"
+					alt="Mac Harness"
+					draggable="false"
+					class="block h-full w-full border border-glass-line bg-[#15151a] object-cover shadow-[0_30px_70px_-30px_rgba(0,0,0,0.8)] "
+					style="border-radius:20px"
+				/>
 			</div>
 		</div>
 
 		<div class="reveal">
-			{{ m.kicker(t.kicker) }}
+			{{ kicker(sec.kicker) }}
 			<h2 class="mb-8 mt-3.5 font-serif text-[clamp(40px,5vw,68px)] font-normal leading-[0.98] tracking-[-0.01em] text-ink">
-				{{ t.heading }}
+				{{ sec.heading }}
 			</h2>
-			<p class="mb-[22px] max-w-[54ch] text-[24px] leading-[1.5] text-ink">{{ t.lead }}</p>
-			<p class="mb-[22px] max-w-[54ch] text-[19px] leading-[1.65] text-ink-dim">{{ t.body }}</p>
+			<p class="mb-[22px] max-w-[54ch] text-[24px] leading-[1.5] text-ink">{{ sec.lead }}</p>
+			<p class="mb-[22px] max-w-[54ch] text-[19px] leading-[1.65] text-ink-dim">{{ sec.body }}</p>
 
-			{% if t.stats | length %}
+			{% if sec.stats | length %}
 			<div class="my-[42px] mb-9 grid grid-cols-[repeat(3,auto)] gap-x-6 gap-y-9 sm:gap-x-12">
-				{% for s in t.stats %}
+				{% for s in sec.stats %}
 				<div>
 					<div class="font-serif text-[48px] leading-none text-gold">{{ s.num }}</div>
 					<div class="mt-2 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">{{ s.label }}</div>
@@ -30,12 +35,12 @@
 			{% endif %}
 
 			<div class="mb-9 mt-[42px] flex flex-wrap gap-2.5">
-				{% for s in t.services %}
+				{% for s in sec.services %}
 				<span class="rounded-full border border-glass-line bg-white/[0.055] px-4 py-[9px] font-mono text-[11.5px] uppercase tracking-[0.1em] text-ink-dim">{{ s }}</span>
 				{% endfor %}
 			</div>
 
-			<div class="font-serif text-[34px] italic text-ink">{{ t.signature }}</div>
+			<div class="font-serif text-[34px] italic text-ink">{{ sec.signature }}</div>
 		</div>
 	</div>
 </section>

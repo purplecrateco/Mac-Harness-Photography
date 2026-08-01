@@ -1,6 +1,8 @@
 {#
-  Port of Hero.svelte. Everything load-bearing here was measured, not chosen — see
-  docs/ and the commit history before changing any of it.
+  Hero block. Self-contained — see blocks/README.md before adding an import.
+
+  Everything load-bearing here was measured, not chosen — see docs/ and the commit history
+  before changing any of it.
 
   - object-[66%_center]: Mac sits at x=962 of 1560 in the source, so a centred crop puts
     him at 95% of the frame with his head clipped on a 375px viewport. 66% lands him at
@@ -11,7 +13,7 @@
     six viewports by scripts/check-hero-contrast.cjs.
   - text-gold-hero (a paler gold) is what buys 0.60 instead of 0.70.
 #}
-{% import "macros.njk" as m %}
+{%- set BTN = 'inline-flex cursor-pointer items-center gap-2.5 whitespace-nowrap rounded-full font-display font-semibold no-underline transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 bg-gold text-gold-ink border border-transparent hover:brightness-110 px-[26px] py-[14px] text-[15px] ' -%}
 
 {%- set warmBg = 'linear-gradient(to bottom, transparent 55%, #070708 100%), radial-gradient(130% 110% at 22% -10%, #34291c 0%, #1d180f 50%, #131218 100%)' -%}
 {%- set scrim = 'linear-gradient(to bottom, transparent 62%, #070708 100%), linear-gradient(rgba(7,7,8,0.6), rgba(7,7,8,0.6))' -%}
@@ -35,7 +37,7 @@
 		so it can't be the h1 without shipping two of them. The real h1 is here, visually
 		hidden, and the two pieces are decorative to assistive tech.
 	#}
-	<h1 class="sr-only">{{ site.copy.hero.name_top }} {{ site.copy.hero.name_bottom }} — photographer</h1>
+	<h1 class="sr-only">{{ sec.name_top }} {{ sec.name_bottom }} — photographer</h1>
 
 	{# z-[2] lifts the text layer above the scrim; inner z-indices are scoped to this
 	   element's own stacking context and are unchanged. #}
@@ -45,28 +47,28 @@
 			data-anim="hero-name"
 			class="t-mac pointer-events-none absolute left-6 top-[-2%] z-[1] m-0 select-none font-serif-display text-[clamp(82px,15.5vw,232px)] leading-[0.78] tracking-[-0.01em] text-gold-hero max-[760px]:top-[7%] sm:left-10 lg:left-14"
 		>
-			{{ site.copy.hero.name_top }}
+			{{ sec.name_top }}
 		</div>
 		<div
 			aria-hidden="true"
 			data-anim="hero-name"
 			class="t-harness pointer-events-none absolute right-6 top-[26%] z-[3] m-0 select-none font-serif-display text-[clamp(66px,12.5vw,188px)] leading-[0.78] tracking-[-0.01em] text-gold-hero max-[760px]:top-[21%] sm:right-10 lg:right-14 lg:top-[max(30%,245px)]"
 		>
-			{{ site.copy.hero.name_bottom }}
+			{{ sec.name_bottom }}
 		</div>
 
 		<p
 			data-anim="hero-blurb"
 			class="t-blurb absolute left-6 top-[46%] z-[4] w-[clamp(210px,22vw,290px)] font-mono text-[13px] uppercase leading-[1.75] tracking-[0.04em] text-ink sm:left-10 lg:left-14 max-[760px]:hidden"
 		>
-			{{ site.copy.hero.blurb }}
+			{{ sec.blurb }}
 		</p>
 
 		<div
 			data-anim="hero-fade"
 			class="t-cta absolute right-[7%] top-[62%] z-[5] max-[760px]:bottom-[15%] max-[760px]:right-1/2 max-[760px]:top-auto max-[760px]:translate-x-1/2"
 		>
-			{{ m.button(site.copy.hero.cta, none, 'solid', 'default', 'contact') }}
+			<button type="button" class="{{ BTN }}" data-scroll-to="contact">{{ sec.cta }} <span class="text-sm opacity-90">→</span></button>
 		</div>
 	</div>
 
@@ -74,7 +76,7 @@
 		data-anim="hero-fade"
 		class="t-scroll absolute bottom-6 left-1/2 z-[6] flex -translate-x-1/2 flex-col items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.26em] text-ink"
 	>
-		<span>{{ site.copy.hero.scroll_hint }}</span>
+		<span>{{ sec.scroll_hint }}</span>
 		<i class="h-[34px] w-px bg-gradient-to-b from-ink-faint to-transparent"></i>
 	</div>
 </header>

@@ -1,0 +1,112 @@
+{#
+  Featured project block. Self-contained; see blocks/README.md.
+
+  Which project this is gets resolved in _data/site.js (chosen in the CMS, falling back to
+  the most recent) and attached as `sec.project` by _data/homepage.js, so the only thing an
+  editor types here is the kicker.
+
+  The right-hand collage shows the project's own selected pictures, up to 4 plates. The
+  cover only leads when none were selected, so a project with pictures shows those rather
+  than repeating its hero. Slots still empty after that fall back to placeholders so the
+  collage reads full — which is also what the whole collage does in the CMS preview, where
+  `sec.project` is absent.
+#}
+{% macro kicker(text) %}<span class="inline-flex items-center gap-3 font-mono text-xs uppercase tracking-[0.28em] text-gold before:h-px before:w-[34px] before:bg-gold before:opacity-60 before:content-[''] ">{{ text }}</span>{% endmacro %}
+
+{% macro ghostButton(label, href) %}<a href="{{ href }}" class="inline-flex cursor-pointer items-center gap-2.5 whitespace-nowrap rounded-full font-display font-semibold no-underline transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 bg-white/[0.085] text-ink border border-glass-line backdrop-blur-[20px] hover:bg-white/[0.13] px-[26px] py-[14px] text-[15px] ">{{ label }} <span class="text-sm opacity-90">→</span></a>{% endmacro %}
+
+{% macro pic(p, sizes, class) %}
+<picture class="block h-full w-full">
+	<source type="image/avif" srcset="{{ p.sources['image/avif'] }}" sizes="{{ sizes }}" />
+	<source type="image/webp" srcset="{{ p.sources['image/webp'] }}" sizes="{{ sizes }}" />
+	<img
+		src="{{ p.src }}"
+		srcset="{{ p.srcset }}"
+		width="{{ p.w }}"
+		height="{{ p.h }}"
+		sizes="{{ sizes }}"
+		alt="{{ p.caption | trim if p.caption else '' }}"
+		loading="lazy"
+		decoding="async"
+		draggable="false"
+		class="block h-full w-full object-cover {{ class }}"
+	/>
+</picture>
+{% endmacro %}
+
+{#- Inline SVG data URI rather than a placeholder service, so the site never makes a
+    runtime request to another host — least of all on the path that renders when there is
+    nothing to show. -#}
+{% macro ph(w, h, label) %}
+{%- set fontSize = ((w if w < h else h) / 12) | round | int -%}
+{%- set svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' ~ w ~ '" height="' ~ h ~ '" viewBox="0 0 ' ~ w ~ ' ' ~ h ~ '"><rect width="100%" height="100%" fill="#16161c"/><text x="50%" y="50%" fill="#4c4c58" font-family="monospace" font-size="' ~ fontSize ~ '" text-anchor="middle" dominant-baseline="middle">' ~ label ~ '</text></svg>' -%}
+<img
+	src="{{ 'data:image/svg+xml,' ~ (svg | urlencode) }}"
+	alt=""
+	draggable="false"
+	class="block h-full w-full border border-glass-line bg-[#15151a] object-cover shadow-[0_30px_70px_-30px_rgba(0,0,0,0.8)] !h-auto transition-transform duration-[600ms] ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-[1.04]"
+	style="border-radius:12px"
+/>
+{% endmacro %}
+
+{%- set p = sec.project -%}
+{%- set SLOTS = [
+	{ w: 480, h: 600, label: 'PLATE 01' },
+	{ w: 480, h: 360, label: 'PLATE 02' },
+	{ w: 480, h: 360, label: 'PLATE 03' },
+	{ w: 480, h: 600, label: 'PLATE 04' }
+] -%}
+{%- set showCover = p and p.cover and (p.metaPics | length) == 0 -%}
+{%- set usedSlots = ((p.metaPics | length) if p else 0) + (1 if showCover else 0) -%}
+
+<section id="project" class="relative border-t border-white/[0.055] py-20 sm:py-28 lg:py-[140px]">
+	<div class="mx-auto grid w-full max-w-[1320px] grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] items-center gap-[72px] px-6 sm:px-10 lg:px-14 max-[900px]:grid-cols-1 max-[900px]:gap-12">
+		<div class="reveal">
+			{{ kicker(sec.kicker) }}
+			{% if p %}
+			<h2 class="mb-7 mt-3.5 font-serif text-[clamp(40px,5.4vw,76px)] font-normal leading-[0.96] tracking-[-0.01em] text-ink">
+				{%- if p.titleHead %}{{ p.titleHead }}&nbsp;{% endif -%}
+				<em class="italic text-gold">{{ p.titleTail }}</em>
+			</h2>
+			{% if p.intro %}
+			<p class="mb-5 max-w-[46ch] text-[18px] leading-[1.65] text-ink-dim">{{ p.intro }}</p>
+			{% endif %}
+			{% if p.meta %}
+			<p class="mb-[34px] font-mono text-[13px] leading-[1.7] tracking-[0.02em] text-ink-faint">{{ p.meta }}</p>
+			{% endif %}
+			<div class="flex flex-wrap items-center gap-3">
+				{{ ghostButton('View project', '/projects/' ~ p.slug ~ '/') }}
+				{{ ghostButton('View all projects', '/projects/') }}
+			</div>
+			{% endif %}
+		</div>
+
+		<div class="reveal columns-2 gap-x-4">
+			{% if showCover %}
+			<div class="group mb-4 break-inside-avoid overflow-hidden rounded-xl">
+				<img
+					src="{{ p.cover }}"
+					alt="{{ p.title }}"
+					draggable="false"
+					class="block h-auto w-full border border-glass-line bg-[#15151a] object-cover shadow-[0_30px_70px_-30px_rgba(0,0,0,0.8)] transition-transform duration-[600ms] ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-[1.04]"
+					style="border-radius:12px"
+				/>
+			</div>
+			{% endif %}
+			{% if p %}{% for pic_ in p.metaPics %}
+			<a
+				href="/projects/{{ p.slug }}/"
+				class="group mb-4 block break-inside-avoid overflow-hidden rounded-xl border border-glass-line bg-[#15151a] shadow-[0_30px_70px_-30px_rgba(0,0,0,0.8)]"
+				aria-label="View {{ p.title }}"
+			>
+				{{ pic(pic_, '(max-width: 900px) 90vw, 420px', '!h-auto transition-transform duration-[600ms] ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-[1.04]') }}
+			</a>
+			{% endfor %}{% endif %}
+			{% for s in SLOTS %}{% if loop.index0 >= usedSlots %}
+			<div class="group mb-4 break-inside-avoid overflow-hidden rounded-xl">
+				{{ ph(s.w, s.h, s.label) }}
+			</div>
+			{% endif %}{% endfor %}
+		</div>
+	</div>
+</section>

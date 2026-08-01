@@ -1,11 +1,33 @@
 {#
-  Port of Gallery.svelte — the homepage "Selected Work" peek.
+  Selected Work block — the homepage gallery peek. Self-contained; see blocks/README.md.
 
   SPANS carries the asymmetric editorial grid placement plus the mobile collapse, one span
   per tile. Written out as literal class strings so Tailwind's text scanner sees them.
+
+  `sec.pics` is attached by _data/homepage.js. It is absent in the CMS preview, which
+  renders placeholder frames instead — the copy above them is what an editor is editing.
 #}
-{% import "macros.njk" as m %}
-{%- set t = site.copy.gallery -%}
+{% macro kicker(text) %}<span class="inline-flex items-center gap-3 font-mono text-xs uppercase tracking-[0.28em] text-gold before:h-px before:w-[34px] before:bg-gold before:opacity-60 before:content-[''] ">{{ text }}</span>{% endmacro %}
+
+{% macro pic(p, sizes, eager, class) %}
+<picture class="block h-full w-full">
+	<source type="image/avif" srcset="{{ p.sources['image/avif'] }}" sizes="{{ sizes }}" />
+	<source type="image/webp" srcset="{{ p.sources['image/webp'] }}" sizes="{{ sizes }}" />
+	<img
+		src="{{ p.src }}"
+		srcset="{{ p.srcset }}"
+		width="{{ p.w }}"
+		height="{{ p.h }}"
+		sizes="{{ sizes }}"
+		alt="{{ p.caption | trim if p.caption else '' }}"
+		loading="{{ 'eager' if eager else 'lazy' }}"
+		decoding="async"
+		draggable="false"
+		class="block h-full w-full object-cover {{ class }}"
+	/>
+</picture>
+{% endmacro %}
+
 {%- set SIZES = '(max-width: 760px) 50vw, 33vw' -%}
 {%- set SPANS = [
 	'col-span-2 row-span-3 max-[760px]:col-span-1 max-[760px]:row-span-2',
@@ -22,14 +44,14 @@
 	<div class="mx-auto w-full max-w-[1320px] px-6 sm:px-10 lg:px-14">
 		<div class="reveal mb-[60px] flex flex-wrap items-end justify-between gap-10">
 			<div>
-				{{ m.kicker(t.kicker) }}
+				{{ kicker(sec.kicker) }}
 				<h2 class="mt-3.5 font-serif text-[clamp(44px,6vw,84px)] font-normal leading-[0.96] tracking-[-0.01em] text-ink">
-					{{ t.heading }} <em class="italic text-gold">{{ t.heading_accent }}</em>.
+					{{ sec.heading }} <em class="italic text-gold">{{ sec.heading_accent }}</em>.
 				</h2>
 			</div>
 			<div class="max-w-[280px] font-mono text-[12.5px] leading-[1.9] tracking-[0.04em] text-ink-dim max-[760px]:text-left sm:text-right">
-				{% for line in t.note | lines %}{{ line }}<br />{% endfor %}
-				<span class="text-ink-faint">{{ t.note_years }}</span>
+				{% for line in sec.note %}{{ line }}<br />{% endfor %}
+				<span class="text-ink-faint">{{ sec.note_years }}</span>
 				<br />
 				<a
 					href="/gallery/"
@@ -44,17 +66,23 @@
 			data-anim="gallery"
 			class="reveal grid auto-rows-[128px] grid-cols-6 gap-[18px] max-[760px]:auto-rows-[120px] max-[760px]:grid-cols-2"
 		>
-			{% for p in homepage.peekPics %}
+			{% for p in sec.pics %}
 			<a
 				href="/gallery/"
 				aria-label="View the full gallery"
 				class="group block {{ SPANS[loop.index0] }} rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-1"
 			>
 				<figure class="relative h-full w-full overflow-hidden rounded-2xl">
-					{{ m.pic(p, SIZES, loop.index0 < 4, 'rounded-2xl transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-105') }}
+					{{ pic(p, SIZES, loop.index0 < 4, 'rounded-2xl transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.3,1)] group-hover:scale-105') }}
 				</figure>
 			</a>
 			{% endfor %}
+			{#- No pics means the CMS preview: fill the grid so the layout still reads. -#}
+			{% if not sec.pics %}{% for span in SPANS %}
+			<div class="block {{ span }} rounded-2xl">
+				<figure class="relative h-full w-full overflow-hidden rounded-2xl border border-glass-line bg-[#16161c]"></figure>
+			</div>
+			{% endfor %}{% endif %}
 		</div>
 	</div>
 </section>

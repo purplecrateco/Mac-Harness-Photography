@@ -4,8 +4,14 @@ title: Mac Harness
 permalink: /
 ---
 
-{% include "sections/hero.njk" %}
-{% include "sections/selected-work.njk" %}
-{% include "sections/featured-project.njk" %}
-{% include "sections/about.njk" %}
-{% include "sections/contact.njk" %}
+{#
+  Page-builder homepage. Renders the ordered `blocks` from homepage.json, one partial per
+  block `type` (see _includes/blocks/). Editors add, reorder and edit these in the CMS,
+  which also renders a live preview by running these same partials — which is why each one
+  reads only `sec` and imports nothing. See _includes/blocks/README.md.
+
+  `ignore missing` matters: a block type with no partial is content the CMS can write but
+  this build does not know about, and that must not fail the whole build.
+#}
+{% for sec in homepage.blocks %}{% set blockTemplate = 'blocks/' ~ sec.type ~ '.njk' %}{% include blockTemplate ignore missing %}
+{% endfor %}
