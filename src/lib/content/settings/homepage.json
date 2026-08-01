@@ -1,56 +1,49 @@
 {
-	"featured_project": "",
-	"blocks": [
-		{
-			"type": "hero",
-			"name_top": "MAC",
-			"name_bottom": "HARNESS",
-			"blurb": "Portrait & automotive photographer. I shoot the story of the day, not a set of poses.",
-			"cta": "Book a session",
-			"scroll_hint": "Scroll"
-		},
-		{
-			"type": "selected-work",
-			"kicker": "Selected Work",
-			"heading": "Frames that",
-			"heading_accent": "last",
-			"note": [
-				"A rotating edit of portrait",
-				"& automotive work."
-			],
-			"note_years": "2024 → 2026"
-		},
-		{
-			"type": "featured-project",
-			"kicker": "Latest Project"
-		},
-		{
-			"type": "about",
-			"kicker": "About Me",
-			"heading": "Hi, I’m Mac.",
-			"lead": "I’ve been shooting for a couple of years now, mostly cars and portraits, working with whatever light the day gives me. What I want is a photograph that feels like a memory rather than a pose.",
-			"body": "I work slowly. Usually that means we talk for a while, walk around, and wait until something happens that’s worth keeping.",
-			"stats": [],
-			"services": [
-				"Portraits",
-				"Automotive"
-			],
-			"signature": "Mac Harness"
-		},
-		{
-			"type": "contact",
-			"kicker": "Get in Touch",
-			"heading": "Let’s make something",
-			"heading_accent": "worth keeping",
-			"blurb": "I take portrait sessions and automotive commissions. Tell me what you have in mind.",
-			"email": "hello@macharness.studio",
-			"studio_title": "Studio",
-			"studio_lines": "Available for commissions\nWorldwide",
-			"follow_title": "Follow",
-			"follow_links": [],
-			"enquiries_title": "Enquiries",
-			"phone": ""
-		}
-	],
-	"footer_note": "© 2026 Mac Harness · Photographer since 2024"
+  "blocks": [
+    {
+      "type": "hero",
+      "name_top": "MAC",
+      "name_bottom": "HARNESS",
+      "blurb": "Portrait & automotive photographer. I shoot the story of the day, not a set of poses.",
+      "cta": "Book a session",
+      "scroll_hint": "Scroll"
+    },
+    {
+      "type": "selected-work",
+      "kicker": "Selected Work",
+      "heading": "Frames that",
+      "heading_accent": "last",
+      "note": [
+        "A rotating edit of portrait",
+        "& automotive work."
+      ],
+      "note_years": "2024 → 2026"
+    },
+    {
+      "type": "featured-project",
+      "kicker": "Latest Project"
+    },
+    {
+      "type": "about",
+      "kicker": "About Me",
+      "heading": "Hi, I’m Mac.",
+      "lead": "I’ve been shooting for a couple of years now, mostly cars and portraits, working with whatever light the day gives me. What I want is a photograph that feels like a memory rather than a pose.",
+      "body": "I work slowly. Usually that means we talk for a while, walk around, and wait until something happens that’s worth keeping.",
+      "services": [
+        "Portraits",
+        "Automotive"
+      ],
+      "signature": "Mac Harness"
+    },
+    {
+      "type": "contact",
+      "kicker": "Get in Touch",
+      "heading": "Let’s make something",
+      "heading_accent": "worth keeping",
+      "blurb": "I take portrait sessions and automotive commissions. Tell me what you have in mind.",
+      "email": "hello@macharness.studio",
+      "follow_title": "Follow"
+    }
+  ],
+  "footer_note": "© 2026 Mac Harness · Photographer since 2024"
 }
