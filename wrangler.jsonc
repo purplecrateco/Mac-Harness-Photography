@@ -5,15 +5,14 @@
 // the dashboard. Note the consequence: once this key is present, a deploy uses THIS file
 // as production config, so it has to stay production-ready.
 //
-// `nodejs_compat` is not optional. SvelteKit's server entry imports `node:async_hooks`
-// (via @sveltejs/kit's internal event module), and without the flag the Worker bundle
-// resolves it to nothing and can throw at runtime. `wrangler pages dev` warns about
-// exactly this. Keeping it here rather than in the dashboard means it survives a project
-// being recreated.
+// The site is fully static: Eleventy writes plain HTML, there is no functions/ directory
+// and no _worker.js, so Pages serves the output without running a Worker at all. That is
+// why there are no compatibility_flags here — nodejs_compat was needed only for
+// SvelteKit's server entry, which imported node:async_hooks. Add the flag back if a
+// Pages Function is ever introduced.
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "mac-harness",
-	"pages_build_output_dir": ".svelte-kit/cloudflare",
-	"compatibility_date": "2026-07-31",
-	"compatibility_flags": ["nodejs_compat"]
+	"pages_build_output_dir": "_site",
+	"compatibility_date": "2026-07-31"
 }
