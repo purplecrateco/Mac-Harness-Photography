@@ -1,12 +1,7 @@
 node_modules
 
 # Output
-.output
-.vercel
-.netlify
 .wrangler
-/.svelte-kit
-/build
 
 # Local agent tooling (impeccable skill/agents/hooks, dev-server launch config).
 # Deliberately untracked: it's per-machine developer tooling, not part of the site,
@@ -26,10 +21,6 @@ Thumbs.db
 .env.*
 !.env.example
 !.env.test
-
-# Vite
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
 
 # raw camera files never ship to the browser; keep locally, do not track
 *.NEF
