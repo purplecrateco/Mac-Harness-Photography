@@ -6,7 +6,7 @@
 	"scripts": {
 		"assets": "node scripts/generate-assets.js",
 		"build": "vite build",
-		"build:11ty": "eleventy && npm run css:11ty",
+		"build:11ty": "eleventy && npm run css:11ty && npm run js:11ty",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:contrast": "node scripts/check-hero-contrast.cjs",
 		"check:masonry": "node scripts/check-masonry.mjs",
@@ -14,7 +14,8 @@
 		"css:11ty": "tailwindcss -i eleventy/css/tailwind.css -o _site/assets/app.css --minify",
 		"css:11ty:watch": "tailwindcss -i eleventy/css/tailwind.css -o _site/assets/app.css --watch",
 		"dev": "vite dev",
-		"dev:11ty": "run-p \"eleventy --serve\" css:11ty:watch",
+		"dev:11ty": "run-p \"eleventy --serve\" css:11ty:watch \"js:11ty -- --watch\"",
+		"js:11ty": "esbuild eleventy/assets/motion.js --bundle --splitting --format=esm --minify --target=es2022 --outdir=_site/assets",
 		"prepare": "svelte-kit sync || echo ''",
 		"preview": "vite preview"
 	},
@@ -30,6 +31,7 @@
 		"@tailwindcss/cli": "^4.3.3",
 		"@tailwindcss/vite": "^4.3.0",
 		"@types/node": "^25.9.2",
+		"esbuild": "^0.28.1",
 		"npm-run-all": "^4.1.5",
 		"sharp": "^0.35.3",
 		"svelte": "^5.55.2",

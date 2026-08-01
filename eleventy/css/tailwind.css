@@ -47,6 +47,29 @@
 	}
 }
 
+/* --- motion arming, from the routes' scoped <style> blocks ------------------------
+   Consolidated here because these were per-route :global() rules and Nunjucks has no
+   scoping. app.css already arms [data-load] and the hero-* hooks; these add the two
+   collection selectors and the gsap-ready overrides.
+
+   `.gsap-ready .reveal { animation: none }` is what stops the CSS entrance fade from
+   fighting GSAP once it owns the element. `.gsap-ready .masonry { opacity: 1 }` is
+   load-bearing on /gallery: the masonry fades itself in via its own .ready class, but
+   when GSAP drives the tiles instead, that fade must not also apply or the stage stays
+   at opacity 0. */
+.gsap-ready .reveal {
+	animation: none;
+}
+.gsap-ready .masonry {
+	opacity: 1 !important;
+}
+.motion-armed [data-load],
+.motion-armed .mtile,
+.motion-armed [data-anim='row'] {
+	opacity: 0;
+	animation: none;
+}
+
 /* --- masonry gallery, from MasonryGallery.svelte's scoped styles ------------------ */
 .masonry {
 	position: relative;

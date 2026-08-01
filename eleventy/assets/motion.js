@@ -1,11 +1,10 @@
-/* Client behaviour that was reactive state in Svelte components.
+/* Client behaviour that was reactive state in Svelte components, plus the entry point for
+ * the GSAP entrance/scroll motion.
  *
- * GSAP entrance/scroll animations are NOT here yet — that's the remaining half of the
- * motion port. What matters for correctness right now is the disarm below: app.html adds
- * .motion-armed before first paint to hide anything GSAP will animate in, and something
- * has to take it off. The inline script's 4s timeout is only a failsafe, not the path.
+ * Bundled by esbuild (the `js:11ty` script) because animate.js imports gsap.
  */
 import { initMasonry } from './masonry.js';
+import { initAnimations } from './animate.js';
 
 /** Smooth-scroll to an element by id, offsetting for the fixed nav bar. */
 function scrollToId(id) {
@@ -17,10 +16,6 @@ function scrollToId(id) {
 	});
 	return true;
 }
-
-/* Release the arming class. Motion code owns the elements from here; until the GSAP port
-   lands there is nothing to hand over to, so this simply reveals them. */
-document.documentElement.classList.remove('motion-armed');
 
 /* NavBar `scrolled` state. Was $effect + $state; the classes are the same two sets the
    component toggled between. */
@@ -80,6 +75,12 @@ if (dialog && openBtn) {
 	});
 }
 
+/* Layout first, then reveal. The masonry has to commit its geometry before GSAP fades the
+   tiles in, or the batch reveal animates tiles that are still stacked at 0x0.
+
+   initAnimations() owns releasing .motion-armed: it disarms only after the `from` tweens
+   have applied their start states, so nothing flashes at its final position. Do not disarm
+   here as well. */
 const masonry = document.querySelector('.masonry');
 if (masonry) initMasonry(masonry);
 
@@ -88,3 +89,5 @@ if (projects) {
 	const { initProjectsTable } = await import('./projects-table.js');
 	initProjectsTable(projects);
 }
+
+initAnimations();
