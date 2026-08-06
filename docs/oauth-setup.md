@@ -103,7 +103,7 @@ Cloudflare dashboard → `sveltia-cms-auth` → **Settings** → **Variables**. 
 | --- | --- |
 | `GITHUB_CLIENT_ID` | Client ID from Step 2 |
 | `GITHUB_CLIENT_SECRET` | Client Secret from Step 2 — **click Encrypt** |
-| `ALLOWED_DOMAINS` | your site's hostname, e.g. `macharness.com, *.macharness.com` |
+| `ALLOWED_DOMAINS` | your site's hostname, e.g. `harnessphotos.com, *.harnessphotos.com` |
 
 Save and deploy.
 
